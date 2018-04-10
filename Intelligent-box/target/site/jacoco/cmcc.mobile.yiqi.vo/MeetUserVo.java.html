@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MeetUserVo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.vo</a> &gt; <span class="el_source">MeetUserVo.java</span></div><h1>MeetUserVo.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.vo;
+
+public class MeetUserVo {
+	private Long id;
+private String name;
+private Integer status;
+private Integer isRead;
+private Long meetingOften;
+private String mobileNo;
+private Integer sex;
+private String meetingNote;
+
+public MeetUserVo(Long id, String name, Integer status, Integer isRead, Long meetingOften, String mobileNo,
+		Integer sex,String meetingNote) {
+<span class="nc" id="L15">	super();</span>
+<span class="nc" id="L16">	this.id = id;</span>
+<span class="nc" id="L17">	this.name = name;</span>
+<span class="nc" id="L18">	this.status = status;</span>
+<span class="nc" id="L19">	this.isRead = isRead;</span>
+<span class="nc" id="L20">	this.meetingOften = meetingOften;</span>
+<span class="nc" id="L21">	this.mobileNo = mobileNo;</span>
+<span class="nc" id="L22">	this.sex = sex;</span>
+<span class="nc" id="L23">	this.meetingNote = meetingNote;</span>
+<span class="nc" id="L24">}</span>
+
+public String getMeetingNote() {
+<span class="nc" id="L27">	return meetingNote;</span>
+}
+
+public void setMeetingNote(String meetingNote) {
+<span class="nc" id="L31">	this.meetingNote = meetingNote;</span>
+<span class="nc" id="L32">}</span>
+
+public Integer getSex() {
+<span class="nc" id="L35">	return sex;</span>
+}
+public void setSex(Integer sex) {
+<span class="nc" id="L38">	this.sex = sex;</span>
+<span class="nc" id="L39">}</span>
+public String getMobileNo() {
+<span class="nc" id="L41">	return mobileNo;</span>
+}
+public void setMobileNo(String mobileNo) {
+<span class="nc" id="L44">	this.mobileNo = mobileNo;</span>
+<span class="nc" id="L45">}</span>
+public Long getId() {
+<span class="nc" id="L47">	return id;</span>
+}
+public void setId(Long id) {
+<span class="nc" id="L50">	this.id = id;</span>
+<span class="nc" id="L51">}</span>
+public String getName() {
+<span class="nc" id="L53">	return name;</span>
+}
+public void setName(String name) {
+<span class="nc" id="L56">	this.name = name;</span>
+<span class="nc" id="L57">}</span>
+public Integer getStatus() {
+<span class="nc" id="L59">	return status;</span>
+}
+public void setStatus(Integer status) {
+<span class="nc" id="L62">	this.status = status;</span>
+<span class="nc" id="L63">}</span>
+public Integer getIsRead() {
+<span class="nc" id="L65">	return isRead;</span>
+}
+public void setIsRead(Integer isRead) {
+<span class="nc" id="L68">	this.isRead = isRead;</span>
+<span class="nc" id="L69">}</span>
+public Long getMeetingOften() {
+<span class="nc" id="L71">	return meetingOften;</span>
+}
+public void setMeetingOften(Long meetingOften) {
+<span class="nc" id="L74">	this.meetingOften = meetingOften;</span>
+<span class="nc" id="L75">}</span>
+
+
+public MeetUserVo() {
+<span class="nc" id="L79">	super();</span>
+<span class="nc" id="L80">}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

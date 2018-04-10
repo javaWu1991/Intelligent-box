@@ -1,0 +1,785 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SystemUserController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.controller</a> &gt; <span class="el_source">SystemUserController.java</span></div><h1>SystemUserController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.controller;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import cmcc.mobile.yiqi.base.BaseController;
+import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.entity.SysUseRole;
+import cmcc.mobile.yiqi.entity.TAppCompany;
+import cmcc.mobile.yiqi.entity.TAppOrganization;
+import cmcc.mobile.yiqi.entity.TAppUpdateLog;
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.TAppUserCompany;
+import cmcc.mobile.yiqi.entity.dao.TAppCompanyMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUpdateLogMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserCompanyMapper;
+import cmcc.mobile.yiqi.utils.CheckoutUtil;
+import cmcc.mobile.yiqi.utils.FileUpload;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.RandomUtil;
+import cmcc.mobile.yiqi.vo.AppOrganizationVo;
+import cmcc.mobile.yiqi.vo.AppUserVo;
+import cmcc.mobile.yiqi.vo.PageVo;
+import cmcc.mobile.yiqi.vo.RegisterCompanyVo;
+import cmcc.mobile.yiqi.web.service.IAppOrganizationService;
+import cmcc.mobile.yiqi.web.service.IAppUserServices;
+import cmcc.mobile.yiqi.web.service.IAuthorityService;
+import cmcc.mobile.yiqi.web.service.ICompanyService;
+import cmcc.mobile.yiqi.web.service.TAppAreaService;
+
+/**
+ * 
+ * @author zhangxs
+ *
+ */
+@Controller
+@RequestMapping(&quot;/web/system&quot;)
+<span class="nc" id="L61">public class SystemUserController extends BaseController {</span>
+
+	@Autowired
+	private IAppUserServices appUserService;
+
+	@Autowired
+	private IAppOrganizationService appOrganizationService;
+
+	@Autowired
+	private ICompanyService companyService;
+
+	@Autowired
+	private TAppAreaService AreaService;
+
+	@Autowired
+	private IAppUserServices userServices;
+
+	@Autowired
+	private TAppUserCompanyMapper appUserCompanyMapper;
+
+	@Autowired
+	private TAppCompanyMapper tAppCompanyMapper;
+
+	@Autowired
+	private IAuthorityService authorityService;
+
+	@Autowired
+	private TAppUpdateLogMapper updateLogMapper;
+
+	/***
+	 * 通过手机号获取用户名
+	 * 
+	 * @param account
+	 * @return
+	 */
+	@RequestMapping(&quot;/getNameByAccount&quot;)
+	@ResponseBody
+	public JsonResult getNameByAccount(String account) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(account)) {</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">			if (CheckoutUtil.checkMobile(account)) {</span>
+<span class="nc" id="L101">				TAppUser user = userServices.selectByAccount(account);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">				if (null != user) {</span>
+<span class="nc" id="L103">					return new JsonResult(true, &quot;&quot;, user.getName());</span>
+				}
+<span class="nc" id="L105">				return new JsonResult(true, &quot;&quot;, &quot;&quot;);</span>
+			}
+<span class="nc" id="L107">			return new JsonResult(false, &quot;手机号码格式错误！&quot;, &quot;&quot;);</span>
+		}
+<span class="nc" id="L109">		return new JsonResult(false, &quot;请填写手机号！&quot;, &quot;&quot;);</span>
+	}
+
+	/**
+	 * 设置企业管理员
+	 * 
+	 * @param cid
+	 * @param account
+	 * @return
+	 */
+	@RequestMapping(&quot;setCustomerManager&quot;)
+	@ResponseBody
+	public JsonResult setCustomerManager(Long cid, Long account) {
+<span class="nc" id="L122">		int i = tAppCompanyMapper.setCustomerManager(cid, account);</span>
+<span class="nc" id="L123">		TAppUserCompany company = appUserCompanyMapper.selectByUIDCID(account.toString(), cid);</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		if (null != company) {</span>
+<span class="nc" id="L125">			authorityService.deleteUserRoleByUidCidRid(SysUseRole.CUSTOMER_MANAGER.toString(), Integer.valueOf(cid.toString()),</span>
+					Integer.valueOf(userServices.selectByAccount(account.toString()).getId().toString()));
+<span class="nc" id="L127">			authorityService.addUserRole(new SysUseRole(Integer.valueOf(userServices.selectByAccount(account.toString()).getId().toString()),</span>
+					Integer.valueOf(cid.toString()), SysUseRole.CUSTOMER_MANAGER));
+<span class="nc bnc" id="L129" title="All 2 branches missed.">			return new JsonResult(i == 1 ? true : false, &quot;&quot;, null);</span>
+		}
+<span class="nc" id="L131">		return new JsonResult(false, &quot;关联数据查询失败！&quot;, null);</span>
+	}
+
+	@RequestMapping(&quot;deleteCustomerManager&quot;)
+	@ResponseBody
+	public JsonResult deleteCustomerManager(Long cid) {
+<span class="nc" id="L137">		int i = tAppCompanyMapper.deleteCustomerManager(cid);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">		return new JsonResult(i == 1 ? true : false, &quot;&quot;, null);</span>
+	}
+
+	/**
+	 * web注册企业
+	 * 
+	 * @param vo
+	 * @return
+	 */
+	@RequestMapping(&quot;/register&quot;)
+	@ResponseBody
+	public JsonResult register(RegisterCompanyVo vo) {
+<span class="nc" id="L150">		JsonResult result = checkValiCode(vo.getMobile(), vo.getSmsTime(), vo.getCode(), vo.getValiCode());</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		if (result.getSuccess()) {</span>
+			/**
+			 * 校验手机号码是否注册过公司
+			 */
+<span class="nc" id="L155">			int count = appUserService.selectCompanyByAccount(vo.getMobile());</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">			if (count &gt; 0) {</span>
+<span class="nc" id="L157">				return new JsonResult(false, &quot;该账号已注册企业，请直接登陆！&quot;, null);</span>
+			}
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">			if (StringUtils.isEmpty(vo.getName())) {</span>
+<span class="nc" id="L161">				return new JsonResult(false, &quot;请输入管理员姓名！&quot;, null);</span>
+			}
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">			if (StringUtils.isEmpty(vo.getCompanyName())) {</span>
+<span class="nc" id="L165">				return new JsonResult(false, &quot;请输入公司名称！&quot;, null);</span>
+			}
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (StringUtils.isEmpty(vo.getPassword())) {</span>
+<span class="nc" id="L169">				return new JsonResult(false, &quot;请输入密码！&quot;, null);</span>
+			}
+
+<span class="nc bnc" id="L172" title="All 2 branches missed.">			if (StringUtils.isEmpty(vo.getEmail())) {</span>
+<span class="nc" id="L173">				return new JsonResult(false, &quot;请输入邮箱！&quot;, null);</span>
+			}
+
+<span class="nc bnc" id="L176" title="All 6 branches missed.">			if (StringUtils.isEmpty(vo.getProvinceId()) || StringUtils.isEmpty(vo.getCityId()) || StringUtils.isEmpty(vo.getAreaId())) {</span>
+<span class="nc" id="L177">				return new JsonResult(false, &quot;请选择省市区！&quot;, null);</span>
+			}
+			/**
+			 * isAdminRegister true 表示注册账号可以在本地库存在
+			 */
+<span class="nc" id="L182">			result = appUserService.apiRegister(vo.getName(), vo.getMobile(), vo.getPassword(), null, true);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if (result.getSuccess()) {</span>
+<span class="nc" id="L184">				TAppUser user = (TAppUser) result.getModel();</span>
+<span class="nc" id="L185">				return appUserService.webRegister(vo, user);</span>
+			}
+		}
+<span class="nc" id="L188">		return result;</span>
+	}
+
+	/**
+	 * 批量导入数据
+	 * 
+	 * @param cid
+	 * @param excel
+	 * @return
+	 */
+	@RequestMapping(&quot;/importExcel&quot;)
+	@ResponseBody
+	public JsonResult importExcel(String cid, MultipartFile excel, HttpServletRequest request, HttpServletResponse response) {
+<span class="nc" id="L201">		return appUserService.importExcel(cid, excel, request, response, false, false, null);</span>
+	}
+
+	/**
+	 * 导出通讯录
+	 * 
+	 * @param cid
+	 * @param excel
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(&quot;/exportExcel&quot;)
+	public void importExcel(String cid, HttpServletRequest request, HttpServletResponse response) {
+<span class="nc" id="L215">		appUserService.export(cid, true, request, response);</span>
+<span class="nc" id="L216">	}</span>
+
+	/**
+	 * 新增部门信息
+	 * 
+	 * @param cid
+	 * @param orgId
+	 * @param vo
+	 * @return
+	 */
+	@RequestMapping(&quot;/addOrUpdateOrg&quot;)
+	@ResponseBody
+	public JsonResult addOrg(AppOrganizationVo vo) {
+<span class="nc" id="L229">		return appOrganizationService.insertOrUpdate(vo);</span>
+	}
+
+	/**
+	 * 删除部门
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(&quot;/deleteOrg&quot;)
+	@ResponseBody
+	public JsonResult deleteOrganization(String id) {
+<span class="nc" id="L241">		return appOrganizationService.deleteByPrimaryKey(Long.parseLong(id));</span>
+	}
+
+	/**
+	 * 获取所有部门
+	 * 
+	 * @param request
+	 * @param orgId
+	 * @return
+	 */
+	@RequestMapping(&quot;/orgs&quot;)
+	@ResponseBody
+	public JsonResult getOrgsByCompany(HttpServletRequest request, String orgId) {
+<span class="nc" id="L254">		String companyId = (String) request.getSession().getAttribute(&quot;companyId&quot;);</span>
+<span class="nc" id="L255">		List&lt;TAppOrganization&gt; list = appUserService.selectOrgByCidAndHigherId(Long.parseLong(companyId), orgId);</span>
+<span class="nc" id="L256">		return new JsonResult(true, &quot;&quot;, list);</span>
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	@RequestMapping(&quot;/getAllOrgsByCompany&quot;)
+	@ResponseBody
+	public JsonResult getAllOrgsByCompany(HttpServletRequest request) {
+<span class="nc" id="L266">		String companyId = (String) request.getSession().getAttribute(&quot;companyId&quot;);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(companyId)) {</span>
+<span class="nc" id="L268">			List&lt;AppOrganizationVo&gt; list = appOrganizationService.selectAllOrganization(Long.parseLong(companyId));</span>
+<span class="nc" id="L269">			return new JsonResult(true, &quot;&quot;, list);</span>
+		}
+<span class="nc" id="L271">		return new JsonResult(false, &quot;登陆失效！&quot;, null);</span>
+	}
+
+	/**
+	 * 获取部门下人员
+	 * 
+	 * @param request
+	 * @param orgId
+	 * @return
+	 */
+	@RequestMapping(&quot;/users&quot;)
+	@ResponseBody
+	public JsonResult getUsersByOrgs(HttpServletRequest request, AppUserVo vo) {
+<span class="nc" id="L284">		String companyId = (String) request.getSession().getAttribute(&quot;companyId&quot;);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(companyId)) {</span>
+<span class="nc" id="L286">			vo.setCid(Long.parseLong(companyId));</span>
+<span class="nc" id="L287">			return appUserService.selectAllByOrgId(vo);</span>
+		}
+<span class="nc" id="L289">		return new JsonResult(false, &quot;登陆失效！&quot;, null);</span>
+	}
+
+	/**
+	 * 获取部门下子部门及员工
+	 * 
+	 * @param request
+	 * @param vo
+	 * @return
+	 */
+	@RequestMapping(&quot;/usersByOrgs&quot;)
+	@ResponseBody
+	public JsonResult getUsersByOrgId(HttpServletRequest request, AppUserVo vo) {
+<span class="nc" id="L302">		String companyId = (String) request.getSession().getAttribute(&quot;companyId&quot;);</span>
+<span class="nc" id="L303">		List&lt;TAppOrganization&gt; list = appUserService.selectOrgByCidAndHigherId(Long.parseLong(companyId), vo.getOrgId().toString());</span>
+<span class="nc" id="L304">		List&lt;AppOrganizationVo&gt; vos = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">		for (TAppOrganization tAppOrganization : list) {</span>
+<span class="nc" id="L306">			AppOrganizationVo oVo = new AppOrganizationVo();</span>
+<span class="nc" id="L307">			BeanUtils.copyProperties(tAppOrganization, oVo);</span>
+<span class="nc" id="L308">			vos.add(oVo);</span>
+<span class="nc" id="L309">		}</span>
+<span class="nc" id="L310">		List&lt;TAppUser&gt; list2 = appUserService.selectUsersByOrgId(vo.getOrgId());</span>
+<span class="nc" id="L311">		AppOrganizationVo resu = new AppOrganizationVo();</span>
+<span class="nc" id="L312">		resu.setOrgs(vos);</span>
+<span class="nc" id="L313">		resu.setUsers(list2);</span>
+<span class="nc" id="L314">		return new JsonResult(true, &quot;&quot;, resu);</span>
+	}
+
+	/* 部门下人员信息管理 */
+	/**
+	 * 新增用户
+	 * 
+	 * @param co
+	 * @return
+	 */
+	@RequestMapping(&quot;/saveUser&quot;)
+	@ResponseBody
+	public JsonResult saveOrUpdateUser(AppUserVo vo, HttpServletRequest request) {
+<span class="nc" id="L327">		TAppUser user = appUserService.selectByAccount(vo.getMobile());</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">		if (null != user) {</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">			if (!user.getName().equals(vo.getName())) {</span>
+<span class="nc" id="L330">				return new JsonResult(false, &quot;已存在&lt;&quot; + user.getAccount() + &quot;&gt;账号用户名【&quot; + user.getName() + &quot;】与【&quot; + vo.getName() + &quot;】不相符！&quot;, null);</span>
+			}
+		}
+<span class="nc" id="L333">		vo.setPassword(vo.getMobile());</span>
+<span class="nc" id="L334">		return appUserService.insertSelective(vo, false, request);</span>
+	}
+
+	/**
+	 * 删除部门用户
+	 * 
+	 * @param orgId
+	 *            部门id
+	 * @param id
+	 *            用户id
+	 * @return
+	 */
+	@RequestMapping(&quot;/deleteOrgUser&quot;)
+	@ResponseBody
+	public JsonResult deleteOrgUser(String orgId, String id) {
+<span class="nc" id="L349">		return appUserService.deleteOrgUser(orgId, id);</span>
+	}
+
+	/**
+	 * 公司id ： cid 真实姓名 ：name 联系电话 ：mobile
+	 * 
+	 * @param userVo
+	 * @return
+	 */
+	@RequestMapping(&quot;/list&quot;)
+	@ResponseBody
+	public JsonResult adminList(AppUserVo userVo) {
+<span class="nc" id="L361">		JsonResult result = appUserService.selectAllByParams(userVo);</span>
+<span class="nc" id="L362">		return result;</span>
+	}
+
+	/**
+	 * 
+	 * 获取区域管理员
+	 * 
+	 * @param userVo
+	 * @return
+	 */
+	@RequestMapping(&quot;/listarea&quot;)
+	@ResponseBody
+	public JsonResult listarea(AppUserVo userVo) {
+<span class="nc" id="L375">		JsonResult result = appUserService.selectAllByParam(userVo);</span>
+<span class="nc" id="L376">		return result;</span>
+	}
+
+	/**
+	 * 新增管理员信息
+	 * 
+	 * @param userVo
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/add&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult saveAdmin(AppUserVo userVo, HttpServletRequest request) {
+<span class="nc" id="L388">		HttpSession session = request.getSession() ;</span>
+<span class="nc" id="L389">		long corpId = Long.valueOf(session.getAttribute(&quot;companyId&quot;).toString()) ;</span>
+		// 客户经理、企业管理员
+<span class="nc bnc" id="L391" title="All 4 branches missed.">		if (null != userVo &amp;&amp; null == userVo.getAreaid()) {</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">			if(userVo.getCid()==null){</span>
+<span class="nc" id="L393">				userVo.setCid(corpId);</span>
+			}
+<span class="nc" id="L395">			return appUserService.insertSelective(userVo, true, request);</span>
+		}
+		// 区域经理
+<span class="nc bnc" id="L398" title="All 4 branches missed.">		if (null != userVo &amp;&amp; null != userVo.getProvinceid()) {</span>
+<span class="nc" id="L399">			return appUserService.insertSelectiveAreaManager(userVo, true, request);</span>
+		}
+<span class="nc" id="L401">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 获取管理员信息
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/{id}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult getAdmin(@PathVariable String id) {
+<span class="nc bnc" id="L413" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(id)) {</span>
+<span class="nc" id="L414">			TAppUser user = appUserService.selectByPrimaryKey(Long.parseLong(id));</span>
+<span class="nc bnc" id="L415" title="All 4 branches missed.">			if (null != user &amp;&amp; user.getStatus() == 1) {</span>
+<span class="nc" id="L416">				user.setPassword(&quot;&quot;);</span>
+<span class="nc" id="L417">				return new JsonResult(true, &quot;&quot;, user);</span>
+			} else {
+<span class="nc" id="L419">				return new JsonResult(false, &quot;该用户已被停用！&quot;, null);</span>
+			}
+		}
+<span class="nc" id="L422">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 修改
+	 * 
+	 * @param id
+	 * @param userVo
+	 * @return
+	 */
+	@RequestMapping(&quot;/updateAdmin&quot;)
+	@ResponseBody
+	public JsonResult updateAdmin(AppUserVo userVo) {
+<span class="nc" id="L435">		appUserService.updateByPrimaryKeySelective(userVo);</span>
+<span class="nc" id="L436">		return new JsonResult(true, &quot;信息修改成功！&quot;, null);</span>
+	}
+
+	/**
+	 * 修改密码接口
+	 * 
+	 * @param id
+	 * @param oldPass
+	 * @param newPass
+	 * @return
+	 */
+	@RequestMapping(&quot;/updatePassword&quot;)
+	@ResponseBody
+	public JsonResult updatePassword(String id, String oldPass, String newPass) {
+		// MD5Encoder.encode(arg0)
+<span class="nc bnc" id="L451" title="All 6 branches missed.">		if (StringUtils.isNotEmpty(id) &amp;&amp; StringUtils.isNotEmpty(oldPass) &amp;&amp; StringUtils.isNotEmpty(newPass)) {</span>
+<span class="nc" id="L452">			TAppUser user = appUserService.selectByPrimaryKey(Long.parseLong(id));</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc bnc" id="L454" title="All 2 branches missed.">				if (RandomUtil.MD5(oldPass).equals(user.getPassword())) {</span>
+<span class="nc" id="L455">					user.setPassword(newPass);</span>
+<span class="nc" id="L456">					appUserService.updateByPrimaryKeySelective(user);</span>
+<span class="nc" id="L457">					return new JsonResult(true, &quot;密码修改成功！&quot;, &quot;&quot;);</span>
+				}
+<span class="nc" id="L459">				return new JsonResult(false, &quot;密码校验错误！请重新输入&quot;, null);</span>
+			}
+<span class="nc" id="L461">			return new JsonResult(false, &quot;查询用户不存在！&quot;, null);</span>
+		}
+<span class="nc" id="L463">		return new JsonResult(false, &quot;参数缺失！&quot;, null);</span>
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @param oldPass
+	 * @param newPass
+	 * @return
+	 */
+	@RequestMapping(&quot;/updatePasswordBycode&quot;)
+	@ResponseBody
+	public JsonResult updatePassword(String account, String pass, String smsTime, String code, String valiCode) {
+<span class="nc" id="L476">		Boolean isTrue = CheckoutUtil.checkMobile(account);</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">		if (!isTrue) {</span>
+<span class="nc" id="L478">			return new JsonResult(false, &quot;&quot;, null);</span>
+		}
+
+<span class="nc" id="L481">		JsonResult result = checkValiCode(account, smsTime, code, valiCode);</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">		if (!result.getSuccess()) {</span>
+<span class="nc" id="L483">			return result;</span>
+		}
+
+<span class="nc bnc" id="L486" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(pass)) {</span>
+<span class="nc" id="L487">			TAppUser user = appUserService.selectByAccount(account);</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">				if (user.getStatus() == Constants.USER_CAN_USE) {</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">					if (RandomUtil.MD5(pass).equals(user.getPassword())) {</span>
+<span class="nc" id="L491">						return new JsonResult(false, &quot;您的密码未修改！&quot;, null);</span>
+					}
+<span class="nc" id="L493">					user.setPassword(pass);</span>
+<span class="nc" id="L494">					user.setUpdateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L495">					userServices.updateByPrimaryKeySelective(user);</span>
+<span class="nc" id="L496">					return new JsonResult(true, &quot;密码已重置！&quot;, null);</span>
+				}
+<span class="nc" id="L498">				return new JsonResult(false, &quot;账户状态异常，禁止重置密码！&quot;, null);</span>
+			}
+<span class="nc" id="L500">			return new JsonResult(false, &quot;查询用户不存在！&quot;, null);</span>
+		}
+<span class="nc" id="L502">		return new JsonResult(false, &quot;参数缺失！&quot;, null);</span>
+	}
+
+	/**
+	 * 重置密码
+	 * 
+	 * @param account
+	 */
+	@RequestMapping(&quot;/resetPassword&quot;)
+	@ResponseBody
+	public JsonResult resetPassword(String account) {
+<span class="nc bnc" id="L513" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(account)) {</span>
+<span class="nc" id="L514">			return appUserService.resetPassword(account);</span>
+		}
+<span class="nc" id="L516">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 停用启用
+	 * 
+	 * @param id
+	 *            用户id
+	 * @param cid
+	 *            公司id
+	 * @param status
+	 *            当前状态
+	 * @return
+	 */
+	@RequestMapping(&quot;/updateStatus&quot;)
+	@ResponseBody
+	public JsonResult updateAdminStatus(String account, String cid, int status) {
+<span class="nc" id="L533">		return appUserService.updateAdminStatus(account, cid, status);</span>
+	}
+
+	@RequestMapping(&quot;/delete&quot;)
+	@ResponseBody
+	public JsonResult deleteUserCompany(String account, String cid, String id, String rid) {
+<span class="nc" id="L539">		return appUserService.deleteUserCompany(account, cid, id, rid);</span>
+	}
+
+	/**
+	 * 置顶
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(&quot;/toTop&quot;)
+	@ResponseBody
+	public JsonResult toTop(String id, String orgId, Integer sort) {
+
+<span class="nc" id="L552">		return appUserService.toTop(id, orgId, sort);</span>
+	}
+
+	/**
+	 * 设置公司通讯录是否隐藏部门领导信息
+	 * 
+	 * @param cid
+	 * @param status
+	 * @return
+	 */
+	@RequestMapping(&quot;/setCompanyIsHide&quot;)
+	@ResponseBody
+	public JsonResult setCompanyIsHide(String cid, int status, HttpServletRequest request) {
+<span class="nc" id="L565">		return appUserService.setCompanyIsHide(cid, status, request);</span>
+	}
+
+	/**
+	 * 修改区域管理员
+	 */
+	@RequestMapping(&quot;/editareaAdmin&quot;)
+	@ResponseBody
+	public JsonResult editareaAdmin(AppUserVo recond) {
+
+<span class="nc" id="L575">		return AreaService.updateCompany(recond);</span>
+	}
+
+	/**
+	 * 删除区域管理员
+	 */
+	@RequestMapping(&quot;/deleteArea&quot;)
+	@ResponseBody
+	public JsonResult deteleArea(String tid, String uid, String rid) {
+
+<span class="nc" id="L585">		return AreaService.deleteArea(tid, uid, rid);</span>
+	}
+
+	// 停用 禁用
+	@RequestMapping(&quot;/updateAreaStatus&quot;)
+	@ResponseBody
+	public JsonResult updateAreaStatus(String tid, int status) {
+
+<span class="nc" id="L593">		return AreaService.updateAreaStatus(tid, status);</span>
+	}
+
+	/**
+	 * 页面
+	 */
+	// @RequiresPermissions(value = { &quot;admin&quot; })
+	@RequestMapping(&quot;/customManager&quot;)
+	public ModelAndView admin(String cid) {
+<span class="nc" id="L602">		ModelAndView view = new ModelAndView(&quot;system/customManager&quot;);</span>
+<span class="nc" id="L603">		return view;</span>
+	}
+
+	// @RequiresPermissions(value = { &quot;admin&quot; })
+	@RequestMapping(&quot;/areaAdmin&quot;)
+	public ModelAndView areaAdmin(String cid) {
+<span class="nc" id="L609">		ModelAndView view = new ModelAndView(&quot;system/areaAdmin&quot;);</span>
+<span class="nc" id="L610">		return view;</span>
+	}
+
+	@RequestMapping(&quot;/companyAdmin&quot;)
+	public ModelAndView companyAdmin(String cid) {
+<span class="nc" id="L615">		ModelAndView view = new ModelAndView(&quot;system/companyAdmin&quot;);</span>
+<span class="nc bnc" id="L616" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(cid)) {</span>
+<span class="nc" id="L617">			TAppCompany company = companyService.selectByPrimaryKey(Long.parseLong(cid));</span>
+<span class="nc" id="L618">			view.addObject(&quot;company&quot;, company);</span>
+		}
+<span class="nc" id="L620">		return view;</span>
+	}
+
+	@RequestMapping(&quot;/profile&quot;)
+	public ModelAndView profile(HttpServletRequest request) {
+<span class="nc" id="L625">		HttpSession session = request.getSession();</span>
+<span class="nc" id="L626">		String uid = session.getAttribute(&quot;userId&quot;).toString();</span>
+<span class="nc" id="L627">		TAppUser user = userServices.selectByPrimaryKey(Long.parseLong(uid));</span>
+<span class="nc" id="L628">		ModelAndView view = new ModelAndView(&quot;system/profile&quot;);</span>
+<span class="nc" id="L629">		view.addObject(&quot;currentUser&quot;, user);</span>
+<span class="nc" id="L630">		return view;</span>
+	}
+
+	@RequestMapping(&quot;/password&quot;)
+	public ModelAndView password() {
+<span class="nc" id="L635">		ModelAndView view = new ModelAndView(&quot;system/password&quot;);</span>
+<span class="nc" id="L636">		return view;</span>
+	}
+
+//	// @RequiresPermissions(&quot;report&quot;)
+//	@RequestMapping(&quot;/report&quot;)
+//	public ModelAndView report() {
+//		ModelAndView view = new ModelAndView(&quot;system/report&quot;);
+//		try {
+//			InputStream in = new FileInputStream(new File(getClass().getClassLoader().getResource(&quot;message.properties&quot;).getFile()));
+//			Properties pps = new Properties();
+//			pps.load(in);
+//			String ADAUrl = pps.getProperty(&quot;ADAUrl&quot;);
+//			view.addObject(&quot;ADAUrl&quot;, ADAUrl);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return view;
+//	}
+
+	// @RequiresPermissions(&quot;contacts&quot;)
+	@RequestMapping(&quot;/contacts&quot;)
+	public ModelAndView contact() {
+<span class="nc" id="L658">		ModelAndView view = new ModelAndView(&quot;system/contacts&quot;);</span>
+<span class="nc" id="L659">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;pendingUser&quot;)
+	@RequestMapping(&quot;/pendingUser&quot;)
+	public ModelAndView pendingUser() {
+<span class="nc" id="L665">		ModelAndView view = new ModelAndView(&quot;system/pendingUser&quot;);</span>
+<span class="nc" id="L666">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;companyInfo&quot;)
+	@RequestMapping(&quot;/companyInfo&quot;)
+	public ModelAndView companyInfo() {
+<span class="nc" id="L672">		ModelAndView view = new ModelAndView(&quot;system/companyInfo&quot;);</span>
+<span class="nc" id="L673">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;area&quot;)
+	@RequestMapping(&quot;/area&quot;)
+	public ModelAndView area() {
+<span class="nc" id="L679">		ModelAndView view = new ModelAndView(&quot;system/area&quot;);</span>
+<span class="nc" id="L680">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;version&quot;)
+	@RequestMapping(&quot;/version&quot;)
+	public ModelAndView version() {
+<span class="nc" id="L686">		ModelAndView view = new ModelAndView(&quot;system/version&quot;);</span>
+<span class="nc" id="L687">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;service&quot;)
+	@RequestMapping(&quot;/service&quot;)
+	public ModelAndView service() {
+<span class="nc" id="L693">		ModelAndView view = new ModelAndView(&quot;system/service&quot;);</span>
+<span class="nc" id="L694">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;service&quot;)
+	@RequestMapping(&quot;/serverNumber&quot;)
+	public ModelAndView serverNumber() {
+<span class="nc" id="L700">		ModelAndView view = new ModelAndView(&quot;system/serverNumber&quot;);</span>
+<span class="nc" id="L701">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;service&quot;)
+	@RequestMapping(&quot;/externalService&quot;)
+	public ModelAndView externalService() {
+<span class="nc" id="L707">		ModelAndView view = new ModelAndView(&quot;system/externalService&quot;);</span>
+<span class="nc" id="L708">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;service&quot;)
+	@RequestMapping(&quot;/externalServerNumber&quot;)
+	public ModelAndView externalServerNumber() {
+<span class="nc" id="L714">		ModelAndView view = new ModelAndView(&quot;system/externalServerNumber&quot;);</span>
+<span class="nc" id="L715">		return view;</span>
+	}
+
+	// @RequiresPermissions(&quot;news&quot;)
+	@RequestMapping(&quot;/news&quot;)
+	public ModelAndView news() {
+<span class="nc" id="L721">		ModelAndView view = new ModelAndView(&quot;system/news&quot;);</span>
+<span class="nc" id="L722">		return view;</span>
+	}
+
+	@RequestMapping(&quot;/welcome&quot;)
+	public ModelAndView welcome() {
+<span class="nc" id="L727">		ModelAndView view = new ModelAndView(&quot;system/welcome&quot;);</span>
+<span class="nc" id="L728">		return view;</span>
+	}
+	@RequestMapping(&quot;/management&quot;)
+	public ModelAndView management() {
+<span class="nc" id="L732">		ModelAndView view = new ModelAndView(&quot;system/management&quot;);</span>
+<span class="nc" id="L733">		return view;</span>
+	}
+	@RequestMapping(&quot;/managementView&quot;)
+	public ModelAndView managementView() {
+<span class="nc" id="L737">		ModelAndView view = new ModelAndView(&quot;system/managementView&quot;);</span>
+<span class="nc" id="L738">		return view;</span>
+	}
+	@RequestMapping(&quot;/dubanManagement&quot;)
+	public ModelAndView dubanManagement() {
+<span class="nc" id="L742">		ModelAndView view = new ModelAndView(&quot;system/dubanManagement&quot;);</span>
+<span class="nc" id="L743">		return view;</span>
+	}
+	@RequestMapping(&quot;/dubanExport&quot;)
+	public ModelAndView dubanExport() {
+<span class="nc" id="L747">		ModelAndView view = new ModelAndView(&quot;system/dubanExport&quot;);</span>
+<span class="nc" id="L748">		return view;</span>
+	}
+	
+	@RequestMapping(&quot;/update&quot;)
+	public ModelAndView update() {
+<span class="nc" id="L753">		ModelAndView view = new ModelAndView(&quot;system/update&quot;);</span>
+<span class="nc" id="L754">		return view;</span>
+	}
+
+	public JsonResult checkValiCode(String account, String smsTime, String code, String valiCode) {
+<span class="nc bnc" id="L758" title="All 2 branches missed.">		if (StringUtils.isEmpty(smsTime)) {</span>
+<span class="nc" id="L759">			return new JsonResult(false, &quot;请传入验证码生成时间！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L761" title="All 2 branches missed.">		if (StringUtils.isEmpty(valiCode)) {</span>
+<span class="nc" id="L762">			return new JsonResult(false, &quot;请传入加密过的验证码！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L764" title="All 2 branches missed.">		if (StringUtils.isEmpty(code)) {</span>
+<span class="nc" id="L765">			return new JsonResult(false, &quot;请输入验证码！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L767" title="All 2 branches missed.">		if (code.trim().length() != 6) {</span>
+<span class="nc" id="L768">			return new JsonResult(false, &quot;请输入6位验证码！&quot;, null);</span>
+		}
+		/**
+//		 * 验证码校验
+//		 */
+//		Long minute = (System.currentTimeMillis() - Long.parseLong(smsTime)) / 1000;
+//
+//		if (minute.intValue() &gt; Integer.parseInt(smsVerificateDomain.getExpirationTime())) {
+//			return new JsonResult(false, &quot;验证码已失效！&quot;, null);
+//		}
+//		String encryptStr = SmMd5Encrypt.EncryptIndentifyingCode(account, String.valueOf(code), smsVerificateDomain.getSmsEncryptKey());
+//		if (encryptStr.equals(valiCode)) {
+//			return new JsonResult(true, &quot;&quot;, null);
+//		}
+<span class="nc" id="L782">		return new JsonResult(false, &quot;验证码错误！&quot;, null);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

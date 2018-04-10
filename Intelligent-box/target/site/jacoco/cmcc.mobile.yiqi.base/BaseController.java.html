@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.base</a> &gt; <span class="el_source">BaseController.java</span></div><h1>BaseController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.base;
+
+import java.io.FileNotFoundException;
+import java.net.ConnectException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException;
+
+import cmcc.mobile.yiqi.utils.JsonResult;
+
+/**
+ * 
+ * @author zhangxs
+ *
+ */
+@Controller
+<span class="nc" id="L28">public class BaseController {</span>
+	
+<span class="nc" id="L30">	private static Logger logger = Logger.getLogger(BaseController.class);</span>
+	/**
+	 * 全局异常处理
+	 * 
+	 * @return
+	 */
+	@ExceptionHandler(Exception.class)
+	@ResponseBody
+	public JsonResult ExceptionHandler(Exception exception, HttpServletResponse response) {
+<span class="nc" id="L39">		String message = &quot;&quot;;</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">		if (exception instanceof NumberFormatException) {</span>
+<span class="nc" id="L41">			message = &quot;参数类型错误！&quot;;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		} else if (exception instanceof NoSuchRequestHandlingMethodException) {// 404</span>
+<span class="nc" id="L43">			message = &quot;路径请求错误！&quot;;</span>
+<span class="nc bnc" id="L44" title="All 6 branches missed.">		} else if (exception instanceof MissingServletRequestParameterException </span>
+				|| exception instanceof TypeMismatchException
+				|| exception instanceof HttpMessageNotReadableException) { // 400
+<span class="nc" id="L47">			message = &quot;接口请求错误(参数类型不匹配或参数缺失)！&quot;;</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		} else if (exception instanceof NoSuchAlgorithmException) {</span>
+<span class="nc" id="L49">			message = &quot;短信网关异常！&quot;;</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		} else if (exception instanceof BindException) {</span>
+<span class="nc" id="L51">			message = &quot;参数绑定错误！&quot;;</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		} else if (exception instanceof NullPointerException) {</span>
+<span class="nc" id="L53">			message = &quot;参数不可为空！&quot;;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		} else if (exception instanceof FileNotFoundException) {</span>
+<span class="nc" id="L55">			message = &quot;所选文件不存在！&quot;;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		} else if (exception instanceof RuntimeException) {</span>
+<span class="nc" id="L57">			message = &quot;内部错误！&quot;;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		} else if (exception instanceof ConnectException) {</span>
+<span class="nc" id="L59">			message = &quot;请求连接错误！&quot;;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		} else if (exception instanceof MaxUploadSizeExceededException) {</span>
+<span class="nc" id="L61">			Long size = (((MaxUploadSizeExceededException) exception).getMaxUploadSize()) / 1024;</span>
+<span class="nc" id="L62">			message = &quot;上传文件大小应小于&quot; + size + &quot;KB（&quot; + size / 1024 + &quot;MB）&quot;;</span>
+<span class="nc" id="L63">		} else {</span>
+<span class="nc" id="L64">			message = &quot;系统错误！&quot;;</span>
+		}
+<span class="nc" id="L66">		logger.error(&quot;CQOA-Server &quot; + message + &quot; -trycatch- :&quot; + exception.getMessage() + &quot;\n&quot;);</span>
+<span class="nc" id="L67">		exception.printStackTrace();</span>
+<span class="nc" id="L68">		return new JsonResult(false, message + &quot;   错误原因：&quot; + exception.getMessage(), null);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

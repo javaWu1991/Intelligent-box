@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AuthorityController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.controller</a> &gt; <span class="el_source">AuthorityController.java</span></div><h1>AuthorityController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import cmcc.mobile.yiqi.entity.SysRole;
+import cmcc.mobile.yiqi.entity.SysUseRole;
+import cmcc.mobile.yiqi.utils.CheckoutUtil;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.web.service.IAuthorityService;
+
+@Controller
+@RequestMapping(&quot;/web/authority&quot;)
+<span class="nc" id="L19">public class AuthorityController {</span>
+	@Autowired
+	private IAuthorityService authorityService;
+
+	@RequestMapping(value = &quot;getAllResource&quot;)
+	@ResponseBody
+	public JsonResult getAllResource() {
+<span class="nc" id="L26">		return new JsonResult(true, &quot;&quot;, authorityService.getAllResource());</span>
+
+	}
+
+	@RequestMapping(value = &quot;/getAllRole&quot;)
+	@ResponseBody
+	public JsonResult getAllRole() {
+<span class="nc" id="L33">		return new JsonResult(true, &quot;&quot;, authorityService.getAllRole());</span>
+
+	}
+
+	@RequestMapping(value = &quot;addRole&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult addRole(SysRole sysRole) {
+<span class="nc bnc" id="L40" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(sysRole, new String[] { &quot;role&quot;, &quot;description&quot;, &quot;resource_ids&quot; })) {</span>
+<span class="nc" id="L41">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc" id="L43">		authorityService.addRole(sysRole);</span>
+<span class="nc" id="L44">		return new JsonResult(true, &quot;&quot;, null);</span>
+	}
+
+	@RequestMapping(value = &quot;updateRole&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult updateRole(SysRole sysRole) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(sysRole, new String[] { &quot;id&quot; })) {</span>
+<span class="nc" id="L51">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc" id="L53">		authorityService.updateRole(sysRole);</span>
+<span class="nc" id="L54">		return new JsonResult(true, &quot;&quot;, null);</span>
+	}
+
+	@RequestMapping(value = &quot;deleteRole&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult deleteRole(Long id) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(new Object[] { id })) {</span>
+<span class="nc" id="L61">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc" id="L63">		authorityService.deleteRole(id);</span>
+<span class="nc" id="L64">		return new JsonResult(true, &quot;&quot;, null);</span>
+	}
+
+	@RequestMapping(value = &quot;addUserRole&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult addUserRole(String roleId, Integer cid, Integer uid) {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(new Object[] { uid, roleId })) {</span>
+<span class="nc" id="L71">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc" id="L73">		String[] roleIds = roleId.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		for (String string : roleIds) {</span>
+<span class="nc" id="L75">			authorityService.addUserRole(new SysUseRole(uid, cid, Integer.valueOf(string)));</span>
+		}
+<span class="nc" id="L77">		return new JsonResult(true, &quot;&quot;, null);</span>
+	}
+
+	@RequestMapping(value = &quot;deleteUserRole&quot;)
+	@ResponseBody
+	public JsonResult deleteUserRole(String id) {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(new Object[] { id })) {</span>
+<span class="nc" id="L84">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc" id="L86">		String[] ids = id.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		for (String string : ids) {</span>
+<span class="nc" id="L88">			authorityService.deleteUserRole(Integer.valueOf(string));</span>
+		}
+<span class="nc" id="L90">		return new JsonResult(true, &quot;删除成功&quot;, null);</span>
+	}
+
+	@RequestMapping(value = &quot;updateUserRole&quot;)
+	@ResponseBody
+	public JsonResult updateUserRole(String roleId, Integer cid, Integer uid) {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(new Object[] { uid })) {</span>
+<span class="nc" id="L97">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if (StringUtils.isEmpty(roleId)) {</span>
+<span class="nc" id="L100">			roleId = &quot;&quot;;</span>
+		}
+<span class="nc" id="L102">		authorityService.updateUserRole(roleId, cid, uid);</span>
+<span class="nc" id="L103">		return new JsonResult(true, &quot;&quot;, null);</span>
+	}
+
+	@RequestMapping(value = &quot;getUserRoleByUidCid&quot;)
+	@ResponseBody
+	public JsonResult getUserRoleByUidCid(Integer uid, Integer cid) {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		if (!CheckoutUtil.checkOutParam(new Object[] { uid })) {</span>
+<span class="nc" id="L110">			return CheckoutUtil.lackParam();</span>
+		}
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		if (cid == null) {</span>
+<span class="nc" id="L113">			cid = 0;</span>
+		}
+<span class="nc" id="L115">		return new JsonResult(true, &quot;&quot;, authorityService.getUserRoleByUidCid(uid, cid));</span>
+	}
+
+	// @RequiresPermissions(&quot;role&quot;)
+	@RequestMapping(&quot;/role&quot;)
+	public ModelAndView role() {
+<span class="nc" id="L121">		ModelAndView view = new ModelAndView(&quot;authority/role&quot;);</span>
+<span class="nc" id="L122">		return view;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper">
+    <resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.BannerImg">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+        <result column="img_url" property="imgUrl" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="text" property="text" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, create_time, img_url, type, text
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from banner_img
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from banner_img
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        insert into banner_img (id, create_time, img_url,
+        type, text)
+        values (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{imgUrl,jdbcType=VARCHAR},
+        #{type,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        insert into banner_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="imgUrl != null">
+                img_url,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="text != null">
+                text,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=BIGINT},
+            </if>
+            <if test="imgUrl != null">
+                #{imgUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="text != null">
+                #{text,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        update banner_img
+        <set>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=BIGINT},
+            </if>
+            <if test="imgUrl != null">
+                img_url = #{imgUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="text != null">
+                text = #{text,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        update banner_img
+        set create_time = #{createTime,jdbcType=BIGINT},
+        img_url = #{imgUrl,jdbcType=VARCHAR},
+        type = #{type,jdbcType=VARCHAR},
+        text = #{text,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from banner_img
+    </select>
+    
+     <insert id="addReplenishment" parameterType="cmcc.mobile.yiqi.entity.TProductLog">
+        insert into t_product_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="machineId != null">
+                machine_d,
+            </if>
+            <if test="corpId != null">
+                corp_id,
+            </if>
+            <if test="containerNumber != null">
+                container_number,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+               <if test="productNumber != null">
+                product_umber,
+            </if>
+                  <if test="createUserId != null">
+                create_userId,
+            </if>
+                  <if test="type != null">
+                type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="machineId != null">
+                #{machineId,jdbcType=VARCHARz},
+            </if>
+            <if test="corpId != null">
+                #{corpId,jdbcType=BIGINT},
+            </if>
+            <if test="containerNumber != null">
+                #{containerNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=BIGINT},
+            </if>
+                  <if test="productNumber != null">
+                #{productNumber,jdbcType=INTEGER},
+            </if>
+                  <if test="createUserId !=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+                  <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+</mapper>

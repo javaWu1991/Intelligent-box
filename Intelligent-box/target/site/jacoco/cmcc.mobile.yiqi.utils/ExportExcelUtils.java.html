@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ExportExcelUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">ExportExcelUtils.java</span></div><h1>ExportExcelUtils.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.util.CellRangeAddress;
+
+import cmcc.mobile.yiqi.entity.TAppbakExcel;
+import cmcc.mobile.yiqi.entity.dao.TAppbakExcelMapper;
+import cmcc.mobile.yiqi.vo.ExportExcelVo;
+
+/**
+ * 导出工具类
+ * 
+ * @author zhangxs
+ *
+ */
+<span class="nc" id="L39">public class ExportExcelUtils {</span>
+
+	/**
+	 * 通讯录备份导出，并根据需求决定是否是要导出以及备份
+	 * 
+	 * @param cid
+	 * @param fileName
+	 * @param headers
+	 * @param dataset
+	 * @param isNeedBak
+	 * @param request
+	 * @param pattern
+	 * @return
+	 */
+	@SuppressWarnings({ &quot;deprecation&quot; })
+	public static HSSFWorkbook exportExcel(TAppbakExcelMapper excelMapper, String cid, String fileName,
+			String[] headers, Collection&lt;ExportExcelVo&gt; dataset, Boolean isNeedBak, HttpServletRequest request,
+			SimpleDateFormat pattern) {
+		// 声明一个工作薄
+<span class="nc" id="L58">		HSSFWorkbook workbook = new HSSFWorkbook();</span>
+		// 生成一个表格
+<span class="nc" id="L60">		HSSFSheet sheet = workbook.createSheet();</span>
+<span class="nc" id="L61">		sheet.setActive(true);</span>
+		// 设置表格默认列宽度为15个字节
+<span class="nc" id="L63">		sheet.setDefaultColumnWidth((short) 18);</span>
+		// 生成一个样式
+<span class="nc" id="L65">		HSSFCellStyle style = workbook.createCellStyle();</span>
+		// 设置这些样式
+<span class="nc" id="L67">		style.setFillForegroundColor(HSSFColor.SKY_BLUE.index);</span>
+<span class="nc" id="L68">		style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);</span>
+<span class="nc" id="L69">		style.setBorderBottom(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L70">		style.setBorderLeft(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L71">		style.setBorderRight(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L72">		style.setBorderTop(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L73">		style.setAlignment(HSSFCellStyle.ALIGN_CENTER);</span>
+		// 生成一个字体
+<span class="nc" id="L75">		HSSFFont font = workbook.createFont();</span>
+<span class="nc" id="L76">		font.setColor(HSSFColor.VIOLET.index);</span>
+<span class="nc" id="L77">		font.setFontHeightInPoints((short) 12);</span>
+<span class="nc" id="L78">		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);</span>
+		// 把字体应用到当前的样式
+<span class="nc" id="L80">		style.setFont(font);</span>
+		// 生成并设置另一个样式
+<span class="nc" id="L82">		HSSFCellStyle style2 = workbook.createCellStyle();</span>
+<span class="nc" id="L83">		style2.setFillForegroundColor(HSSFColor.LIGHT_YELLOW.index);</span>
+<span class="nc" id="L84">		style2.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);</span>
+<span class="nc" id="L85">		style2.setBorderBottom(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L86">		style2.setBorderLeft(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L87">		style2.setBorderRight(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L88">		style2.setBorderTop(HSSFCellStyle.BORDER_THIN);</span>
+<span class="nc" id="L89">		style2.setAlignment(HSSFCellStyle.ALIGN_CENTER);</span>
+<span class="nc" id="L90">		style2.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);</span>
+		// 生成另一个字体
+<span class="nc" id="L92">		HSSFFont font2 = workbook.createFont();</span>
+<span class="nc" id="L93">		font2.setBoldweight(HSSFFont.BOLDWEIGHT_NORMAL);</span>
+		// 把字体应用到当前的样式
+<span class="nc" id="L95">		style2.setFont(font2);</span>
+		/*
+		 * // 声明一个画图的顶级管理器 HSSFPatriarch patriarch =
+		 * sheet.createDrawingPatriarch(); // 定义注释的大小和位置,详见文档 HSSFComment
+		 * comment = patriarch.createComment(new HSSFClientAnchor(0, 0, 0, 0,
+		 * (short) 4, 2, (short) 6, 5)); // 设置注释内容 comment.setString(new
+		 * HSSFRichTextString(&quot;可以在POI中添加注释！&quot;)); //
+		 * 设置注释作者，当鼠标移动到单元格上是可以在状态栏中看到该内容. comment.setAuthor(&quot;leno&quot;);
+		 */
+		// 产生表格标题行
+<span class="nc" id="L105">		HSSFRow row0 = sheet.createRow(0);</span>
+<span class="nc" id="L106">		CellRangeAddress cra = new CellRangeAddress(0, 0, 0, 6);</span>
+
+<span class="nc" id="L108">		HSSFCell cell0 = row0.createCell((short) 0);</span>
+<span class="nc" id="L109">		cell0.setCellValue(&quot;说明：姓名,手机号码,部门,职位(不填职级默认则职级默认为1，短号最长为6位数字)为必填项，且必须使用该模板进行导入！&quot;);</span>
+<span class="nc" id="L110">		sheet.addMergedRegion(cra);</span>
+
+<span class="nc" id="L112">		HSSFRow row1 = sheet.createRow(1);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		for (short i = 0; i &lt; headers.length; i++) {</span>
+<span class="nc" id="L114">			HSSFCell cell = row1.createCell(i);</span>
+<span class="nc" id="L115">			cell.setCellStyle(style);</span>
+<span class="nc" id="L116">			HSSFRichTextString text = new HSSFRichTextString(headers[i]);</span>
+<span class="nc" id="L117">			cell.setCellValue(text);</span>
+		}
+		// 遍历集合数据，产生数据行
+<span class="nc" id="L120">		Iterator&lt;ExportExcelVo&gt; it = dataset.iterator();</span>
+<span class="nc" id="L121">		int index = 1;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		while (it.hasNext()) {</span>
+<span class="nc" id="L123">			index++;</span>
+<span class="nc" id="L124">			HSSFRow row = sheet.createRow(index);</span>
+<span class="nc" id="L125">			ExportExcelVo t = (ExportExcelVo) it.next();</span>
+			// 利用反射，根据javabean属性的先后顺序，动态调用getXxx()方法得到属性值
+<span class="nc" id="L127">			Field[] fields = t.getClass().getDeclaredFields();</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			for (short i = 0; i &lt; fields.length; i++) {</span>
+<span class="nc" id="L129">				HSSFCell cell = row.createCell(i);</span>
+<span class="nc" id="L130">				cell.setCellStyle(style2);</span>
+<span class="nc" id="L131">				Field field = fields[i];</span>
+<span class="nc" id="L132">				String fieldName = field.getName();</span>
+<span class="nc" id="L133">				String getMethodName = &quot;get&quot; + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);</span>
+				try {
+<span class="nc" id="L135">					Class&lt;? extends ExportExcelVo&gt; tCls = t.getClass();</span>
+<span class="nc" id="L136">					Method getMethod = tCls.getMethod(getMethodName, new Class[] {});</span>
+<span class="nc" id="L137">					Object value = getMethod.invoke(t, new Object[] {});</span>
+					// 判断值的类型后进行强制类型转换
+<span class="nc" id="L139">					String textValue = null;</span>
+
+<span class="nc bnc" id="L141" title="All 2 branches missed.">					if (value instanceof Integer) {</span>
+<span class="nc" id="L142">						Integer bValue = (Integer) value;</span>
+<span class="nc" id="L143">						textValue = &quot;男&quot;;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">						if (bValue == 0) {</span>
+<span class="nc" id="L145">							textValue = &quot;女&quot;;</span>
+						}
+<span class="nc bnc" id="L147" title="All 2 branches missed.">					} else if (value instanceof Date) {</span>
+<span class="nc" id="L148">						Date date = (Date) value;</span>
+<span class="nc" id="L149">						textValue = pattern.format(date);</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">					} else if (value instanceof byte[]) {</span>
+						// 有图片时，设置行高为60px;
+<span class="nc" id="L152">						row.setHeightInPoints(60);</span>
+						// 设置图片所在列宽度为80px,注意这里单位的一个换算
+<span class="nc" id="L154">						sheet.setColumnWidth(i, (short) (35.7 * 80));</span>
+<span class="nc" id="L155">						HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 1023, 255, (short) 6, index, (short) 6,</span>
+								index);
+<span class="nc" id="L157">						anchor.setAnchorType(2);</span>
+<span class="nc" id="L158">					} else {</span>
+						// 其它数据类型都当作字符串简单处理
+<span class="nc bnc" id="L160" title="All 2 branches missed.">						if (null != value) {</span>
+<span class="nc" id="L161">							textValue = value.toString();</span>
+						}
+					}
+					// 如果不是图片数据，就利用正则表达式判断textValue是否全部由数字组成
+<span class="nc bnc" id="L165" title="All 2 branches missed.">					if (textValue != null) {</span>
+<span class="nc" id="L166">						Pattern p = Pattern.compile(&quot;^//d+(//.//d+)?$&quot;);</span>
+<span class="nc" id="L167">						Matcher matcher = p.matcher(textValue);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">						if (matcher.matches()) {</span>
+							// 是数字当作double处理
+<span class="nc" id="L170">							cell.setCellValue(Double.parseDouble(textValue));</span>
+						} else {
+<span class="nc" id="L172">							HSSFRichTextString richString = new HSSFRichTextString(textValue);</span>
+<span class="nc" id="L173">							cell.setCellValue(richString);</span>
+						}
+					}
+<span class="nc" id="L176">				} catch (ArrayIndexOutOfBoundsException e) {</span>
+
+<span class="nc" id="L178">				} catch (SecurityException e) {</span>
+<span class="nc" id="L179">					e.printStackTrace();</span>
+<span class="nc" id="L180">				} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L181">					e.printStackTrace();</span>
+<span class="nc" id="L182">				} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L183">					e.printStackTrace();</span>
+<span class="nc" id="L184">				} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L185">					e.printStackTrace();</span>
+<span class="nc" id="L186">				} catch (InvocationTargetException e) {</span>
+<span class="nc" id="L187">					e.printStackTrace();</span>
+				} finally {
+					// 清理资源
+<span class="nc" id="L190">					dataset = null;</span>
+<span class="nc" id="L191">				}</span>
+			}
+<span class="nc" id="L193">		}</span>
+
+<span class="nc bnc" id="L195" title="All 2 branches missed.">		if (isNeedBak) {</span>
+			/**
+			 * 保存至服务器 根据公司编号建立文件夹
+			 */
+<span class="nc" id="L199">			String realPath = &quot;/upload/excel/&quot; + cid + &quot;/&quot;;</span>
+<span class="nc" id="L200">			String filePath = &quot;/upload/excel/&quot; + cid + &quot;/&quot;;</span>
+<span class="nc" id="L201">			String FILE_PATH = FileUpload.class.getResource(&quot;/&quot;).getFile();</span>
+<span class="nc" id="L202">			FILE_PATH = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;));</span>
+<span class="nc" id="L203">			FILE_PATH = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;));</span>
+<span class="nc" id="L204">			filePath = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;)) + filePath;</span>
+			// 新建一输出流
+<span class="nc" id="L206">			FileOutputStream fout = null;</span>
+			try {
+<span class="nc" id="L208">				File file = new File(filePath);</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">				if (!file.exists()) {</span>
+<span class="nc" id="L210">					file.mkdirs();</span>
+				}
+<span class="nc" id="L212">				String path = filePath + fileName + &quot;.xls&quot;;</span>
+<span class="nc" id="L213">				file = new File(path);</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">				if (!file.exists()) {</span>
+<span class="nc" id="L215">					file.createNewFile();</span>
+				}
+<span class="nc" id="L217">				fout = new FileOutputStream(file);</span>
+<span class="nc" id="L218">				workbook.write(fout);</span>
+				// 保存备份信息至数据库
+<span class="nc" id="L220">				TAppbakExcel excel = new TAppbakExcel();</span>
+<span class="nc" id="L221">				excel.setBakCount(0);</span>
+<span class="nc" id="L222">				excel.setBakPath(realPath + fileName + &quot;.xls&quot;);</span>
+<span class="nc" id="L223">				String username = request.getSession().getAttribute(&quot;userName&quot;).toString();</span>
+<span class="nc" id="L224">				excel.setBakResource(username + &quot; - &quot; + pattern.format(new Date()) + &quot; - 操作备份&quot;);</span>
+<span class="nc" id="L225">				excel.setCid(Long.parseLong(cid));</span>
+<span class="nc" id="L226">				excel.setCreateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L227">				excelMapper.insertSelective(excel);</span>
+<span class="nc" id="L228">			} catch (Exception e) {</span>
+<span class="nc" id="L229">				e.printStackTrace();</span>
+			} finally {
+<span class="nc" id="L231">				try {</span>
+<span class="nc bnc" id="L232" title="All 6 branches missed.">					if(null != fout){</span>
+<span class="nc" id="L233">						fout.flush();</span>
+<span class="nc" id="L234">						fout.close();</span>
+					}
+<span class="nc" id="L236">				} catch (IOException e) {</span>
+<span class="nc" id="L237">					e.printStackTrace();</span>
+<span class="nc" id="L238">				}</span>
+<span class="nc" id="L239">			}</span>
+		}
+<span class="nc" id="L241">		return workbook;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

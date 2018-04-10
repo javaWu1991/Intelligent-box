@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>IMServiceUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">IMServiceUtil.java</span></div><h1>IMServiceUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+
+import com.alibaba.fastjson.JSONObject;
+
+/**
+ * 小溪接口工具类
+ * 
+ * @author zhangxs
+ *
+ */
+@SuppressWarnings({ &quot;deprecation&quot;, &quot;resource&quot; })
+public class IMServiceUtil {
+
+	private static String token;
+	private static String appPushToken;
+	private static String pass;
+	private static String appkey;
+	private static String DMTKey;
+	private static String url;
+	private static String pushKey;
+	private static String DMTPushKey;
+
+	// private static Boolean readSuccess;
+	// private static String message;
+
+	public static String getAppkey() {
+<span class="nc" id="L51">		return appkey;</span>
+	}
+
+	public static void setAppkey(String appkey) {
+<span class="nc" id="L55">		IMServiceUtil.appkey = appkey;</span>
+<span class="nc" id="L56">	}</span>
+
+<span class="nc" id="L58">	public IMServiceUtil() {</span>
+<span class="nc" id="L59">		InputStream in = null;</span>
+		try {
+<span class="nc" id="L61">			in = new FileInputStream(new File(getClass().getClassLoader().getResource(&quot;info.properties&quot;).getFile()));</span>
+<span class="nc" id="L62">			Properties pps = new Properties();</span>
+<span class="nc" id="L63">			pps.load(in);</span>
+<span class="nc" id="L64">			String appkey = pps.getProperty(&quot;IMService.appkey&quot;);</span>
+<span class="nc" id="L65">			String pass = pps.getProperty(&quot;IMService.password&quot;);</span>
+<span class="nc" id="L66">			String url = pps.getProperty(&quot;IMService.url&quot;);</span>
+<span class="nc" id="L67">			String pushKey = pps.getProperty(&quot;IMService.pushkey&quot;);</span>
+<span class="nc" id="L68">			String dmtKey = pps.getProperty(&quot;IMService.DMTKey&quot;);</span>
+<span class="nc" id="L69">			String dmtPushKey = pps.getProperty(&quot;IMService.DMTPushKey&quot;);</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">			if (StringUtils.isNotEmpty(appkey) &amp;&amp; StringUtils.isNotEmpty(pass)) {</span>
+<span class="nc" id="L71">				IMServiceUtil.appkey = appkey;</span>
+<span class="nc" id="L72">				IMServiceUtil.pass = pass;</span>
+<span class="nc" id="L73">				IMServiceUtil.url = url;</span>
+<span class="nc" id="L74">				IMServiceUtil.pushKey = pushKey;</span>
+<span class="nc" id="L75">				IMServiceUtil.DMTKey = dmtKey;</span>
+<span class="nc" id="L76">				IMServiceUtil.DMTPushKey = dmtPushKey;</span>
+				// readSuccess = true;
+			} else {
+				// readSuccess = false;
+				// message = &quot;配置文件错误&quot;;
+			}
+<span class="nc" id="L82">		} catch (Exception e) {</span>
+<span class="nc" id="L83">			e.printStackTrace();</span>
+<span class="nc" id="L84">		} finally {</span>
+			try {
+<span class="nc bnc" id="L86" title="All 6 branches missed.">				if (null != in) {</span>
+<span class="nc" id="L87">					in.close();</span>
+				}
+<span class="nc" id="L89">			} catch (IOException e) {</span>
+<span class="nc" id="L90">				e.printStackTrace();</span>
+			}
+<span class="nc" id="L92">		}</span>
+<span class="nc" id="L93">	}</span>
+
+	/**
+	 * 发送请求获取token
+	 * 
+	 * @param appkey
+	 * @param time
+	 * @param signature
+	 * @return
+	 */
+	public JSONObject getIMTokenInfo() {
+<span class="nc" id="L104">		int time = (int) (System.currentTimeMillis() / 1000);</span>
+		/**
+		 * 计算加密签名
+		 */
+<span class="nc" id="L108">		String signature = getEncryption(getEncryption(pass) + time);</span>
+<span class="nc" id="L109">		HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L110">		String smsUrl = url + &quot;/plugins/auth/token?appkey=&quot; + appkey + &quot;&amp;time=&quot; + time + &quot;&amp;signature=&quot; + signature + &quot;&quot;;</span>
+<span class="nc" id="L111">		HttpPost httppost = new HttpPost(smsUrl);</span>
+		try {
+<span class="nc" id="L113">			httppost.addHeader(&quot;Content-type&quot;, &quot;application/x-www-form-urlencoded&quot;);</span>
+<span class="nc" id="L114">			HttpResponse response = httpclient.execute(httppost);</span>
+<span class="nc" id="L115">			String conResult = EntityUtils.toString(response.getEntity());</span>
+<span class="nc" id="L116">			JSONObject sobj = JSONObject.parseObject(conResult);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">			if (response.getStatusLine().getStatusCode() == 200) {</span>
+				/* 读返回数据 */
+<span class="nc" id="L119">				int errcode = (Integer) sobj.get(&quot;errcode&quot;);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">				if (errcode == 0) {</span>
+<span class="nc" id="L121">					token = (String) sobj.get(&quot;token&quot;);</span>
+				}
+			}
+<span class="nc" id="L124">			System.out.println(&quot;token:&quot; + sobj.toJSONString());</span>
+<span class="nc" id="L125">			return sobj;</span>
+<span class="nc" id="L126">		} catch (ClientProtocolException e) {</span>
+<span class="nc" id="L127">			httppost.releaseConnection();</span>
+<span class="nc" id="L128">			e.printStackTrace();</span>
+<span class="nc" id="L129">		} catch (IOException e) {</span>
+<span class="nc" id="L130">			e.printStackTrace();</span>
+		}
+<span class="nc" id="L132">		return null;</span>
+	}
+
+	/**
+	 * 获取APP推送token
+	 * 
+	 * @return
+	 */
+	public JSONObject getIMAppPushToken() {
+<span class="nc" id="L141">		int time = (int) (System.currentTimeMillis() / 1000);</span>
+		/**
+		 * 计算加密签名
+		 */
+<span class="nc" id="L145">		String signature = getEncryption(getEncryption(pass) + time);</span>
+<span class="nc" id="L146">		HttpClient httpclient = new DefaultHttpClient();</span>
+		// http://auth.bizz.cmccim.com:8107/auth/getapptoken?appkey={APPKEY}&amp;time={TIME}&amp;signature
+		// ={SIGNATURE}
+<span class="nc" id="L149">		String smsUrl = &quot;http://auth.bizz.cmccim.com:8107/auth/getapptoken?appkey=&quot; + appkey + &quot;&amp;time=&quot; + time + &quot;&amp;signature=&quot; + signature;</span>
+<span class="nc" id="L150">		HttpGet httppost = new HttpGet(smsUrl);</span>
+		try {
+<span class="nc" id="L152">			httppost.addHeader(&quot;Content-type&quot;, &quot;application/x-www-form-urlencoded&quot;);</span>
+<span class="nc" id="L153">			HttpResponse response = httpclient.execute(httppost);</span>
+<span class="nc" id="L154">			String conResult = EntityUtils.toString(response.getEntity());</span>
+<span class="nc" id="L155">			JSONObject sobj = JSONObject.parseObject(conResult);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">			if (response.getStatusLine().getStatusCode() == 200) {</span>
+				/* 读返回数据 */
+<span class="nc" id="L158">				int errcode = (Integer) sobj.get(&quot;errcode&quot;);</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">				if (errcode == 0) {</span>
+<span class="nc" id="L160">					appPushToken = (String) sobj.get(&quot;token&quot;);</span>
+				}
+			}
+<span class="nc" id="L163">			return sobj;</span>
+<span class="nc" id="L164">		} catch (ClientProtocolException e) {</span>
+<span class="nc" id="L165">			httppost.releaseConnection();</span>
+<span class="nc" id="L166">			e.printStackTrace();</span>
+<span class="nc" id="L167">		} catch (IOException e) {</span>
+<span class="nc" id="L168">			e.printStackTrace();</span>
+		}
+<span class="nc" id="L170">		return null;</span>
+	}
+
+	/**
+	 * 小溪新增用户
+	 * 
+	 * @return
+	 */
+	public JSONObject IMAddUser(List&lt;IMUser&gt; list) throws Exception {
+<span class="nc" id="L179">		JSONObject object = new JSONObject();</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		if (null != list) {</span>
+<span class="nc" id="L181">			object.put(&quot;userinfos&quot;, list);</span>
+			// String encoderJson = URLEncoder.encode(object);
+<span class="nc" id="L183">			HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L184">			String smsUrl = url + &quot;/plugins/openservice/userv2?action=add&amp;appkey=&quot; + appkey + &quot;&amp;token=&quot; + token;</span>
+<span class="nc" id="L185">			HttpPost httppost = new HttpPost(smsUrl);</span>
+<span class="nc" id="L186">			httppost.addHeader(HTTP.CONTENT_TYPE, &quot;application/json&quot;);</span>
+<span class="nc" id="L187">			StringEntity se = new StringEntity(object.toString(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L188">			se.setContentEncoding(&quot;UTF-8&quot;);</span>
+<span class="nc" id="L189">			se.setContentType(&quot;text/json&quot;);</span>
+<span class="nc" id="L190">			httppost.setEntity(se);</span>
+<span class="nc" id="L191">			HttpResponse response = httpclient.execute(httppost);</span>
+<span class="nc" id="L192">			String conResult = EntityUtils.toString(response.getEntity());</span>
+<span class="nc" id="L193">			JSONObject sobj = JSONObject.parseObject(conResult);</span>
+<span class="nc" id="L194">			httppost.releaseConnection();</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">			if (response.getStatusLine().getStatusCode() == 200) {</span>
+				/* 读返回数据 */
+<span class="nc" id="L197">				return sobj;</span>
+			} else {
+<span class="nc" id="L199">				sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L200">				return sobj;</span>
+			}
+		}
+<span class="nc" id="L203">		return object;</span>
+	}
+
+	/**
+	 * 根据username查找小溪用户
+	 * 
+	 * @param list
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject IMFindUser(List&lt;IMUser&gt; list) throws Exception {
+<span class="nc" id="L214">		JSONObject object = new JSONObject();</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		if (null != list) {</span>
+<span class="nc" id="L216">			object.put(&quot;userinfos&quot;, list);</span>
+			// String encoderJson = URLEncoder.encode(object);
+<span class="nc" id="L218">			HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L219">			String smsUrl = url + &quot;/plugins/openservice/userv2?action=query&amp;appkey=&quot; + appkey + &quot;&amp;token=&quot; + token;</span>
+<span class="nc" id="L220">			HttpPost httppost = new HttpPost(smsUrl);</span>
+<span class="nc" id="L221">			httppost.addHeader(HTTP.CONTENT_TYPE, &quot;application/json&quot;);</span>
+<span class="nc" id="L222">			StringEntity se = new StringEntity(object.toString(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L223">			se.setContentEncoding(&quot;UTF-8&quot;);</span>
+<span class="nc" id="L224">			se.setContentType(&quot;text/json&quot;);</span>
+<span class="nc" id="L225">			httppost.setEntity(se);</span>
+<span class="nc" id="L226">			HttpResponse response = httpclient.execute(httppost);</span>
+<span class="nc" id="L227">			String conResult = EntityUtils.toString(response.getEntity());</span>
+<span class="nc" id="L228">			JSONObject sobj = JSONObject.parseObject(conResult);</span>
+<span class="nc" id="L229">			httppost.releaseConnection();</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">			if (response.getStatusLine().getStatusCode() == 200) {</span>
+				/* 读返回数据 */
+<span class="nc" id="L232">				return sobj;</span>
+			} else {
+<span class="nc" id="L234">				sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L235">				return sobj;</span>
+			}
+		}
+<span class="nc" id="L238">		return object;</span>
+	}
+
+	/**
+	 * 修改小溪密码
+	 * 
+	 * @param list
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject IMUpdateUser(List&lt;IMUser&gt; list) throws Exception {
+<span class="nc" id="L249">		JSONObject object = new JSONObject();</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">		if (null != list) {</span>
+<span class="nc" id="L251">			object.put(&quot;userinfos&quot;, list);</span>
+			// String encoderJson = URLEncoder.encode(object);
+<span class="nc" id="L253">			HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L254">			String smsUrl = url + &quot;/plugins/openservice/userv2?action=update&amp;appkey=&quot; + appkey + &quot;&amp;token=&quot; + token;</span>
+<span class="nc" id="L255">			HttpPost httppost = new HttpPost(smsUrl);</span>
+<span class="nc" id="L256">			httppost.addHeader(HTTP.CONTENT_TYPE, &quot;application/json&quot;);</span>
+<span class="nc" id="L257">			StringEntity se = new StringEntity(object.toString(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L258">			se.setContentEncoding(&quot;UTF-8&quot;);</span>
+<span class="nc" id="L259">			se.setContentType(&quot;text/json&quot;);</span>
+<span class="nc" id="L260">			httppost.setEntity(se);</span>
+<span class="nc" id="L261">			HttpResponse response = httpclient.execute(httppost);</span>
+<span class="nc" id="L262">			String conResult = EntityUtils.toString(response.getEntity());</span>
+<span class="nc" id="L263">			JSONObject sobj = JSONObject.parseObject(conResult);</span>
+<span class="nc" id="L264">			httppost.releaseConnection();</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">			if (response.getStatusLine().getStatusCode() == 200) {</span>
+				/* 读返回数据 */
+<span class="nc" id="L267">				return sobj;</span>
+			} else {
+<span class="nc" id="L269">				sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L270">				return sobj;</span>
+			}
+		}
+<span class="nc" id="L273">		return object;</span>
+	}
+
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject IMUsers() throws Exception {
+<span class="nc" id="L283">		JSONObject object = new JSONObject();</span>
+		// String encoderJson = URLEncoder.encode(object);
+<span class="nc" id="L285">		HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L286">		String smsUrl = url + &quot;/plugins/openservice/userv2?action=search&amp;appkey=&quot; + appkey + &quot;&amp;start=0&amp;range=2000&amp;token=&quot; + token;</span>
+<span class="nc" id="L287">		HttpGet httppost = new HttpGet(smsUrl);</span>
+<span class="nc" id="L288">		httppost.addHeader(HTTP.CONTENT_TYPE, &quot;application/json&quot;);</span>
+<span class="nc" id="L289">		StringEntity se = new StringEntity(object.toString(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L290">		se.setContentEncoding(&quot;UTF-8&quot;);</span>
+<span class="nc" id="L291">		se.setContentType(&quot;text/json&quot;);</span>
+<span class="nc" id="L292">		HttpResponse response = httpclient.execute(httppost);</span>
+<span class="nc" id="L293">		String conResult = EntityUtils.toString(response.getEntity());</span>
+<span class="nc" id="L294">		JSONObject sobj = JSONObject.parseObject(conResult);</span>
+<span class="nc" id="L295">		httppost.releaseConnection();</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">		if (response.getStatusLine().getStatusCode() == 200) {</span>
+			/* 读返回数据 */
+<span class="nc" id="L298">			return sobj;</span>
+		} else {
+<span class="nc" id="L300">			sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L301">			return sobj;</span>
+		}
+	}
+
+	/**
+	 * 小溪SDK推送APP
+	 * 
+	 * @param object
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject pushToApp(List&lt;NameValuePair&gt; list) throws Exception {
+<span class="nc" id="L313">		list.add(new BasicNameValuePair(&quot;msgbiztype&quot;, DMTPushKey));</span>
+<span class="nc" id="L314">		HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L315">		String smsUrl = &quot;http://msggw.bizz.cmccim.com/msggw/server/sendmsg/send?appkey=&quot; + DMTKey;</span>
+<span class="nc" id="L316">		HttpPost httppost = new HttpPost(smsUrl);</span>
+<span class="nc" id="L317">		httppost.setHeader(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded;charset=UTF-8&quot;);</span>
+<span class="nc" id="L318">		httppost.setEntity(new UrlEncodedFormEntity(list, &quot;utf-8&quot;)); // 将参数传入post方法中</span>
+<span class="nc" id="L319">		HttpResponse response = httpclient.execute(httppost); // 执行post</span>
+<span class="nc" id="L320">		HttpEntity entity = response.getEntity(); // 获取响应数据</span>
+<span class="nc" id="L321">		String result = EntityUtils.toString(entity); // 将响应数据转成字符串</span>
+<span class="nc" id="L322">		JSONObject sobj = JSONObject.parseObject(result);</span>
+<span class="nc" id="L323">		httppost.releaseConnection();</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">		if (response.getStatusLine().getStatusCode() == 200) {</span>
+			/* 读返回数据 */
+<span class="nc" id="L326">			return sobj;</span>
+		} else {
+<span class="nc" id="L328">			sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L329">			return sobj;</span>
+		}
+	}
+	
+	public JSONObject pushToApp2(List&lt;NameValuePair&gt; list) throws Exception {
+<span class="nc" id="L334">		list.add(new BasicNameValuePair(&quot;msgbiztype&quot;, pushKey));</span>
+<span class="nc" id="L335">		HttpClient httpclient = new DefaultHttpClient();</span>
+<span class="nc" id="L336">		String smsUrl = &quot;http://msggw.bizz.cmccim.com/msggw/server/sendmsg/send?appkey=&quot; + appkey;</span>
+<span class="nc" id="L337">		HttpPost httppost = new HttpPost(smsUrl);</span>
+<span class="nc" id="L338">		httppost.setHeader(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded;charset=UTF-8&quot;);</span>
+<span class="nc" id="L339">		httppost.setEntity(new UrlEncodedFormEntity(list, &quot;utf-8&quot;)); // 将参数传入post方法中</span>
+<span class="nc" id="L340">		HttpResponse response = httpclient.execute(httppost); // 执行post</span>
+<span class="nc" id="L341">		HttpEntity entity = response.getEntity(); // 获取响应数据</span>
+<span class="nc" id="L342">		String result = EntityUtils.toString(entity); // 将响应数据转成字符串</span>
+<span class="nc" id="L343">		JSONObject sobj = JSONObject.parseObject(result);</span>
+<span class="nc" id="L344">		httppost.releaseConnection();</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">		if (response.getStatusLine().getStatusCode() == 200) {</span>
+			/* 读返回数据 */
+<span class="nc" id="L347">			return sobj;</span>
+		} else {
+<span class="nc" id="L349">			sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L350">			return sobj;</span>
+		}
+	}
+
+	/**
+	 * MD5加密
+	 * 
+	 * @param originString
+	 * @return
+	 */
+	public static String getEncryption(String originString) {
+<span class="nc bnc" id="L361" title="All 2 branches missed.">		if (!StringUtils.isNotEmpty(originString)) {</span>
+<span class="nc" id="L362">			return originString;</span>
+		}
+<span class="nc" id="L364">		MessageDigest md5 = null;</span>
+		try {
+<span class="nc" id="L366">			md5 = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="nc" id="L367">		} catch (Exception e) {</span>
+<span class="nc" id="L368">			e.printStackTrace();</span>
+<span class="nc" id="L369">			return &quot;&quot;;</span>
+		}
+<span class="nc" id="L371">		char[] charArray = originString.toCharArray();</span>
+<span class="nc" id="L372">		byte[] byteArray = new byte[charArray.length];</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">		for (int i = 0; i &lt; charArray.length; i++) {</span>
+<span class="nc" id="L374">			byteArray[i] = (byte) charArray[i];</span>
+		}
+<span class="nc" id="L376">		byte[] md5Bytes = md5.digest(byteArray);</span>
+<span class="nc" id="L377">		StringBuffer hexValue = new StringBuffer();</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">		for (int i = 0; i &lt; md5Bytes.length; i++) {</span>
+<span class="nc" id="L379">			int val = ((int) md5Bytes[i]) &amp; 0xff;</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">			if (val &lt; 16) {</span>
+<span class="nc" id="L381">				hexValue.append(&quot;0&quot;);</span>
+			}
+<span class="nc" id="L383">			hexValue.append(Integer.toHexString(val));</span>
+		}
+<span class="nc" id="L385">		return hexValue.toString();</span>
+	}
+
+	/**
+	 * 小溪推送1.x
+	 * 
+	 * @param receivers
+	 *            必选：下行消息接受者的用户名。多个接受者以“;”分割，即可以实现群发
+	 * @param msgcontent
+	 *            必选：消息内容，不限制内容，网关不做解析，不做校验，传递给终端
+	 * @param msgdigest
+	 *            可选：消息摘要，对消息内容的简述。可用于离线消息APNS推送之内容
+	 * @param offsend
+	 *            可选：离线处理方式 默认值为1 
+	 *            0：丢弃离线消息，用户再次上线后不会收到该消息
+	 *            1：存储离线消息，若接收者在ios终端上登录且应用推入后台，消息会同时以APNS推送到终端，推送的内容是msgdigest
+	 *            2：仅存储离线消息，不推送APNS
+	 * @param innerpushct
+	 *            可选：用于IOS隐藏字段推送
+	 * @return
+	 * @throws IOException
+	 * @throws ClientProtocolException
+	 */
+	public JsonResult pushToApp(String receivers, String msgcontent, String msgdigest, String offsend, String innerpushct)
+			throws ClientProtocolException, IOException {
+		// 参数校验与处理
+<span class="nc bnc" id="L411" title="All 2 branches missed.">		if (StringUtils.isEmpty(receivers)) {</span>
+<span class="nc" id="L412">			return new JsonResult(false, &quot;接受者手机号不能为空。&quot;, null);</span>
+		}
+<span class="nc bnc" id="L414" title="All 2 branches missed.">		if (StringUtils.isEmpty(msgcontent)) {</span>
+<span class="nc" id="L415">			return new JsonResult(false, &quot;消息内容不能为空。&quot;, null);</span>
+		}
+<span class="nc bnc" id="L417" title="All 2 branches missed.">		if (StringUtils.isEmpty(msgdigest)) {</span>
+<span class="nc" id="L418">			msgdigest = &quot;信息摘要&quot;;</span>
+		}
+<span class="nc bnc" id="L420" title="All 2 branches missed.">		if (StringUtils.isEmpty(offsend)) {</span>
+<span class="nc" id="L421">			offsend = &quot;1&quot;;</span>
+		}
+<span class="nc bnc" id="L423" title="All 2 branches missed.">		if (StringUtils.isEmpty(innerpushct)) {</span>
+<span class="nc" id="L424">			innerpushct = &quot;IOS隐藏字段&quot;;</span>
+		}
+
+		//获取TOKEN
+<span class="nc" id="L428">		getIMTokenInfo();</span>
+		
+<span class="nc" id="L430">		String pushUrl = &quot;http://msggw.bizz.cmccim.com/msggw/server/downmsg/send?appkey=&quot; + appkey + &quot;&amp;token=&quot; + token;</span>
+<span class="nc" id="L431">		HttpClient httpclient = new DefaultHttpClient();</span>
+
+<span class="nc" id="L433">		List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();</span>
+<span class="nc" id="L434">		params.add(new BasicNameValuePair(&quot;appkey&quot;, appkey));</span>
+<span class="nc" id="L435">		params.add(new BasicNameValuePair(&quot;token&quot;, token));</span>
+<span class="nc" id="L436">		params.add(new BasicNameValuePair(&quot;msgdigest&quot;, msgdigest));</span>
+<span class="nc" id="L437">		params.add(new BasicNameValuePair(&quot;receivers&quot;, receivers));</span>
+<span class="nc" id="L438">		params.add(new BasicNameValuePair(&quot;msgcontent&quot;, msgcontent));</span>
+<span class="nc" id="L439">		params.add(new BasicNameValuePair(&quot;offsend&quot;, offsend));</span>
+<span class="nc" id="L440">		params.add(new BasicNameValuePair(&quot;innerpushct&quot;, innerpushct));</span>
+
+<span class="nc" id="L442">		HttpPost post = new HttpPost(pushUrl);</span>
+<span class="nc" id="L443">		post.setHeader(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded;charset=UTF-8&quot;);</span>
+<span class="nc" id="L444">		post.setEntity(new UrlEncodedFormEntity(params, &quot;utf-8&quot;)); // 将参数传入post方法中</span>
+<span class="nc" id="L445">		HttpResponse response = httpclient.execute(post); // 执行post</span>
+<span class="nc" id="L446">		HttpEntity entity = response.getEntity(); // 获取响应数据</span>
+<span class="nc" id="L447">		String result = EntityUtils.toString(entity); // 将响应数据转成字符串</span>
+<span class="nc" id="L448">		JSONObject sobj = JSONObject.parseObject(result);</span>
+<span class="nc" id="L449">		post.releaseConnection();</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">		if (response.getStatusLine().getStatusCode() == 200) {</span>
+			/* 读返回数据 */
+<span class="nc bnc" id="L452" title="All 2 branches missed.">			if(&quot;error&quot;.equals(sobj.getString(&quot;status&quot;))){</span>
+<span class="nc" id="L453">				return new JsonResult(false, &quot;push failed&quot;, sobj);</span>
+			}else{
+<span class="nc" id="L455">				return new JsonResult(true, &quot;push success&quot;, sobj);</span>
+			}
+		} else {
+<span class="nc" id="L458">			sobj.put(&quot;status&quot;, response.getStatusLine().getStatusCode());</span>
+<span class="nc" id="L459">			return new JsonResult(false, &quot;push failed&quot;, sobj);</span>
+		}
+	}
+
+	/**
+	 * 小溪推送1.x
+	 * 
+	 * @param receivers
+	 *            必选：下行消息接受者的用户名。多个接受者以“;”分割，即可以实现群发
+	 * @param msgcontent
+	 *            必选：消息内容，不限制内容，网关不做解析，不做校验，传递给终端
+	 * @param msgdigest
+	 *            可选：消息摘要，对消息内容的简述。可用于离线消息APNS推送之内容
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public JsonResult pushToApp(String receivers, String msgcontent, String msgdigest) throws ClientProtocolException, IOException {
+<span class="nc" id="L477">		return pushToApp(receivers, msgcontent, msgdigest, &quot;1&quot;, &quot;IOS隐藏字段&quot;);</span>
+	}
+
+	public static void main(String[] args) {
+<span class="nc" id="L481">		IMServiceUtil util = new IMServiceUtil();</span>
+<span class="nc" id="L482">		List&lt;NameValuePair&gt; nvps = new ArrayList&lt;NameValuePair&gt;();</span>
+<span class="nc" id="L483">		nvps.add(new BasicNameValuePair(&quot;receivers&quot;, &quot;13221058679;13735501974;13871014212;18867101351&quot;));</span>
+<span class="nc" id="L484">		JSONObject object = new JSONObject();</span>
+<span class="nc" id="L485">		object.put(&quot;type&quot;, 2);</span>
+<span class="nc" id="L486">		object.put(&quot;id&quot;, 1);</span>
+<span class="nc" id="L487">		object.put(&quot;unConfirmCount&quot;, 1);</span>
+<span class="nc" id="L488">		nvps.add(new BasicNameValuePair(&quot;msgcontent&quot;, object.toJSONString()));</span>
+<span class="nc" id="L489">		nvps.add(new BasicNameValuePair(&quot;msgdigest&quot;, &quot;&quot;));</span>
+<span class="nc" id="L490">		nvps.add(new BasicNameValuePair(&quot;offsend&quot;, &quot;1&quot;));</span>
+		try {
+<span class="nc" id="L492">			util.pushToApp2(nvps);</span>
+<span class="nc" id="L493">		} catch (Exception e1) {</span>
+<span class="nc" id="L494">			System.out.println(&quot;小溪推送失败：&quot; + &quot;&quot;+ &quot;确认消息！&quot;);</span>
+		}
+
+<span class="nc" id="L497">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

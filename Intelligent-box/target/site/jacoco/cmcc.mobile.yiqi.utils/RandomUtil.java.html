@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RandomUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">RandomUtil.java</span></div><h1>RandomUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+
+<span class="nc" id="L7">public class RandomUtil {</span>
+
+	// 可以将字符转换赋值给int类型，查看其ASCII码
+	public static void main(String[] args) {
+
+		// 生成数字字母
+<span class="nc bnc" id="L13" title="All 2 branches missed.">		for (int i = 0; i &lt; 1; i++)</span>
+<span class="nc" id="L14">			System.out.println(createRandomCharData(6));</span>
+<span class="nc" id="L15">	}</span>
+
+	// 根据指定长度生成字母和数字的随机数
+	// 0~9的ASCII为48~57
+	// A~Z的ASCII为65~90
+	// a~z的ASCII为97~122
+	public static String createRandomCharData(int length) {
+<span class="nc" id="L22">		StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L23">		Random rand = new Random();// 随机用以下三个随机生成器</span>
+<span class="nc" id="L24">		Random randdata = new Random();</span>
+<span class="nc" id="L25">		int data = 0;</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">		for (int i = 0; i &lt; length; i++) {</span>
+<span class="nc" id="L27">			int index = rand.nextInt(3);</span>
+			// 目的是随机选择生成数字，大小写字母
+<span class="nc bnc" id="L29" title="All 4 branches missed.">			switch (index) {</span>
+			case 0:
+<span class="nc" id="L31">				data = randdata.nextInt(10);// 仅仅会生成0~9</span>
+<span class="nc" id="L32">				sb.append(data);</span>
+<span class="nc" id="L33">				break;</span>
+			case 1:
+<span class="nc" id="L35">				data = randdata.nextInt(26) + 65;// 保证只会产生65~90之间的整数</span>
+<span class="nc" id="L36">				sb.append((char) data);</span>
+<span class="nc" id="L37">				break;</span>
+			case 2:
+<span class="nc" id="L39">				data = randdata.nextInt(26) + 97;// 保证只会产生97~122之间的整数</span>
+<span class="nc" id="L40">				sb.append((char) data);</span>
+				break;
+			}
+		}
+<span class="nc" id="L44">		String result = sb.toString();</span>
+<span class="nc" id="L45">		return result.toUpperCase();</span>
+	}
+
+	// 根据指定长度生成纯数字的随机数
+	public static String createData(int length) {
+<span class="nc" id="L50">		StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L51">		Random rand = new Random();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		for (int i = 0; i &lt; length; i++) {</span>
+<span class="nc" id="L53">			sb.append(rand.nextInt(10));</span>
+		}
+<span class="nc" id="L55">		String data = sb.toString();</span>
+<span class="nc" id="L56">		return data;</span>
+	}
+
+	public static String MD5(String sourceStr) {
+<span class="nc" id="L60">		String result = &quot;&quot;;</span>
+		try {
+<span class="nc" id="L62">			MessageDigest md = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="nc" id="L63">			md.update(sourceStr.getBytes());</span>
+<span class="nc" id="L64">			byte b[] = md.digest();</span>
+			int i;
+<span class="nc" id="L66">			StringBuffer buf = new StringBuffer(&quot;&quot;);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			for (int offset = 0; offset &lt; b.length; offset++) {</span>
+<span class="nc" id="L68">				i = b[offset];</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">				if (i &lt; 0)</span>
+<span class="nc" id="L70">					i += 256;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">				if (i &lt; 16)</span>
+<span class="nc" id="L72">					buf.append(&quot;0&quot;);</span>
+<span class="nc" id="L73">				buf.append(Integer.toHexString(i));</span>
+			}
+<span class="nc" id="L75">			result = buf.toString();</span>
+<span class="nc" id="L76">		} catch (NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L77">			System.out.println(e);</span>
+<span class="nc" id="L78">		}</span>
+<span class="nc" id="L79">		return result;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

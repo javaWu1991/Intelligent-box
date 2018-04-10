@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TAppContract.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.entity</a> &gt; <span class="el_source">TAppContract.java</span></div><h1>TAppContract.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.entity;
+
+import javax.persistence.*;
+
+@Table(name = &quot;t_app_contract&quot;)
+<span class="nc" id="L6">public class TAppContract {</span>
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /**
+     * 合同编号
+     */
+    private String number;
+
+    /**
+     * 合同名称
+     */
+    private String name;
+
+    /**
+     * 合同价格
+     */
+    private String money;
+
+    /**
+     * 合同承办人
+     */
+    private String companyCommander;
+
+    /**
+     * 对方主体名称
+     */
+    private String companyName;
+
+    private Long createTime;
+
+    private Long updateTime;
+
+    /**
+     * 未更新天数
+     */
+    private Integer noUpdateDay;
+
+    /**
+     * 合同创建人
+     */
+    private Long creator;
+
+    /**
+     * 状态说明
+     */
+    private String statusExplain;
+
+    /**
+     * 公司id
+     */
+    private Long cid;
+
+    /**
+     * 准备状态 1
+起草状态 2
+审批状态 3
+签署状态 4
+执行状态 5
+结束状态 6
+     */
+    private Integer status;
+
+    /**
+     * @return id
+     */
+    public Long getId() {
+<span class="nc" id="L74">        return id;</span>
+    }
+
+    /**
+     * @param id
+     */
+    public void setId(Long id) {
+<span class="nc" id="L81">        this.id = id;</span>
+<span class="nc" id="L82">    }</span>
+
+    /**
+     * 获取合同编号
+     *
+     * @return number - 合同编号
+     */
+    public String getNumber() {
+<span class="nc" id="L90">        return number;</span>
+    }
+
+    /**
+     * 设置合同编号
+     *
+     * @param number 合同编号
+     */
+    public void setNumber(String number) {
+<span class="nc" id="L99">        this.number = number;</span>
+<span class="nc" id="L100">    }</span>
+
+    /**
+     * 获取合同名称
+     *
+     * @return name - 合同名称
+     */
+    public String getName() {
+<span class="nc" id="L108">        return name;</span>
+    }
+
+    /**
+     * 设置合同名称
+     *
+     * @param name 合同名称
+     */
+    public void setName(String name) {
+<span class="nc" id="L117">        this.name = name;</span>
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * 获取合同价格
+     *
+     * @return money - 合同价格
+     */
+    public String getMoney() {
+<span class="nc" id="L126">        return money;</span>
+    }
+
+    /**
+     * 设置合同价格
+     *
+     * @param money 合同价格
+     */
+    public void setMoney(String money) {
+<span class="nc" id="L135">        this.money = money;</span>
+<span class="nc" id="L136">    }</span>
+
+    /**
+     * 获取合同承办人
+     *
+     * @return companyCommander - 合同承办人
+     */
+    public String getCompanyCommander() {
+<span class="nc" id="L144">        return companyCommander;</span>
+    }
+
+    /**
+     * 设置合同承办人
+     *
+     * @param companyCommander 合同承办人
+     */
+    public void setCompanyCommander(String companyCommander) {
+<span class="nc" id="L153">        this.companyCommander = companyCommander;</span>
+<span class="nc" id="L154">    }</span>
+
+    /**
+     * 获取对方主体名称
+     *
+     * @return companyName - 对方主体名称
+     */
+    public String getCompanyName() {
+<span class="nc" id="L162">        return companyName;</span>
+    }
+
+    /**
+     * 设置对方主体名称
+     *
+     * @param companyName 对方主体名称
+     */
+    public void setCompanyName(String companyName) {
+<span class="nc" id="L171">        this.companyName = companyName;</span>
+<span class="nc" id="L172">    }</span>
+
+    /**
+     * @return createTime
+     */
+    public Long getCreateTime() {
+<span class="nc" id="L178">        return createTime;</span>
+    }
+
+    /**
+     * @param createTime
+     */
+    public void setCreateTime(Long createTime) {
+<span class="nc" id="L185">        this.createTime = createTime;</span>
+<span class="nc" id="L186">    }</span>
+
+    /**
+     * @return updateTime
+     */
+    public Long getUpdateTime() {
+<span class="nc" id="L192">        return updateTime;</span>
+    }
+
+    /**
+     * @param updateTime
+     */
+    public void setUpdateTime(Long updateTime) {
+<span class="nc" id="L199">        this.updateTime = updateTime;</span>
+<span class="nc" id="L200">    }</span>
+
+    /**
+     * 获取未更新天数
+     *
+     * @return noUpdateDay - 未更新天数
+     */
+    public Integer getNoUpdateDay() {
+<span class="nc" id="L208">        return noUpdateDay;</span>
+    }
+
+    /**
+     * 设置未更新天数
+     *
+     * @param noUpdateDay 未更新天数
+     */
+    public void setNoUpdateDay(Integer noUpdateDay) {
+<span class="nc" id="L217">        this.noUpdateDay = noUpdateDay;</span>
+<span class="nc" id="L218">    }</span>
+
+    /**
+     * 获取合同创建人
+     *
+     * @return creator - 合同创建人
+     */
+    public Long getCreator() {
+<span class="nc" id="L226">        return creator;</span>
+    }
+
+    /**
+     * 设置合同创建人
+     *
+     * @param creator 合同创建人
+     */
+    public void setCreator(Long creator) {
+<span class="nc" id="L235">        this.creator = creator;</span>
+<span class="nc" id="L236">    }</span>
+
+    /**
+     * 获取状态说明
+     *
+     * @return statusExplain - 状态说明
+     */
+    public String getStatusExplain() {
+<span class="nc" id="L244">        return statusExplain;</span>
+    }
+
+    /**
+     * 设置状态说明
+     *
+     * @param statusExplain 状态说明
+     */
+    public void setStatusExplain(String statusExplain) {
+<span class="nc" id="L253">        this.statusExplain = statusExplain;</span>
+<span class="nc" id="L254">    }</span>
+
+    /**
+     * 获取公司id
+     *
+     * @return cid - 公司id
+     */
+    public Long getCid() {
+<span class="nc" id="L262">        return cid;</span>
+    }
+
+    /**
+     * 设置公司id
+     *
+     * @param cid 公司id
+     */
+    public void setCid(Long cid) {
+<span class="nc" id="L271">        this.cid = cid;</span>
+<span class="nc" id="L272">    }</span>
+
+    /**
+     * 获取准备状态 1
+起草状态 2
+审批状态 3
+签署状态 4
+执行状态 5
+结束状态 6
+     *
+     * @return status - 准备状态 1
+起草状态 2
+审批状态 3
+签署状态 4
+执行状态 5
+结束状态 6
+     */
+    public Integer getStatus() {
+<span class="nc" id="L290">        return status;</span>
+    }
+
+    /**
+     * 设置准备状态 1
+起草状态 2
+审批状态 3
+签署状态 4
+执行状态 5
+结束状态 6
+     *
+     * @param status 准备状态 1
+起草状态 2
+审批状态 3
+签署状态 4
+执行状态 5
+结束状态 6
+     */
+    public void setStatus(Integer status) {
+<span class="nc" id="L309">        this.status = status;</span>
+<span class="nc" id="L310">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

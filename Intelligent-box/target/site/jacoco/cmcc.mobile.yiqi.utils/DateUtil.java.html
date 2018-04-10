@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DateUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">DateUtil.java</span></div><h1>DateUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+/**
+ * 日期操作类
+ * 创建者 科帮网
+ * 创建时间	2017年7月31日
+ *
+ */
+<span class="nc" id="L16">public class DateUtil {</span>
+<span class="nc" id="L17">	private final static SimpleDateFormat sdfYear = new SimpleDateFormat(&quot;yyyy&quot;);</span>
+
+<span class="nc" id="L19">	private final static SimpleDateFormat sdfDay = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+
+<span class="nc" id="L21">	private final static SimpleDateFormat sdfDays = new SimpleDateFormat(&quot;yyyyMMdd&quot;);</span>
+
+<span class="nc" id="L23">	private final static SimpleDateFormat sdfTime = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span>
+
+	/**
+	 * 获取YYYY格式
+	 *
+	 * @return
+	 */
+	public static String getYear() {
+<span class="nc" id="L31">		return sdfYear.format(new Date());</span>
+	}
+
+<span class="nc" id="L34">	Timestamp timestamp = new Timestamp(new Date().getTime());</span>
+
+	/**
+	 * 获取YYYY-MM-DD格式
+	 *
+	 * @return
+	 */
+	public static String getDay() {
+<span class="nc" id="L42">		return sdfDay.format(new Date());</span>
+	}
+
+	/**
+	 * 获取YYYYMMDD格式
+	 *
+	 * @return
+	 */
+	public static String getDays() {
+<span class="nc" id="L51">		return sdfDays.format(new Date());</span>
+	}
+
+	/**
+	 * 获取YYYY-MM-DD hh:mm:ss格式
+	 *
+	 * @return
+	 */
+	public static String getTime() {
+<span class="nc" id="L60">		return sdfTime.format(new Date());</span>
+	}
+
+	/**
+	* @Title: compareDate
+	* @Description:(日期比较，如果s&gt;=e 返回true 否则返回false)
+	* @param s
+	* @param e
+	* @return boolean
+	* @throws
+	* @author luguosui
+	 */
+	public static boolean compareDate(String s, String e) {
+<span class="nc bnc" id="L73" title="All 4 branches missed.">		if (fomatDate(s) == null || fomatDate(e) == null) {</span>
+<span class="nc" id="L74">			return false;</span>
+		}
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		return fomatDate(s).getTime() &gt;= fomatDate(e).getTime();</span>
+	}
+
+	/**
+	 * 格式化日期
+	 *
+	 * @return
+	 */
+	public static Date fomatDate(String date) {
+<span class="nc" id="L85">		DateFormat fmt = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+		try {
+<span class="nc" id="L87">			return fmt.parse(date);</span>
+<span class="nc" id="L88">		} catch (ParseException e) {</span>
+<span class="nc" id="L89">			e.printStackTrace();</span>
+<span class="nc" id="L90">			return null;</span>
+		}
+	}
+
+	/**
+	 * 校验日期是否合法
+	 *
+	 * @return
+	 */
+	public static boolean isValidDate(String s) {
+<span class="nc" id="L100">		DateFormat fmt = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+		try {
+<span class="nc" id="L102">			fmt.parse(s);</span>
+<span class="nc" id="L103">			return true;</span>
+<span class="nc" id="L104">		} catch (Exception e) {</span>
+			// 如果throw java.text.ParseException或者NullPointerException，就说明格式不对
+<span class="nc" id="L106">			return false;</span>
+		}
+	}
+
+	public static int getDiffYear(String startTime, String endTime) {
+<span class="nc" id="L111">		DateFormat fmt = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+		try {
+<span class="nc" id="L113">			int years = (int) (((fmt.parse(endTime).getTime() - fmt.parse(startTime).getTime()) / (1000 * 60 * 60 * 24)) / 365);</span>
+<span class="nc" id="L114">			return years;</span>
+<span class="nc" id="L115">		} catch (Exception e) {</span>
+			// 如果throw java.text.ParseException或者NullPointerException，就说明格式不对
+<span class="nc" id="L117">			return 0;</span>
+		}
+	}
+
+	/**
+	* &lt;li&gt;功能描述：时间相减得到天数
+	* @param beginDateStr
+	* @param endDateStr
+	* @return
+	* long
+	* @author Administrator
+	*/
+	public static long getDaySub(String beginDateStr, String endDateStr) {
+<span class="nc" id="L130">		long day = 0;</span>
+<span class="nc" id="L131">		java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+<span class="nc" id="L132">		java.util.Date beginDate = null;</span>
+<span class="nc" id="L133">		java.util.Date endDate = null;</span>
+
+		try {
+<span class="nc" id="L136">			beginDate = format.parse(beginDateStr);</span>
+<span class="nc" id="L137">			endDate = format.parse(endDateStr);</span>
+<span class="nc" id="L138">		} catch (ParseException e) {</span>
+<span class="nc" id="L139">			e.printStackTrace();</span>
+<span class="nc" id="L140">		}</span>
+<span class="nc" id="L141">		day = (endDate.getTime() - beginDate.getTime()) / (24 * 60 * 60 * 1000);</span>
+		// System.out.println(&quot;相隔的天数=&quot;+day);
+
+<span class="nc" id="L144">		return day;</span>
+	}
+
+	/**
+	 * 得到n天之后的日期
+	 * @param days
+	 * @return
+	 */
+	public static String getAfterDayDate(String days) {
+<span class="nc" id="L153">		int daysInt = Integer.parseInt(days);</span>
+
+<span class="nc" id="L155">		Calendar canlendar = Calendar.getInstance(); // java.util包</span>
+<span class="nc" id="L156">		canlendar.add(Calendar.DATE, daysInt); // 日期减 如果不够减会将月变动</span>
+<span class="nc" id="L157">		Date date = canlendar.getTime();</span>
+
+<span class="nc" id="L159">		SimpleDateFormat sdfd = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span>
+<span class="nc" id="L160">		String dateStr = sdfd.format(date);</span>
+
+<span class="nc" id="L162">		return dateStr;</span>
+	}
+	/**
+	 * 得到n天之前的日期
+	 * @param days
+	 * @return
+	 */
+	public static String getBeforeDayDate(String days) {
+<span class="nc" id="L170">		int daysInt = Integer.parseInt(days);</span>
+
+<span class="nc" id="L172">		Calendar canlendar = Calendar.getInstance(); // java.util包</span>
+<span class="nc" id="L173">		canlendar.add(Calendar.DATE, daysInt); // 日期减 如果不够减会将月变动</span>
+<span class="nc" id="L174">		Date date = canlendar.getTime();</span>
+
+<span class="nc" id="L176">		String dateStr = sdfDays.format(date);</span>
+
+<span class="nc" id="L178">		return dateStr;</span>
+	}
+
+	/**
+	 * 得到n天之后是周几
+	 * @param days
+	 * @return
+	 */
+	public static String getAfterDayWeek(String days) {
+<span class="nc" id="L187">		int daysInt = Integer.parseInt(days);</span>
+
+<span class="nc" id="L189">		Calendar canlendar = Calendar.getInstance(); // java.util包</span>
+<span class="nc" id="L190">		canlendar.add(Calendar.DATE, daysInt); // 日期减 如果不够减会将月变动</span>
+<span class="nc" id="L191">		Date date = canlendar.getTime();</span>
+
+<span class="nc" id="L193">		SimpleDateFormat sdf = new SimpleDateFormat(&quot;E&quot;);</span>
+<span class="nc" id="L194">		String dateStr = sdf.format(date);</span>
+
+<span class="nc" id="L196">		return dateStr;</span>
+	}
+
+	/**
+	 * 按照yyyy-MM-dd HH:mm:ss的格式，日期转字符串
+	 * @param date
+	 * @return yyyy-MM-dd HH:mm:ss
+	 */
+	public static String date2Str(Date date) {
+<span class="nc" id="L205">		return date2Str(date, &quot;yyyy-MM-dd&quot;);</span>
+	}
+
+	/**
+	 * 按照yyyy-MM-dd HH:mm:ss的格式，字符串转日期
+	 * @param date
+	 * @return
+	 */
+	public static Date str2Date(String date) {
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		if (StringUtils.isNotBlank(date)) {</span>
+<span class="nc" id="L215">			SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span>
+			try {
+<span class="nc" id="L217">				return sdf.parse(date);</span>
+<span class="nc" id="L218">			} catch (ParseException e) {</span>
+<span class="nc" id="L219">				e.printStackTrace();</span>
+			}
+<span class="nc" id="L221">			return new Date();</span>
+		} else {
+<span class="nc" id="L223">			return null;</span>
+		}
+	}
+
+	/**
+	 * 按照参数format的格式，日期转字符串
+	 * @param date
+	 * @param format
+	 * @return
+	 */
+	public static String date2Str(Date date, String format) {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (null == format) {</span>
+<span class="nc" id="L235">			format = &quot;yyyy-MM-dd&quot;;</span>
+		}
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		if (date != null) {</span>
+<span class="nc" id="L238">			SimpleDateFormat sdf = new SimpleDateFormat(format);</span>
+<span class="nc" id="L239">			return sdf.format(date);</span>
+		} else {
+<span class="nc" id="L241">			return &quot;&quot;;</span>
+		}
+	}
+
+	/**
+	 * 把时间根据时、分、秒转换为时间段
+	 * @param StrDate
+	 */
+	public static String getTimes(String StrDate) {
+<span class="nc" id="L250">		String resultTimes = &quot;&quot;;</span>
+
+<span class="nc" id="L252">		SimpleDateFormat df = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span>
+		java.util.Date now;
+
+		try {
+<span class="nc" id="L256">			now = new Date();</span>
+<span class="nc" id="L257">			java.util.Date date = df.parse(StrDate);</span>
+<span class="nc" id="L258">			long times = now.getTime() - date.getTime();</span>
+<span class="nc" id="L259">			long day = times / (24 * 60 * 60 * 1000);</span>
+<span class="nc" id="L260">			long hour = (times / (60 * 60 * 1000) - day * 24);</span>
+<span class="nc" id="L261">			long min = ((times / (60 * 1000)) - day * 24 * 60 - hour * 60);</span>
+<span class="nc" id="L262">			long sec = (times / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - min * 60);</span>
+
+<span class="nc" id="L264">			StringBuffer sb = new StringBuffer();</span>
+			// sb.append(&quot;发表于：&quot;);
+<span class="nc bnc" id="L266" title="All 2 branches missed.">			if (hour &gt; 0) {</span>
+<span class="nc" id="L267">				sb.append(hour + &quot;小时前&quot;);</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">			} else if (min &gt; 0) {</span>
+<span class="nc" id="L269">				sb.append(min + &quot;分钟前&quot;);</span>
+			} else {
+<span class="nc" id="L271">				sb.append(sec + &quot;秒前&quot;);</span>
+			}
+
+<span class="nc" id="L274">			resultTimes = sb.toString();</span>
+<span class="nc" id="L275">		} catch (ParseException e) {</span>
+<span class="nc" id="L276">			e.printStackTrace();</span>
+<span class="nc" id="L277">		}</span>
+
+<span class="nc" id="L279">		return resultTimes;</span>
+	}
+
+	public static String getTimestamp() {
+<span class="nc" id="L283">		return String.valueOf(System.currentTimeMillis() / 1000);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

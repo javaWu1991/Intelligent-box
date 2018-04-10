@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AddressUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">AddressUtils.java</span></div><h1>AddressUtils.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+/**
+ * 根据IP地址获取详细的地域信息
+ * 创建者 科帮网
+ * 创建时间	2017年7月31日
+ *
+ */
+<span class="nc" id="L19">public class AddressUtils { </span>
+	/**
+	 *
+	 * @param content
+	 *            请求的参数 格式为：name=xxx&amp;pwd=xxx
+	 * @param encoding
+	 *            服务器端请求编码。如GBK,UTF-8等
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public static String getAddresses(String ip) throws UnsupportedEncodingException {
+<span class="nc" id="L30">		String urlStr =&quot;http://ip.taobao.com/service/getIpInfo.php&quot;;</span>
+<span class="nc" id="L31">		String returnStr = getResult(urlStr, ip);</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">		if (returnStr != null) {</span>
+			// 处理返回的省市区信息
+<span class="nc" id="L34">			String[] temp = returnStr.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">			if (temp.length &lt; 3) {</span>
+<span class="nc" id="L36">				return &quot;0&quot;;// 无效IP，局域网测试</span>
+			}
+<span class="nc" id="L38">			String region = (temp[5].split(&quot;:&quot;))[1].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L39">			region = decodeUnicode(region);// 省份</span>
+
+<span class="nc" id="L41">			String country = &quot;&quot;;</span>
+<span class="nc" id="L42">			String area = &quot;&quot;;</span>
+			// String region = &quot;&quot;;
+<span class="nc" id="L44">			String city = &quot;&quot;;</span>
+<span class="nc" id="L45">			String county = &quot;&quot;;</span>
+<span class="nc" id="L46">			String isp = &quot;&quot;;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">			for (int i = 0; i &lt; temp.length; i++) {</span>
+<span class="nc bnc" id="L48" title="All 7 branches missed.">				switch (i) {</span>
+				case 1:
+<span class="nc" id="L50">					country = (temp[i].split(&quot;:&quot;))[2].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L51">					country = decodeUnicode(country);// 国家</span>
+<span class="nc" id="L52">					break;</span>
+				case 3:
+<span class="nc" id="L54">					area = (temp[i].split(&quot;:&quot;))[1].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L55">					area = decodeUnicode(area);// 地区</span>
+<span class="nc" id="L56">					break;</span>
+				case 5:
+<span class="nc" id="L58">					region = (temp[i].split(&quot;:&quot;))[1].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L59">					region = decodeUnicode(region);// 省份</span>
+<span class="nc" id="L60">					break;</span>
+				case 7:
+<span class="nc" id="L62">					city = (temp[i].split(&quot;:&quot;))[1].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L63">					city = decodeUnicode(city);// 市区</span>
+<span class="nc" id="L64">					break;</span>
+				case 9:
+<span class="nc" id="L66">					county = (temp[i].split(&quot;:&quot;))[1].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L67">					county = decodeUnicode(county);// 地区</span>
+<span class="nc" id="L68">					break;</span>
+				case 11:
+<span class="nc" id="L70">					isp = (temp[i].split(&quot;:&quot;))[1].replaceAll(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L71">					isp = decodeUnicode(isp); // ISP公司</span>
+					break;
+				}
+			}
+<span class="nc" id="L75">			String address = region+city;</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			if(StringUtils.isBlank(address)){</span>
+<span class="nc" id="L77">				address = &quot;地球村&quot;;</span>
+			}
+<span class="nc" id="L79">			return address;</span>
+		}
+<span class="nc" id="L81">		return null;</span>
+	}
+
+	/**
+	 * @param urlStr
+	 *            请求的地址
+	 * @param content
+	 *            请求的参数 格式为：name=xxx&amp;pwd=xxx
+	 * @param encoding
+	 *            服务器端请求编码。如GBK,UTF-8等
+	 * @return
+	 */
+	private static String getResult(String urlStr, String ip) {
+<span class="nc" id="L94">		URL url = null;</span>
+<span class="nc" id="L95">		HttpURLConnection connection = null;</span>
+		try {
+<span class="nc" id="L97">			url = new URL(urlStr);</span>
+<span class="nc" id="L98">			connection = (HttpURLConnection) url.openConnection();// 新建连接实例</span>
+			/**
+			 * 超时错误 由 2s改为5s
+			 */
+<span class="nc" id="L102">			connection.setConnectTimeout(5000);// 设置连接超时时间，单位毫秒</span>
+<span class="nc" id="L103">			connection.setReadTimeout(5000);// 设置读取数据超时时间，单位毫秒</span>
+<span class="nc" id="L104">			connection.setDoOutput(true);// 是否打开输出流 true|false</span>
+<span class="nc" id="L105">			connection.setDoInput(true);// 是否打开输入流true|false</span>
+<span class="nc" id="L106">			connection.setRequestMethod(&quot;POST&quot;);// 提交方法POST|GET</span>
+<span class="nc" id="L107">			connection.setUseCaches(false);// 是否缓存true|false</span>
+<span class="nc" id="L108">			connection.connect();// 打开连接端口</span>
+<span class="nc" id="L109">			DataOutputStream out = new DataOutputStream(connection.getOutputStream());// 打开输出流往对端服务器写数据</span>
+<span class="nc" id="L110">			out.writeBytes(&quot;ip=&quot;+ip);// 写数据,也就是提交你的表单 name=xxx&amp;pwd=xxx</span>
+<span class="nc" id="L111">			out.flush();// 刷新</span>
+<span class="nc" id="L112">			out.close();// 关闭输出流</span>
+<span class="nc" id="L113">			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), &quot;utf-8&quot;));// 往对端写完数据对端服务器返回数据</span>
+			// ,以BufferedReader流来读取
+<span class="nc" id="L115">			StringBuffer buffer = new StringBuffer();</span>
+<span class="nc" id="L116">			String line = &quot;&quot;;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">			while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L118">				buffer.append(line);</span>
+			}
+<span class="nc" id="L120">			reader.close();</span>
+<span class="nc" id="L121">			return buffer.toString();</span>
+<span class="nc" id="L122">		} catch (IOException e) {</span>
+<span class="nc" id="L123">			e.printStackTrace();</span>
+		} finally {
+<span class="nc bnc" id="L125" title="All 6 branches missed.">			if (connection != null) {</span>
+<span class="nc" id="L126">				connection.disconnect();// 关闭连接</span>
+			}
+		}
+<span class="nc" id="L129">		return null;</span>
+	}
+
+	/**
+	 * unicode 转换成 中文
+	 * @param theString
+	 * @return
+	 */
+	public static String decodeUnicode(String theString) {
+		char aChar;
+<span class="nc" id="L139">		int len = theString.length();</span>
+<span class="nc" id="L140">		StringBuffer outBuffer = new StringBuffer(len);</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		for (int x = 0; x &lt; len;) {</span>
+<span class="nc" id="L142">			aChar = theString.charAt(x++);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">			if (aChar == '\\') {</span>
+<span class="nc" id="L144">				aChar = theString.charAt(x++);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">				if (aChar == 'u') {</span>
+<span class="nc" id="L146">					int value = 0;</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">					for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L148">						aChar = theString.charAt(x++);</span>
+<span class="nc bnc" id="L149" title="All 4 branches missed.">						switch (aChar) {</span>
+						case '0':
+						case '1':
+						case '2':
+						case '3':
+						case '4':
+						case '5':
+						case '6':
+						case '7':
+						case '8':
+						case '9':
+<span class="nc" id="L160">							value = (value &lt;&lt; 4) + aChar - '0';</span>
+<span class="nc" id="L161">							break;</span>
+						case 'a':
+						case 'b':
+						case 'c':
+						case 'd':
+						case 'e':
+						case 'f':
+<span class="nc" id="L168">							value = (value &lt;&lt; 4) + 10 + aChar - 'a';</span>
+<span class="nc" id="L169">							break;</span>
+						case 'A':
+						case 'B':
+						case 'C':
+						case 'D':
+						case 'E':
+						case 'F':
+<span class="nc" id="L176">							value = (value &lt;&lt; 4) + 10 + aChar - 'A';</span>
+<span class="nc" id="L177">							break;</span>
+						default:
+<span class="nc" id="L179">							throw new IllegalArgumentException(&quot;Malformed      encoding.&quot;);</span>
+						}
+					}
+<span class="nc" id="L182">					outBuffer.append((char) value);</span>
+<span class="nc" id="L183">				} else {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">					if (aChar == 't') {</span>
+<span class="nc" id="L185">						aChar = '\t';</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">					} else if (aChar == 'r') {</span>
+<span class="nc" id="L187">						aChar = '\r';</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">					} else if (aChar == 'n') {</span>
+<span class="nc" id="L189">						aChar = '\n';</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">					} else if (aChar == 'f') {</span>
+<span class="nc" id="L191">						aChar = '\f';</span>
+					}
+<span class="nc" id="L193">					outBuffer.append(aChar);</span>
+				}
+			} else {
+<span class="nc" id="L196">				outBuffer.append(aChar);</span>
+			}
+		}
+<span class="nc" id="L199">		return outBuffer.toString();</span>
+	}
+	/**
+	 * 获取IP地址
+	 * @Author  科帮网
+	 * @param request
+	 * @return  String
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+    public static String getIpAddr(HttpServletRequest request)
+    {
+<span class="nc" id="L213">        String ip = request.getHeader(&quot;X-Real-IP&quot;);</span>
+<span class="nc bnc" id="L214" title="All 4 branches missed.">        if(!StringUtils.isBlank(ip) &amp;&amp; !&quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+<span class="nc" id="L215">            return ip;</span>
+<span class="nc" id="L216">        ip = request.getHeader(&quot;X-Forwarded-For&quot;);</span>
+<span class="nc bnc" id="L217" title="All 4 branches missed.">        if(!StringUtils.isBlank(ip) &amp;&amp; !&quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+        {
+<span class="nc" id="L219">            int index = ip.indexOf(',');</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if(index != -1)</span>
+<span class="nc" id="L221">               return ip.substring(0, index);</span>
+            else
+<span class="nc" id="L223">                return ip;</span>
+        }
+<span class="nc bnc" id="L225" title="All 6 branches missed.">        if(ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+<span class="nc" id="L226">            ip = request.getHeader(&quot;Proxy-Client-IP&quot;);</span>
+<span class="nc bnc" id="L227" title="All 6 branches missed.">        if(ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+<span class="nc" id="L228">            ip = request.getHeader(&quot;WL-Proxy-Client-IP&quot;);</span>
+<span class="nc bnc" id="L229" title="All 6 branches missed.">        if(ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+<span class="nc" id="L230">            ip = request.getHeader(&quot;HTTP_CLIENT_IP&quot;);</span>
+<span class="nc bnc" id="L231" title="All 6 branches missed.">        if(ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+<span class="nc" id="L232">            ip = request.getHeader(&quot;HTTP_X_FORWARDED_FOR&quot;);</span>
+<span class="nc bnc" id="L233" title="All 6 branches missed.">        if(ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))</span>
+<span class="nc" id="L234">            ip = request.getRemoteAddr();</span>
+<span class="nc" id="L235">        return ip;</span>
+    }
+}  
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppCheckMapper">
+  <resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppCheck">
+    <!--
+      WARNING - @mbggenerated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="confidentialityLevel" jdbcType="INTEGER" property="confidentialityLevel" />
+    <result column="createTime" jdbcType="BIGINT" property="createTime" />
+    <result column="endTime" jdbcType="BIGINT" property="endTime" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="message" jdbcType="VARCHAR" property="message" />
+    <result column="accessoryUrl" jdbcType="VARCHAR" property="accessoryUrl" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="departmentName" jdbcType="VARCHAR" property="departmentName" />
+    <result column="departmentId" jdbcType="VARCHAR" property="departmentId" />
+    <result column="nextAssigneeId" jdbcType="VARCHAR" property="nextAssigneeId" />
+    <result column="nextAssigneeName" jdbcType="VARCHAR" property="nextAssigneeName" />
+    <result column="assigneeName" jdbcType="VARCHAR" property="assigneeName" />
+    <result column="assigneeId" jdbcType="VARCHAR" property="assigneeId" />
+    <result column="checkMessage" jdbcType="VARCHAR" property="checkMessage" />
+    <result column="isPass" jdbcType="TINYINT" property="isPass" />
+    <result column="initiator" jdbcType="VARCHAR" property="initiator" />
+    <result column="PMId" jdbcType="BIGINT" property="PMId" />
+    <result column="procInstId" jdbcType="VARCHAR" property="procInstId" />
+  </resultMap>
+</mapper>

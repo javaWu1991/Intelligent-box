@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LoginController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.controller</a> &gt; <span class="el_source">LoginController.java</span></div><h1>LoginController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.controller;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import cmcc.mobile.yiqi.base.BaseController;
+import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.entity.SysRole;
+import cmcc.mobile.yiqi.entity.TAppCompany;
+import cmcc.mobile.yiqi.entity.TAppUpdateLog;
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.dao.SysRoleMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUpdateLogMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserCompanyMapper;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.vo.AppUserVo;
+import cmcc.mobile.yiqi.web.service.IAppUserServices;
+import cmcc.mobile.yiqi.web.service.ICompanyService;
+
+@Controller
+@RequestMapping(&quot;/web&quot;)
+<span class="nc" id="L45">public class LoginController extends BaseController {</span>
+
+	@Autowired
+	private IAppUserServices appUserService;
+
+	@Autowired
+	private ICompanyService companyService;
+
+	@Autowired
+	private TAppUserCompanyMapper userCompanyMapper;
+
+	@Autowired
+	private TAppUpdateLogMapper updateLogMapper;
+
+	@Autowired
+	private SysRoleMapper sysRoleMapper;
+
+	/**
+	 * 登陆跳转
+	 *
+	 * @return
+	 */
+	@RequestMapping(&quot;/login&quot;)
+	public ModelAndView login() {
+<span class="nc" id="L69">		return new ModelAndView(&quot;login&quot;);</span>
+	}
+
+	/**
+	 * 进入功能页面
+	 *
+	 * @return
+	 */
+	@RequestMapping(&quot;/microApp/list&quot;)
+	public ModelAndView microApp(AppUserVo vo) {
+<span class="nc" id="L79">		BeanUtils.copyProperties(vo, new TAppUser());</span>
+<span class="nc" id="L80">		return new ModelAndView(&quot;/microApp/list&quot;);</span>
+	}
+
+	/**
+	 * 跳转超级管理员页面
+	 *
+	 * @return
+	 */
+	@RequestMapping(&quot;/microApp/lists&quot;)
+	public ModelAndView microApps() {
+<span class="nc" id="L90">		return new ModelAndView(&quot;/microApp/lists&quot;);</span>
+	}
+
+	/**
+	 * 找回密码界面
+	 *
+	 * @return
+	 */
+	@RequestMapping(&quot;/forgot&quot;)
+	public ModelAndView forgot() {
+<span class="nc" id="L100">		return new ModelAndView(&quot;forgot&quot;);</span>
+	}
+
+	/**
+	 * 注册界面
+	 *
+	 * @return
+	 */
+	@RequestMapping(&quot;/register&quot;)
+	public ModelAndView register() {
+<span class="nc" id="L110">		return new ModelAndView(&quot;register&quot;);</span>
+	}
+
+	/**
+	 * 登陆校验
+	 *
+	 * @param account
+	 * @param password
+	 * @return
+	 */
+	@RequestMapping(&quot;/checkPass&quot;)
+	@ResponseBody
+	public JsonResult checkPass(String account, String password, HttpServletRequest request) {
+<span class="nc bnc" id="L123" title="All 4 branches missed.">		if (StringUtils.isNotEmpty(account) &amp;&amp; StringUtils.isNotEmpty(password)) {</span>
+<span class="nc" id="L124">			TAppUser user = appUserService.loginCheck(account, password);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">				if (user.getStatus() == 0) {</span>
+<span class="nc" id="L127">					return new JsonResult(false, &quot;该账号已停用，请联系管理员！&quot;, null);</span>
+				}
+
+<span class="nc" id="L130">				List&lt;SysRole&gt; syslist = sysRoleMapper.byUidCid(Integer.parseInt(user.getId().toString()), null);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">				if (CollectionUtils.isEmpty(syslist)) {</span>
+<span class="nc" id="L132">					return new JsonResult(false, &quot;权限不足，无法登陆管理平台！&quot;, null);</span>
+				}
+<span class="nc" id="L134">				List&lt;TAppCompany&gt; companies = new ArrayList&lt;TAppCompany&gt;();</span>
+<span class="nc" id="L135">				HttpSession session = request.getSession();</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">				for (SysRole sysRole : syslist) {</span>
+<span class="nc" id="L137">					TAppCompany company = new TAppCompany();</span>
+<span class="nc" id="L138">					session.setAttribute(&quot;rid&quot;, sysRole.getId());</span>
+					// ADMIN 管理员登陆
+<span class="nc bnc" id="L140" title="All 2 branches missed.">					if (sysRole.getRole().equalsIgnoreCase(Constants.ADMIN_MANAGER)) {</span>
+<span class="nc" id="L141">						session.setAttribute(&quot;isAdminLogin&quot;, true);</span>
+<span class="nc" id="L142">						company.setId(0L);</span>
+<span class="nc" id="L143">						company.setRoleId(sysRole.getId());</span>
+<span class="nc" id="L144">						company.setName(sysRole.getDescription());</span>
+					}
+					// 区域经理/后勤人员登陆
+<span class="nc bnc" id="L147" title="All 4 branches missed.">					else if (sysRole.getRole().equalsIgnoreCase(Constants.AREA_MANAGER)</span>
+							|| sysRole.getRole().equalsIgnoreCase(Constants.CUSTOMER_MANAGER)) {
+<span class="nc" id="L149">						company.setId(0L);</span>
+<span class="nc" id="L150">						company.setRoleId(sysRole.getId());</span>
+<span class="nc" id="L151">						company.setName(sysRole.getDescription());</span>
+					}
+					// 企业管理员
+<span class="nc bnc" id="L154" title="All 2 branches missed.">					else if (sysRole.getRole().equalsIgnoreCase(Constants.COMPANY_MANAGER)) {</span>
+<span class="nc" id="L155">						List&lt;TAppCompany&gt; list = appUserService.findCompanyByUser(user.getId(), user.getAccount(), false);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">						if (CollectionUtils.isNotEmpty(list)) {</span>
+<span class="nc" id="L157">							company = list.get(0);</span>
+<span class="nc" id="L158">							company.setRoleId(sysRole.getId());</span>
+							//将登陆信息保存到session
+							
+<span class="nc" id="L161">							session.setAttribute(&quot;companyId&quot;, list.get(0).getId());</span>
+<span class="nc" id="L162">							session.setAttribute(&quot;companyName&quot;, list.get(0).getName());</span>
+<span class="nc" id="L163">							session.setAttribute(&quot;isSuper&quot;, &quot;0&quot;.equalsIgnoreCase(list.get(0).getId().toString()));</span>
+						}
+					}
+<span class="nc bnc" id="L166" title="All 2 branches missed.">					if (company.getId() != null) {</span>
+<span class="nc" id="L167">						companies.add(company);</span>
+					}
+<span class="nc" id="L169">				}</span>
+
+<span class="nc bnc" id="L171" title="All 4 branches missed.">				if (CollectionUtils.isEmpty(companies) || companies.size() == 0) {</span>
+<span class="nc" id="L172">					return new JsonResult(false, &quot;非法的用户身份，不可登陆！&quot;, null);</span>
+				}
+
+//				Collections.sort(companies, new Comparator&lt;TAppCompany&gt;() {
+//					@Override
+//					public int compare(TAppCompany o1, TAppCompany o2) {
+//						return o1.getId().compareTo(o2.getId());
+//					}
+//				});
+
+<span class="nc" id="L182">				session.setAttribute(&quot;companys&quot;, companies);</span>
+<span class="nc" id="L183">				session.setAttribute(&quot;user&quot;, user);</span>
+<span class="nc" id="L184">				session.setAttribute(&quot;userId&quot;, user.getId());</span>
+<span class="nc" id="L185">				session.setAttribute(&quot;userName&quot;, user.getName());</span>
+				//session.setAttribute(&quot;areaId&quot;, userCompanyMapper.getAreaId(user.getAccount()));
+				
+<span class="nc" id="L188">				UsernamePasswordToken token = new UsernamePasswordToken(account, password);</span>
+				// shiro相关，登陆
+<span class="nc" id="L190">				Subject subject = SecurityUtils.getSubject();</span>
+<span class="nc" id="L191">				subject.login(token);</span>
+<span class="nc" id="L192">				return new JsonResult(true, &quot;登录成功!&quot;, companies);</span>
+			} else {
+<span class="nc" id="L194">				return new JsonResult(false, &quot;用户名或密码错误！&quot;, null);</span>
+			}
+		} else {
+<span class="nc" id="L197">			return new JsonResult(false, &quot;用户名或密码不可为空！&quot;, null);</span>
+		}
+	}
+
+	/**
+	 * 选择集团跳转
+	 *
+	 * @param company
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(&quot;/checkLogin&quot;)
+	@ResponseBody
+	public JsonResult checkLogin(String id, String name, HttpServletRequest request, String roleId) {
+<span class="nc bnc" id="L211" title="All 4 branches missed.">		if (StringUtils.isNotEmpty(id) &amp;&amp; StringUtils.isNotEmpty(name)) {</span>
+
+<span class="nc" id="L213">			HttpSession session = request.getSession();</span>
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">			if (Integer.parseInt(id) != 0) {</span>
+<span class="nc" id="L216">				TAppCompany company = companyService.selectByPrimaryKey(Long.parseLong(id));</span>
+<span class="nc" id="L217">				session.setAttribute(&quot;company&quot;, company);</span>
+			}
+
+<span class="nc" id="L220">			session.setAttribute(&quot;rid&quot;, roleId);</span>
+<span class="nc" id="L221">			session.setAttribute(&quot;companyId&quot;, id);</span>
+<span class="nc" id="L222">			session.setAttribute(&quot;companyName&quot;, name);</span>
+<span class="nc" id="L223">			session.setAttribute(&quot;isSuper&quot;, &quot;0&quot;.equalsIgnoreCase(id));</span>
+<span class="nc" id="L224">			return new JsonResult(true, &quot;&quot;, null);</span>
+		}
+<span class="nc" id="L226">		return new JsonResult(false, &quot;请选择集团登陆！&quot;, null);</span>
+	}
+
+	@RequestMapping(&quot;/exit&quot;)
+	public String exit(HttpServletRequest request) {
+		// 清除 session
+<span class="nc" id="L232">		Enumeration&lt;String&gt; em = request.getSession().getAttributeNames();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		while (em.hasMoreElements()) {</span>
+<span class="nc" id="L234">			request.getSession().removeAttribute(em.nextElement().toString());</span>
+		}
+		// shiro相关，退出登录
+<span class="nc" id="L237">		Subject subject = SecurityUtils.getSubject();</span>
+<span class="nc" id="L238">		subject.logout();</span>
+<span class="nc" id="L239">		return &quot;redirect:/web/login.htm&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+html #layui_layer_skinmyskinstylecss{display: none; position: absolute; width: 1989px;}
+
+body .layer-ext-myskin{border-radius: 5px;}
+
+body .layer-ext-myskin .layui-layer-title{display: none;}
+
+body .layer-ext-myskin .layui-layer-content{color: #000; font-size: 16px;}
+
+body .layer-ext-myskin .layui-layer-btn{border-top:1px solid #d8d8d8; padding: 0; }
+
+body .layer-ext-myskin .layui-layer-btn a{color: #0067ff; height: 1.173333rem; line-height: 1.173333rem; margin: 0; border: 0; border-radius: 0; text-align: center; width: 50%;}
+
+body .layer-ext-myskin .layui-layer-btn a.layui-layer-btn0 {
+	background-color: #fff;
+}
+body .layer-ext-myskin .layui-layer-btn a.layui-layer-btn1 {
+    background-color: #fff;
+    border-left: 1px solid #d8d8d8;
+}

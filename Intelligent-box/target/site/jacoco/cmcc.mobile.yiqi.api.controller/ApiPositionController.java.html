@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ApiPositionController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.api.controller</a> &gt; <span class="el_source">ApiPositionController.java</span></div><h1>ApiPositionController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.api.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.druid.util.StringUtils;
+
+import cmcc.mobile.yiqi.entity.TAppPosition;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.web.service.IPositionService;
+
+/**
+ * 职位管理接口
+ * 
+ * @author zhengshuang
+ *
+ */
+@Controller
+@RequestMapping(&quot;/position&quot;)
+<span class="nc" id="L28">public class ApiPositionController extends ApiController {</span>
+
+	@Autowired
+	private IPositionService positionService;
+
+	@RequestMapping(value = &quot;/list/{cid:\\d+}&quot;)
+	@ResponseBody
+	public JsonResult list(@PathVariable Integer cid) {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">		if (cid == null) {</span>
+<span class="nc" id="L37">			return new JsonResult(false, &quot;传参出错，请选择对应公司&quot;, &quot;&quot;);</span>
+		}
+<span class="nc" id="L39">		List&lt;TAppPosition&gt; positions = positionService.queryAllPosition(cid);</span>
+<span class="nc" id="L40">		return new JsonResult(true, &quot;&quot;, positions);</span>
+	}
+
+	/**
+	 * 新增职位
+	 * @param position
+	 * @return
+	 */
+	@RequestMapping(value = &quot;add&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult addPosition(TAppPosition position) {
+<span class="nc bnc" id="L51" title="All 6 branches missed.">		if (position.getCid() == null || StringUtils.isEmpty(position.getPositionName()) || position.getLevel() == null) {</span>
+<span class="nc" id="L52">			return new JsonResult(false, &quot;传参不合法，部分参数为空&quot;, &quot;&quot;);</span>
+		}
+<span class="nc" id="L54">		return positionService.addPosition(position);</span>
+	}
+
+	@RequestMapping(value = &quot;update&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult updatePosition(TAppPosition position) {
+<span class="nc bnc" id="L60" title="All 6 branches missed.">		if (position.getId() == null || (StringUtils.isEmpty(position.getPositionName()) &amp;&amp; position.getLevel() == null)) {</span>
+<span class="nc" id="L61">			return new JsonResult(false, &quot;传参不合法，没有指定职位或没有更新内容&quot;, &quot;&quot;);</span>
+		}
+<span class="nc" id="L63">		return positionService.updatePosition(position);</span>
+	}
+
+	/**
+	 * 删除职位判断是否有人员关联
+	 * 
+	 * @param id
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = &quot;delete/{id}&quot;, method = RequestMethod.DELETE)
+	@ResponseBody
+	public JsonResult updatePosition(@PathVariable Integer id, HttpServletRequest request) {
+<span class="nc" id="L76">		return positionService.deleteById(id);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AppUserVo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.vo</a> &gt; <span class="el_source">AppUserVo.java</span></div><h1>AppUserVo.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.vo;
+
+import java.util.List;
+
+import cmcc.mobile.yiqi.entity.TAppCompany;
+
+<span class="nc" id="L7">public class AppUserVo extends PageVo {</span>
+
+	private Long id; // 唯一标识 必填
+
+	private String name; // 用户名
+
+	private Integer sex; // 性别 1：男 0：女
+
+	private String account; // 账户信息(不可修改)
+
+	private String password; // 密码
+
+	private Integer isLeader; // 是否领导
+
+	private Integer jobId; // 职位id
+
+	private String job; // 职位
+
+	private String mobile; // 手机号
+
+	private String shortNum; // 短号
+
+	private String email; // 邮箱
+
+	private String headUrl; // 头像路径
+
+	private Integer status;
+
+	private Long createTime;
+
+	private Long updateTime;
+
+	private String source;
+
+	private Long orgId;
+
+	private Integer sort;
+
+	private Long cid;
+
+	private String companyNo;
+
+	private String companyName;
+
+	private List&lt;TAppCompany&gt; companys;
+
+	private String provincename;
+
+	private String cityname;
+
+	private String areaname;
+
+	private Integer areaid;
+
+	private Integer cityid;
+
+	private Integer provinceid;
+
+	private String downloadUrl;
+
+	private Integer uid;
+
+	private String orgs;
+
+	private String tid;
+
+	private String changeOrgId;
+
+	private String changeOrgName;
+
+	private List&lt;Long&gt; orgIds;
+
+	private Integer type ;
+	
+	
+	public Integer getType() {
+<span class="nc" id="L83">		return type;</span>
+	}
+
+	public void setType(Integer type) {
+<span class="nc" id="L87">		this.type = type;</span>
+<span class="nc" id="L88">	}</span>
+
+	public List&lt;Long&gt; getOrgIds() {
+<span class="nc" id="L91">		return orgIds;</span>
+	}
+
+	public void setOrgIds(List&lt;Long&gt; orgIds) {
+<span class="nc" id="L95">		this.orgIds = orgIds;</span>
+<span class="nc" id="L96">	}</span>
+
+	public String getChangeOrgId() {
+<span class="nc" id="L99">		return changeOrgId;</span>
+	}
+
+	public void setChangeOrgId(String changeOrgId) {
+<span class="nc" id="L103">		this.changeOrgId = changeOrgId;</span>
+<span class="nc" id="L104">	}</span>
+
+	public String getChangeOrgName() {
+<span class="nc" id="L107">		return changeOrgName;</span>
+	}
+
+	public void setChangeOrgName(String changeOrgName) {
+<span class="nc" id="L111">		this.changeOrgName = changeOrgName;</span>
+<span class="nc" id="L112">	}</span>
+
+	public String getOrgs() {
+<span class="nc" id="L115">		return orgs;</span>
+	}
+
+	public void setOrgs(String orgs) {
+<span class="nc" id="L119">		this.orgs = orgs;</span>
+<span class="nc" id="L120">	}</span>
+
+	public String getDownloadUrl() {
+<span class="nc" id="L123">		return downloadUrl;</span>
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+<span class="nc" id="L127">		this.downloadUrl = downloadUrl;</span>
+<span class="nc" id="L128">	}</span>
+
+	public String getProvincename() {
+<span class="nc" id="L131">		return provincename;</span>
+	}
+
+	public void setProvincename(String provincename) {
+<span class="nc" id="L135">		this.provincename = provincename;</span>
+<span class="nc" id="L136">	}</span>
+
+	public String getCityname() {
+<span class="nc" id="L139">		return cityname;</span>
+	}
+
+	public void setCityname(String cityname) {
+<span class="nc" id="L143">		this.cityname = cityname;</span>
+<span class="nc" id="L144">	}</span>
+
+	public Integer getAreaid() {
+<span class="nc" id="L147">		return areaid;</span>
+	}
+
+	public void setAreaid(Integer areaid) {
+<span class="nc" id="L151">		this.areaid = areaid;</span>
+<span class="nc" id="L152">	}</span>
+
+	public String getAreaname() {
+<span class="nc" id="L155">		return areaname;</span>
+	}
+
+	public void setAreaname(String areaname) {
+<span class="nc" id="L159">		this.areaname = areaname;</span>
+<span class="nc" id="L160">	}</span>
+
+	public Integer getJobId() {
+<span class="nc" id="L163">		return jobId;</span>
+	}
+
+	public void setJobId(Integer jobId) {
+<span class="nc" id="L167">		this.jobId = jobId;</span>
+<span class="nc" id="L168">	}</span>
+
+	public Integer getIsLeader() {
+<span class="nc" id="L171">		return isLeader;</span>
+	}
+
+	public void setIsLeader(Integer isLeader) {
+<span class="nc" id="L175">		this.isLeader = isLeader;</span>
+<span class="nc" id="L176">	}</span>
+
+	public String getShortNum() {
+<span class="nc" id="L179">		return shortNum;</span>
+	}
+
+	public void setShortNum(String shortNum) {
+<span class="nc" id="L183">		this.shortNum = shortNum;</span>
+<span class="nc" id="L184">	}</span>
+
+	public Integer getSort() {
+<span class="nc" id="L187">		return sort;</span>
+	}
+
+	public void setSort(Integer sort) {
+<span class="nc" id="L191">		this.sort = sort;</span>
+<span class="nc" id="L192">	}</span>
+
+	public List&lt;TAppCompany&gt; getCompanys() {
+<span class="nc" id="L195">		return companys;</span>
+	}
+
+	public void setCompanys(List&lt;TAppCompany&gt; companys) {
+<span class="nc" id="L199">		this.companys = companys;</span>
+<span class="nc" id="L200">	}</span>
+
+	public Long getOrgId() {
+<span class="nc" id="L203">		return orgId;</span>
+	}
+
+	public void setOrgId(Long orgId) {
+<span class="nc" id="L207">		this.orgId = orgId;</span>
+<span class="nc" id="L208">	}</span>
+
+	public Long getId() {
+<span class="nc" id="L211">		return id;</span>
+	}
+
+	public void setId(Long id) {
+<span class="nc" id="L215">		this.id = id;</span>
+<span class="nc" id="L216">	}</span>
+
+	public Integer getSex() {
+<span class="nc" id="L219">		return sex;</span>
+	}
+
+	public void setSex(Integer sex) {
+<span class="nc" id="L223">		this.sex = sex;</span>
+<span class="nc" id="L224">	}</span>
+
+	public String getJob() {
+<span class="nc" id="L227">		return job;</span>
+	}
+
+	public void setJob(String job) {
+<span class="nc" id="L231">		this.job = job;</span>
+<span class="nc" id="L232">	}</span>
+
+	public String getEmail() {
+<span class="nc" id="L235">		return email;</span>
+	}
+
+	public void setEmail(String email) {
+<span class="nc" id="L239">		this.email = email;</span>
+<span class="nc" id="L240">	}</span>
+
+	public Integer getStatus() {
+<span class="nc" id="L243">		return status;</span>
+	}
+
+	public void setStatus(Integer status) {
+<span class="nc" id="L247">		this.status = status;</span>
+<span class="nc" id="L248">	}</span>
+
+	public Long getCreateTime() {
+<span class="nc" id="L251">		return createTime;</span>
+	}
+
+	public void setCreateTime(Long createTime) {
+<span class="nc" id="L255">		this.createTime = createTime;</span>
+<span class="nc" id="L256">	}</span>
+
+	public Long getUpdateTime() {
+<span class="nc" id="L259">		return updateTime;</span>
+	}
+
+	public void setUpdateTime(Long updateTime) {
+<span class="nc" id="L263">		this.updateTime = updateTime;</span>
+<span class="nc" id="L264">	}</span>
+
+	public String getSource() {
+<span class="nc" id="L267">		return source;</span>
+	}
+
+	public void setSource(String source) {
+<span class="nc" id="L271">		this.source = source;</span>
+<span class="nc" id="L272">	}</span>
+
+	public String getHeadUrl() {
+<span class="nc" id="L275">		return headUrl;</span>
+	}
+
+	public void setHeadUrl(String headUrl) {
+<span class="nc" id="L279">		this.headUrl = headUrl;</span>
+<span class="nc" id="L280">	}</span>
+
+	public String getCompanyNo() {
+<span class="nc" id="L283">		return companyNo;</span>
+	}
+
+	public void setCompanyNo(String companyNo) {
+<span class="nc" id="L287">		this.companyNo = companyNo;</span>
+<span class="nc" id="L288">	}</span>
+
+	public String getCompanyName() {
+<span class="nc" id="L291">		return companyName;</span>
+	}
+
+	public void setCompanyName(String companyName) {
+<span class="nc" id="L295">		this.companyName = companyName;</span>
+<span class="nc" id="L296">	}</span>
+
+	public Long getCid() {
+<span class="nc" id="L299">		return cid;</span>
+	}
+
+	public void setCid(Long cid) {
+<span class="nc" id="L303">		this.cid = cid;</span>
+<span class="nc" id="L304">	}</span>
+
+	public String getName() {
+<span class="nc" id="L307">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="nc bnc" id="L311" title="All 2 branches missed.">		this.name = name == null ? null : name.trim();</span>
+<span class="nc" id="L312">	}</span>
+
+	public String getAccount() {
+<span class="nc" id="L315">		return account;</span>
+	}
+
+	public void setAccount(String account) {
+<span class="nc bnc" id="L319" title="All 2 branches missed.">		this.account = account == null ? null : account.trim();</span>
+<span class="nc" id="L320">	}</span>
+
+	public String getPassword() {
+<span class="nc" id="L323">		return password;</span>
+	}
+
+	public void setPassword(String password) {
+<span class="nc bnc" id="L327" title="All 2 branches missed.">		this.password = password == null ? null : password.trim();</span>
+<span class="nc" id="L328">	}</span>
+
+	public String getMobile() {
+<span class="nc" id="L331">		return mobile;</span>
+	}
+
+	public void setMobile(String mobile) {
+<span class="nc bnc" id="L335" title="All 2 branches missed.">		this.mobile = mobile == null ? null : mobile.trim();</span>
+<span class="nc" id="L336">	}</span>
+
+	public Integer getCityid() {
+<span class="nc" id="L339">		return cityid;</span>
+	}
+
+	public void setCityid(Integer cityid) {
+<span class="nc" id="L343">		this.cityid = cityid;</span>
+<span class="nc" id="L344">	}</span>
+
+	public Integer getProvinceid() {
+<span class="nc" id="L347">		return provinceid;</span>
+	}
+
+	public void setProvinceid(Integer provinceid) {
+<span class="nc" id="L351">		this.provinceid = provinceid;</span>
+<span class="nc" id="L352">	}</span>
+
+	public Integer getUid() {
+<span class="nc" id="L355">		return uid;</span>
+	}
+
+	public void setUid(Integer uid) {
+<span class="nc" id="L359">		this.uid = uid;</span>
+<span class="nc" id="L360">	}</span>
+
+	public String getTid() {
+<span class="nc" id="L363">		return tid;</span>
+	}
+
+	public void setTid(String tid) {
+<span class="nc" id="L367">		this.tid = tid;</span>
+<span class="nc" id="L368">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

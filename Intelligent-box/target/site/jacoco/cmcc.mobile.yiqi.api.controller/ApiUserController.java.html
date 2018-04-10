@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ApiUserController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.api.controller</a> &gt; <span class="el_source">ApiUserController.java</span></div><h1>ApiUserController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.api.controller;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.FileNameMap;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.entity.TAppCompany;
+import cmcc.mobile.yiqi.entity.TAppOrganization;
+import cmcc.mobile.yiqi.entity.TAppUpdateLog;
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.TAppUserClient;
+import cmcc.mobile.yiqi.entity.TAppUserOrg;
+import cmcc.mobile.yiqi.entity.dao.TAppOrganizationMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUpdateLogMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserClientMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserOrgMapper;
+import cmcc.mobile.yiqi.utils.CheckoutUtil;
+import cmcc.mobile.yiqi.utils.FileUpload;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.RandomUtil;
+import cmcc.mobile.yiqi.vo.AppCompanyVo;
+import cmcc.mobile.yiqi.vo.AppUserVo;
+import cmcc.mobile.yiqi.web.service.IAppUserServices;
+import cmcc.mobile.yiqi.web.service.ICompanyService;
+
+/**
+ * 
+ * @author zhangxs
+ *
+ */
+@Controller
+@RequestMapping(&quot;users&quot;)
+<span class="fc" id="L53">public class ApiUserController extends ApiController {</span>
+	@Autowired
+	private IAppUserServices appUserService;
+
+	@Autowired
+	private ICompanyService companyService;
+
+	@Autowired
+	private TAppUserOrgMapper userOrgMapper;
+
+	@Autowired
+	private TAppUserClientMapper userClientMapper;
+
+	@Autowired
+	private TAppOrganizationMapper organizationMapper;
+
+
+
+	@Autowired
+	private TAppUpdateLogMapper updateLogMapper;
+
+
+	/*
+	 * @RequestMapping(value = &quot;/resetIMUser&quot;, method = RequestMethod.GET)
+	 * 
+	 * @ResponseBody public JsonResult updateAll() { List&lt;TAppUser&gt; listttt =
+	 * appUserService.selectAll(); for (TAppUser tAppUser : listttt) { //
+	 * 同步更新消息数据 IMServiceUtil util = new IMServiceUtil(); util.getIMTokenInfo();
+	 * List&lt;IMUser&gt; list = new ArrayList&lt;&gt;(); IMUser imUser = new IMUser();
+	 * imUser.setUsername(tAppUser.getAccount()); list.add(imUser); try {
+	 * JSONObject object = util.IMFindUser(list); List&lt;IMUser&gt; imList =
+	 * JSONArray.parseArray(object.getString(&quot;userinfos&quot;), IMUser.class); for
+	 * (IMUser imUser2 : imList) { List&lt;IMUser&gt; list2 = new ArrayList&lt;&gt;();
+	 * imUser2.setName(tAppUser.getName()); list2.add(imUser2);
+	 * util.IMUpdateUser(list2); } } catch (Exception e) { Auto-generated catch
+	 * block e.printStackTrace(); } } return null; }
+	 */
+
+	@RequestMapping(value = &quot;/userinfo/{account:\\d+}/{cid:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult userinfo(@PathVariable String account, @PathVariable Long cid) {
+<span class="nc" id="L94">		TAppUser user = appUserService.selectByAccount(account);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (null != user) {</span>
+<span class="nc" id="L96">			user.setPassword(null);</span>
+<span class="nc" id="L97">			Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L98">			map.put(&quot;uid&quot;, user.getId());</span>
+<span class="nc" id="L99">			List&lt;Long&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L100">			list.add(cid);</span>
+<span class="nc" id="L101">			map.put(&quot;list&quot;, list);</span>
+<span class="nc" id="L102">			List&lt;TAppOrganization&gt; orts = organizationMapper.selectAllByCidsUid(map);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">			if (CollectionUtils.isNotEmpty(orts)) {</span>
+<span class="nc" id="L104">				user.setOrgId(orts.get(0).getId());</span>
+<span class="nc" id="L105">				user.setOrgName(orts.get(0).getOrgName());</span>
+			}
+<span class="nc" id="L107">			return new JsonResult(true, &quot;&quot;, user);</span>
+		}
+<span class="nc" id="L109">		return new JsonResult(false, &quot;用户信息不存在！&quot;, null);</span>
+	}
+
+	@RequestMapping(&quot;/getUserHead/{id}&quot;)
+	public void getUserHeadImg(@PathVariable Long id, HttpServletResponse response) throws IOException {
+<span class="nc" id="L114">		TAppUser tAppUser = appUserService.selectByPrimaryKey(id);</span>
+<span class="nc" id="L115">		String url = tAppUser.getHeadUrl();</span>
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		if (StringUtils.isEmpty(url)) {</span>
+<span class="nc" id="L118">			response.setContentType(&quot;application/json&quot;);</span>
+<span class="nc" id="L119">		} else {</span>
+<span class="nc" id="L120">			FileNameMap fileNameMap = URLConnection.getFileNameMap();</span>
+<span class="nc" id="L121">			String type = fileNameMap.getContentTypeFor(url);</span>
+<span class="nc" id="L122">			response.setContentType(type);</span>
+<span class="nc" id="L123">			FileInputStream is = new FileInputStream(FileUpload.OUT_FILE_PATH + url);</span>
+<span class="nc" id="L124">			byte[] buffer = new byte[is.available()];</span>
+<span class="nc" id="L125">			is.read(buffer);</span>
+<span class="nc" id="L126">			ServletOutputStream out = response.getOutputStream();</span>
+<span class="nc" id="L127">			out.write(buffer);</span>
+<span class="nc" id="L128">			out.flush();</span>
+<span class="nc" id="L129">			out.close();</span>
+<span class="nc" id="L130">			is.close();</span>
+		}
+<span class="nc" id="L132">	}</span>
+
+	@RequestMapping(&quot;/getUserHeadForAndroid/{id}&quot;)
+	public void getUserImg(@PathVariable Long id, HttpServletResponse response, Boolean isCompress) throws IOException {
+<span class="nc" id="L136">		TAppUser tAppUser = appUserService.selectByPrimaryKey(id);</span>
+<span class="nc" id="L137">		String url = tAppUser.getHeadUrl();</span>
+
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		if (StringUtils.isEmpty(url)) {</span>
+<span class="nc" id="L140">			url = &quot;/upload/headImage/&quot; + id % 5 + &quot;.png&quot;;</span>
+		}
+
+<span class="nc" id="L143">		FileNameMap fileNameMap = URLConnection.getFileNameMap();</span>
+<span class="nc" id="L144">		String type = fileNameMap.getContentTypeFor(url);</span>
+<span class="nc" id="L145">		response.setContentType(type);</span>
+		FileInputStream is;
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if (isCompress == null) {</span>
+<span class="nc" id="L148">			String iString = url.substring(0, url.lastIndexOf(&quot;/&quot;)) + &quot;/compress&quot; + url.substring(url.lastIndexOf(&quot;/&quot;));</span>
+<span class="nc" id="L149">			is = new FileInputStream(FileUpload.OUT_FILE_PATH + iString);</span>
+<span class="nc" id="L150">		} else {</span>
+<span class="nc" id="L151">			is = new FileInputStream(FileUpload.OUT_FILE_PATH + url);</span>
+		}
+<span class="nc" id="L153">		byte[] buffer = new byte[is.available()];</span>
+<span class="nc" id="L154">		is.read(buffer);</span>
+<span class="nc" id="L155">		ServletOutputStream out = response.getOutputStream();</span>
+<span class="nc" id="L156">		out.write(buffer);</span>
+<span class="nc" id="L157">		out.flush();</span>
+<span class="nc" id="L158">		out.close();</span>
+<span class="nc" id="L159">		is.close();</span>
+
+<span class="nc" id="L161">	}</span>
+
+	/**
+	 * 选择集团登陆之后保存APP端的ClientId
+	 * 
+	 * @param account
+	 * @param client
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/setClient/{cid:\\d+}/{account:\\d+}/{client}/{type:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult setClient(@PathVariable(&quot;cid&quot;) String cid, @PathVariable(&quot;account&quot;) String account, @PathVariable(&quot;client&quot;) String client,
+			@PathVariable(&quot;type&quot;) String type, String deviceToken) {
+<span class="nc bnc" id="L175" title="All 8 branches missed.">		if (StringUtils.isNotEmpty(cid) &amp;&amp; StringUtils.isNotEmpty(account) &amp;&amp; StringUtils.isNotEmpty(client) &amp;&amp; StringUtils.isNotEmpty(type)) {</span>
+<span class="nc" id="L176">			Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L177">			map.put(&quot;account&quot;, account);</span>
+<span class="nc" id="L178">			map.put(&quot;cid&quot;, Long.parseLong(cid));</span>
+<span class="nc" id="L179">			map.put(&quot;clientId&quot;, client);</span>
+<span class="nc" id="L180">			map.put(&quot;token&quot;, deviceToken);</span>
+<span class="nc" id="L181">			map.put(&quot;type&quot;, type);</span>
+<span class="nc" id="L182">			List&lt;TAppUserClient&gt; list = userClientMapper.selectByParams(map);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if (CollectionUtils.isEmpty(list)) {</span>
+<span class="nc" id="L184">				TAppUserClient userClient = new TAppUserClient();</span>
+<span class="nc" id="L185">				userClient.setAccount(account);</span>
+<span class="nc" id="L186">				userClient.setCid(Long.parseLong(cid));</span>
+<span class="nc" id="L187">				userClient.setClientId(client);</span>
+<span class="nc" id="L188">				userClient.setDeviceToken(deviceToken);</span>
+<span class="nc" id="L189">				userClient.setPhoneType(Integer.parseInt(type));</span>
+<span class="nc" id="L190">				userClientMapper.insertSelective(userClient);</span>
+			}
+<span class="nc" id="L192">			return new JsonResult(true, null, null);</span>
+		}
+<span class="nc" id="L194">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 修改用户imei信息
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/imei/{id:\\d+}/{imei}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult getImei(@PathVariable String id, @PathVariable String imei) {
+<span class="nc bnc" id="L206" title="All 4 branches missed.">		if (StringUtils.isNotEmpty(id) &amp;&amp; StringUtils.isNoneEmpty(imei)) {</span>
+<span class="nc" id="L207">			TAppUser user = appUserService.selectByPrimaryKey(Long.parseLong(id));</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc" id="L209">				TAppUser user1 = new TAppUser();</span>
+<span class="nc" id="L210">				user1.setId(Long.parseLong(id));</span>
+<span class="nc" id="L211">				user1.setImei(imei);</span>
+<span class="nc" id="L212">				appUserService.updateByPrimaryKeySelective(user1);</span>
+<span class="nc" id="L213">				return new JsonResult(true, &quot;IMEI修改成功！！&quot;, null);</span>
+			}
+<span class="nc" id="L215">			return new JsonResult(false, &quot;用户信息不存在！&quot;, null);</span>
+
+		}
+<span class="nc" id="L218">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 获取用户手机imei
+	 * 
+	 * @param code
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/imei/{id:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult getImei(@PathVariable String id) {
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(id)) {</span>
+<span class="nc" id="L231">			TAppUser user = appUserService.selectByPrimaryKey(Long.parseLong(id));</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc" id="L233">				return new JsonResult(true, &quot;&quot;, user.getImei());</span>
+			}
+<span class="nc" id="L235">			return new JsonResult(false, &quot;用户信息不存在！&quot;, null);</span>
+		}
+<span class="nc" id="L237">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 根据企业编码获取相关信息
+	 * 
+	 * @param code
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/company/{code}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult getCompanyInfo(@PathVariable String code) {
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(code)) {</span>
+<span class="nc" id="L250">			return companyService.getByCode(code);</span>
+		}
+<span class="nc" id="L252">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 根据用户公司id查询组织结构接口
+	 * 
+	 * @see Method=get
+	 * @see /api/users/1
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/{id:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult userOrgCompany(@PathVariable String id) {
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(id)) {</span>
+<span class="nc" id="L267">			List&lt;AppCompanyVo&gt; list = appUserService.companyOrgUser(Long.parseLong(id));</span>
+<span class="nc" id="L268">			return new JsonResult(true, &quot;&quot;, list);</span>
+		}
+<span class="nc" id="L270">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * APP获取用户信息接口
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/userinfo/{id:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult userinfo(@PathVariable String id) {
+<span class="nc bnc" id="L282" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(id)) {</span>
+<span class="nc" id="L283">			TAppUser user = appUserService.selectByPrimaryKey(Long.parseLong(id));</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc" id="L285">				user.setPassword(&quot;******&quot;);</span>
+<span class="nc" id="L286">				return new JsonResult(true, &quot;&quot;, user);</span>
+			}
+<span class="nc" id="L288">			return new JsonResult(false, &quot;查询用户不存在！&quot;, null);</span>
+		}
+<span class="nc" id="L290">		return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 
+	 * @param uid
+	 * @param imageStream
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/updateHeadUrl&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult updateHeadUrl(String account, String imageStream) {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">		if (StringUtils.isEmpty(imageStream)) {</span>
+<span class="nc" id="L303">			return new JsonResult(false, &quot;头像信息错误！&quot;, null);</span>
+<span class="nc bnc" id="L304" title="All 2 branches missed.">		} else if (StringUtils.isEmpty(account)) {</span>
+<span class="nc" id="L305">			return new JsonResult(false, &quot;账号错误！&quot;, null);</span>
+		} else {
+			try {
+<span class="nc" id="L308">				TAppUser user = appUserService.selectByAccount(account);</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">				if (null != user) {</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">					if (user.getStatus() == 0) {</span>
+<span class="nc" id="L311">						return new JsonResult(false, &quot;该账号已停用，请联系管理员！&quot;, null);</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">					} else if (user.getStatus() == Constants.USER_NOT_REG_IM) {</span>
+<span class="nc" id="L313">						return new JsonResult(false, &quot;非法用户！&quot;, null);</span>
+					}
+					// String path = FileUpload.uploadByBase64(imageStream,
+					// &quot;.jpg&quot;, &quot;headImage&quot;, &quot;headImage&quot; + account);
+<span class="nc" id="L317">					String path = FileUpload.uploadImgByBase64(imageStream, &quot;.jpg&quot;, &quot;headImage&quot;, &quot;headImage&quot; + account, true, 70, 70);</span>
+<span class="nc" id="L318">					user.setPassword(null);</span>
+<span class="nc" id="L319">					user.setHeadUrl(path);</span>
+<span class="nc" id="L320">					appUserService.updateByPrimaryKeySelective(user);</span>
+<span class="nc" id="L321">					return new JsonResult(true, &quot;修改成功！&quot;, path);</span>
+				}
+<span class="nc" id="L323">			} catch (IOException e) {</span>
+<span class="nc" id="L324">				e.printStackTrace();</span>
+			}
+		}
+<span class="nc" id="L327">		return new JsonResult(false, &quot;修改失败！&quot;, null);</span>
+	}
+
+	/**
+	 * 修改用户信息接口
+	 * 
+	 * @param vo
+	 * @return 注释个人信息修改接口
+	 */
+	// @RequestMapping(value = &quot;/update&quot;, method = RequestMethod.POST)
+	// @ResponseBody
+	// public JsonResult updateAppUser(AppUserVo vo) {
+	//
+	// if (StringUtils.isNotEmpty(vo.getMobile())) {
+	// if (vo.getMobile().trim().length() != vo.getMobile().length()) {
+	// return new JsonResult(false, &quot;手机号码禁止填写空格！&quot;, null);
+	// }
+	// Boolean isTrue = CheckoutUtil.checkMobile(vo.getMobile());
+	// if (!isTrue) {
+	// return new JsonResult(false, &quot;手机号码格式错误！&quot;, null);
+	// }
+	// } else {
+	// vo.setMobile(null);
+	// }
+	//
+	// if (StringUtils.isNotEmpty(vo.getEmail())) {
+	// Boolean isTrue = CheckoutUtil.checkEmail(vo.getEmail());
+	// if (!isTrue) {
+	// return new JsonResult(false, &quot;邮箱格式错误！&quot;, null);
+	// }
+	// } else {
+	// vo.setEmail(null);
+	// }
+	//
+	// if (StringUtils.isNotEmpty(vo.getName())) {
+	// if (vo.getName().trim().length() &gt; 6) {
+	// return new JsonResult(false, &quot;姓名长度不合法，应小于6位！&quot;, null);
+	// }
+	// if (vo.getName().trim().length() != vo.getName().length()) {
+	// return new JsonResult(false, &quot;姓名格式不合法，禁止填写空格！&quot;, null);
+	// }
+	// } else {
+	// vo.setName(null);
+	// }
+	//
+	// if (StringUtils.isNotEmpty(vo.getShortNum())) {
+	// try {
+	// Long.parseLong(vo.getShortNum());
+	// if (vo.getShortNum().trim().length() &gt; 6) {
+	// return new JsonResult(false, &quot;短号长度应小于6位数字！&quot;, null);
+	// }
+	// if (vo.getShortNum().trim().length() != vo.getShortNum().length()) {
+	// return new JsonResult(false, &quot;短号格式不合法，禁止填写空格！&quot;, null);
+	// }
+	// } catch (NumberFormatException e) {
+	// return new JsonResult(false, &quot;短号格式不合法，请输入数字！&quot;, null);
+	// }
+	// } else {
+	// vo.setShortNum(null);
+	// }
+	// vo.setAccount(null);
+	// vo.setIsLeader(null);
+	// vo.setJob(null);
+	// return appUserService.updateByPrimaryKeySelective(vo);
+	// }
+
+	/**
+	 * 修改密码
+	 * 
+	 * @param vo
+	 * @param smsTime
+	 * @param code
+	 * @param valiCode
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/updatePass&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult updatePass(AppUserVo vo, String smsTime, String code, String valiCode) {
+<span class="nc" id="L405">		JsonResult result = checkValiCode(vo.getAccount(), smsTime, code, valiCode);</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">		if (result.getSuccess()) {</span>
+
+<span class="nc bnc" id="L408" title="All 2 branches missed.">			if (StringUtils.isEmpty(vo.getPassword())) {</span>
+<span class="nc" id="L409">				return new JsonResult(false, &quot;密码参数缺失！&quot;, null);</span>
+			}
+
+<span class="nc" id="L412">			TAppUser user = appUserService.selectByAccount(vo.getAccount());</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">			if (null != user) {</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">				if (user.getStatus() == 0) {</span>
+<span class="nc" id="L415">					return new JsonResult(false, &quot;该账号已停用，请联系管理员！&quot;, null);</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">				} else if (user.getStatus() == Constants.USER_NOT_REG_IM) {</span>
+<span class="nc" id="L417">					return new JsonResult(false, &quot;非法用户！&quot;, null);</span>
+				}
+				/**
+				 * 密码未修改
+				 */
+<span class="nc bnc" id="L422" title="All 2 branches missed.">				if (user.getPassword().equals(vo.getPassword())) {</span>
+<span class="nc" id="L423">					return new JsonResult(false, &quot;请填写您近期未使用的密码！&quot;, null);</span>
+				}
+
+<span class="nc" id="L426">				TAppUser userVo = new TAppUser();</span>
+<span class="nc" id="L427">				userVo.setId(user.getId());</span>
+<span class="nc" id="L428">				userVo.setPassword(vo.getPassword());</span>
+<span class="nc" id="L429">				int success = appUserService.updatePasswordByApp(userVo);</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">				if (success == 1) {</span>
+<span class="nc" id="L431">					return new JsonResult(true, &quot;修改成功&quot;, null);</span>
+				} else {
+<span class="nc" id="L433">					return new JsonResult(false, &quot;修改失败！&quot;, null);</span>
+				}
+			}
+		}
+<span class="nc" id="L437">		return result;</span>
+	}
+
+	/**
+	 * 实时检测可切换企业列表
+	 * 
+	 * @param uid
+	 * @param account
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/changeCompany/{uid:\\d+}/{account:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult changeCompany(@PathVariable(&quot;uid&quot;) String uid, @PathVariable(&quot;account&quot;) String account) {
+<span class="nc bnc" id="L450" title="All 4 branches missed.">		if (StringUtils.isEmpty(uid) || StringUtils.isEmpty(account)) {</span>
+<span class="nc" id="L451">			return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+		}
+<span class="nc" id="L453">		List&lt;TAppCompany&gt; list = appUserService.findCompanyByUser(Long.parseLong(uid), account, true);</span>
+<span class="nc" id="L454">		return new JsonResult(true, &quot;&quot;, list);</span>
+	}
+
+	/**
+	 * 登陆接口
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/login&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult apiLogin(String account, String password, String type) {
+<span class="nc bnc" id="L465" title="All 4 branches missed.">		if (StringUtils.isNotEmpty(account) &amp;&amp; StringUtils.isNotEmpty(password)) {</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">			if (StringUtils.isEmpty(type)) {</span>
+<span class="nc" id="L467">				return new JsonResult(false, &quot;登陆设备类型不明！！&quot;, null);</span>
+			}
+
+<span class="nc bnc" id="L470" title="All 2 branches missed.">			if (!CheckoutUtil.checkMobile(account)) {</span>
+<span class="nc" id="L471">				return new JsonResult(false, &quot;错误的手机号码！&quot;, null);</span>
+			}
+
+			/**
+			 * 校验手机号码是否注册过
+			 */
+<span class="nc" id="L477">			TAppUser user = appUserService.selectByAccount(account);</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">			if (null == user) {</span>
+<span class="nc" id="L479">				return new JsonResult(false, &quot;该号码未注册！请先注册！&quot;, null);</span>
+			}
+<span class="nc bnc" id="L481" title="All 2 branches missed.">			if (RandomUtil.MD5(password).equalsIgnoreCase(user.getPassword())) {</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">				if (user.getStatus() == 0) {</span>
+<span class="nc" id="L483">					return new JsonResult(false, &quot;该账号已停用，请联系管理员！&quot;, null);</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">				} else if (user.getStatus() == Constants.USER_NOT_REG_IM) {</span>
+					// 注册小溪并登陆
+<span class="nc" id="L486">					JsonResult result = appUserService.apiRegisterIm(user.getName(), user.getAccount(), user.getPassword(), user.getSex(), false);</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">					if (result.getSuccess()) {</span>
+<span class="nc" id="L488">						user.setStatus(Constants.USER_CAN_USE);</span>
+<span class="nc" id="L489">						user.setPassword(null);</span>
+<span class="nc" id="L490">						appUserService.updateByPrimaryKeySelective(user);</span>
+						// return result;
+<span class="nc" id="L492">					} else {</span>
+<span class="nc" id="L493">						return new JsonResult(false, &quot;注册小溪失败！请联系管理员！&quot;, null);</span>
+					}
+				}
+
+<span class="nc" id="L497">				AppUserVo appUserVo = new AppUserVo();</span>
+<span class="nc" id="L498">				BeanUtils.copyProperties(user, appUserVo);</span>
+<span class="nc" id="L499">				appUserVo.setPassword(&quot;******&quot;);</span>
+
+<span class="nc" id="L501">				List&lt;TAppCompany&gt; list = appUserService.findCompanyByUser(user.getId(), user.getAccount(), true);</span>
+<span class="nc bnc" id="L502" title="All 2 branches missed.">				if (CollectionUtils.isNotEmpty(list)) {</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">					if (user.getStatus() == Constants.USER_NOT_VALIDATE) {</span>
+<span class="nc" id="L504">						return new JsonResult(false, &quot;请等待审核通过！&quot;, null);</span>
+					}
+<span class="nc" id="L506">					appUserVo.setCompanys(list);</span>
+<span class="nc" id="L507">					TAppUpdateLog log = updateLogMapper.selectNewVersionByVersion(Integer.parseInt(type));</span>
+<span class="nc bnc" id="L508" title="All 2 branches missed.">					if (null != log) {</span>
+<span class="nc" id="L509">						appUserVo.setDownloadUrl(log.getFilePath());</span>
+					}
+<span class="nc" id="L511">					return new JsonResult(true, &quot;&quot;, appUserVo);</span>
+				} else {
+					// 没有加入公司的APP端允许其登录
+<span class="nc" id="L514">					return new JsonResult(false, &quot;请申请加入企业或创建企业！&quot;, appUserVo);</span>
+				}
+			} else {
+<span class="nc" id="L517">				return new JsonResult(false, &quot;用户名或密码错误！&quot;, null);</span>
+			}
+		}
+<span class="nc" id="L520">		return new JsonResult(false, &quot;请输入用户名或密码&quot;, null);</span>
+	}
+
+	/**
+	 * 
+	 * @param account
+	 *            手机号
+	 * @param smsTime
+	 *            验证码生成时间
+	 * @param code
+	 *            验证码
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/smsLogin&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult smsLogin(String account, String smsTime, String code, String valiCode, String type) {
+
+<span class="nc bnc" id="L537" title="All 2 branches missed.">		if (!CheckoutUtil.checkMobile(account)) {</span>
+<span class="nc" id="L538">			return new JsonResult(false, &quot;错误的手机号码！&quot;, null);</span>
+		}
+
+<span class="nc" id="L541">		JsonResult result = checkValiCode(account, smsTime, code, valiCode);</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">		if (result.getSuccess()) {</span>
+			/**
+			 * 校验手机号码是否注册过
+			 */
+<span class="nc" id="L546">			TAppUser user = appUserService.selectByAccount(account);</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">			if (null == user) {</span>
+<span class="nc" id="L548">				return new JsonResult(false, &quot;该号码未注册！请先注册！&quot;, null);</span>
+			}
+<span class="nc bnc" id="L550" title="All 2 branches missed.">			if (user.getStatus() == 0) {</span>
+<span class="nc" id="L551">				return new JsonResult(false, &quot;该账号已停用，请联系管理员！&quot;, null);</span>
+<span class="nc bnc" id="L552" title="All 2 branches missed.">			} else if (user.getStatus() == Constants.USER_NOT_REG_IM) {</span>
+				// 注册小溪并登陆
+<span class="nc" id="L554">				JsonResult result1 = appUserService.apiRegister(user.getName(), user.getAccount(), user.getPassword(), user.getSex(), false);</span>
+<span class="nc" id="L555">				user.setStatus(Constants.USER_CAN_USE);</span>
+<span class="nc" id="L556">				user.setPassword(null);</span>
+<span class="nc" id="L557">				appUserService.updateByPrimaryKeySelective(user);</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">				if (result1.getSuccess()) {</span>
+					// return result1;
+				} else {
+<span class="nc" id="L561">					return new JsonResult(false, &quot;注册小溪失败！请联系管理员！&quot;, null);</span>
+				}
+			}
+<span class="nc" id="L564">			AppUserVo appUserVo = new AppUserVo();</span>
+<span class="nc" id="L565">			BeanUtils.copyProperties(user, appUserVo);</span>
+<span class="nc" id="L566">			appUserVo.setPassword(&quot;******&quot;);</span>
+<span class="nc" id="L567">			List&lt;TAppCompany&gt; list = appUserService.findCompanyByUser(user.getId(), user.getAccount(), true);</span>
+<span class="nc bnc" id="L568" title="All 2 branches missed.">			if (CollectionUtils.isNotEmpty(list)) {</span>
+				// if (user.getStatus() == Constants.USER_NOT_VALIDATE) {
+				// return new JsonResult(false, &quot;请等待审核通过！&quot;, null);
+				// }
+<span class="nc" id="L572">				appUserVo.setCompanys(list);</span>
+<span class="nc" id="L573">				TAppUpdateLog log = updateLogMapper.selectNewVersionByVersion(Integer.parseInt(type));</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">				if (null != log) {</span>
+<span class="nc" id="L575">					appUserVo.setDownloadUrl(log.getFilePath());</span>
+				}
+<span class="nc" id="L577">				return new JsonResult(true, &quot;&quot;, appUserVo);</span>
+			} else {
+				// 没有加入公司的APP端允许其登录
+<span class="nc" id="L580">				return new JsonResult(false, &quot;请申请加入企业或创建企业！&quot;, appUserVo);</span>
+			}
+		}
+<span class="nc" id="L583">		return result;</span>
+	}
+
+	/**
+	 * 注册接口
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/register&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult apiRegister(AppUserVo userVo, String smsTime, String code, String valiCode) {
+<span class="nc bnc" id="L594" title="All 2 branches missed.">		if (!CheckoutUtil.checkMobile(userVo.getMobile())) {</span>
+<span class="nc" id="L595">			return new JsonResult(false, &quot;错误的手机号码！&quot;, null);</span>
+		}
+<span class="nc" id="L597">		JsonResult result = checkValiCode(userVo.getMobile(), smsTime, code, valiCode);</span>
+<span class="nc bnc" id="L598" title="All 2 branches missed.">		if (result.getSuccess()) {</span>
+<span class="nc" id="L599">			String mobile = userVo.getMobile();</span>
+<span class="nc" id="L600">			String pass = userVo.getPassword();</span>
+<span class="nc bnc" id="L601" title="All 4 branches missed.">			if (StringUtils.isNotEmpty(mobile) &amp;&amp; StringUtils.isNotEmpty(pass)) {</span>
+<span class="nc" id="L602">				result = appUserService.apiRegister(userVo.getName(), mobile, pass, userVo.getSex(), false);</span>
+<span class="nc" id="L603">				TAppUser appUser = (TAppUser) result.getModel();</span>
+<span class="nc bnc" id="L604" title="All 2 branches missed.">				if (!result.getSuccess()) {</span>
+<span class="nc" id="L605">					AppUserVo appUserVo = new AppUserVo();</span>
+<span class="nc" id="L606">					BeanUtils.copyProperties(appUser, appUserVo);</span>
+<span class="nc" id="L607">					appUserVo.setPassword(&quot;******&quot;);</span>
+<span class="nc" id="L608">					List&lt;TAppCompany&gt; list = appUserService.findCompanyByUser(appUser.getId(), appUser.getAccount(), true);</span>
+<span class="nc bnc" id="L609" title="All 2 branches missed.">					if (CollectionUtils.isEmpty(list)) {</span>
+<span class="nc" id="L610">						return new JsonResult(false, &quot;请申请加入企业或创建企业！&quot;, appUserVo);</span>
+					}
+				}
+<span class="nc" id="L613">				return result;</span>
+			}
+<span class="nc" id="L615">			return new JsonResult(false, &quot;手机号或密码参数缺失！&quot;, null);</span>
+		}
+<span class="nc" id="L617">		return result;</span>
+	}
+
+	/**
+	 * 申请加入企业
+	 * 
+	 * @param account
+	 * @param name
+	 * @param email
+	 * @param shortNum
+	 * @param jobId
+	 * @param cid
+	 * @param orgId
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/applyJoinCompany&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult applyJoinCompany(String account, String name, String email, String shortNum, String jobId, String cid, String orgId) {
+
+<span class="nc bnc" id="L636" title="All 2 branches missed.">		if (StringUtils.isEmpty(account)) {</span>
+<span class="nc" id="L637">			return new JsonResult(false, &quot;手机号码缺失！&quot;, null);</span>
+		}
+
+<span class="nc bnc" id="L640" title="All 2 branches missed.">		if (!CheckoutUtil.checkMobile(account)) {</span>
+<span class="nc" id="L641">			return new JsonResult(false, &quot;错误的手机号码！&quot;, null);</span>
+		}
+
+<span class="nc bnc" id="L644" title="All 2 branches missed.">		if (StringUtils.isEmpty(jobId)) {</span>
+<span class="nc" id="L645">			return new JsonResult(false, &quot;职位信息缺失！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L647" title="All 2 branches missed.">		if (StringUtils.isEmpty(cid)) {</span>
+<span class="nc" id="L648">			return new JsonResult(false, &quot;企业信息缺失！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L650" title="All 2 branches missed.">		if (StringUtils.isEmpty(orgId)) {</span>
+<span class="nc" id="L651">			return new JsonResult(false, &quot;部门信息缺失！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L653" title="All 2 branches missed.">		if (StringUtils.isEmpty(name)) {</span>
+<span class="nc" id="L654">			return new JsonResult(false, &quot;姓名信息缺失！&quot;, null);</span>
+		}
+
+<span class="nc bnc" id="L657" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(email)) {</span>
+<span class="nc bnc" id="L658" title="All 2 branches missed.">			if (!CheckoutUtil.checkEmail(email)) {</span>
+<span class="nc" id="L659">				return new JsonResult(false, &quot;邮箱格式不合法！&quot;, null);</span>
+			}
+		}
+<span class="nc bnc" id="L662" title="All 2 branches missed.">		if (StringUtils.isNoneEmpty(shortNum)) {</span>
+<span class="nc" id="L663">			Boolean isNum = shortNum.matches(&quot;[0-9]+&quot;);</span>
+<span class="nc bnc" id="L664" title="All 2 branches missed.">			if (!isNum) {</span>
+<span class="nc" id="L665">				return new JsonResult(false, &quot;短号格式不合法！&quot;, null);</span>
+			}
+		}
+
+<span class="nc" id="L669">		TAppUser user = appUserService.selectByAccount(account);</span>
+<span class="nc bnc" id="L670" title="All 2 branches missed.">		if (null != user) {</span>
+<span class="nc" id="L671">			TAppUserOrg org = userOrgMapper.selectByOidUid(Long.parseLong(orgId), user.getId());</span>
+<span class="nc bnc" id="L672" title="All 2 branches missed.">			if (null == org) {</span>
+<span class="nc" id="L673">				TAppUserOrg userOrg = new TAppUserOrg();</span>
+<span class="nc" id="L674">				userOrg.setOid(Long.parseLong(orgId));</span>
+<span class="nc" id="L675">				userOrg.setStatus(Constants.USER_NOT_VALIDATE);</span>
+<span class="nc" id="L676">				userOrg.setUid(user.getId());</span>
+<span class="nc" id="L677">				userOrg.setPositionId(Integer.valueOf(jobId));</span>
+<span class="nc" id="L678">				userOrg.setEmail(email);</span>
+<span class="nc" id="L679">				userOrg.setShortNum(shortNum);</span>
+<span class="nc" id="L680">				userOrgMapper.insertSelective(userOrg);</span>
+<span class="nc" id="L681">				return new JsonResult(true, &quot;申请加入企业成功！&quot;, null);</span>
+<span class="nc bnc" id="L682" title="All 2 branches missed.">			} else if (org.getStatus() == 1) {</span>
+<span class="nc" id="L683">				return new JsonResult(false, &quot;您已加入该部门，不可再次申请！&quot;, null);</span>
+<span class="nc bnc" id="L684" title="All 2 branches missed.">			} else if (org.getStatus() == -2) {</span>
+<span class="nc" id="L685">				return new JsonResult(false, &quot;您已申请加入该部门，请等待管理员审核！&quot;, null);</span>
+			}
+		}
+<span class="nc" id="L688">		return new JsonResult(false, &quot;手机号码未注册！&quot;, null);</span>
+	}
+
+	/**
+	 * 验证码校验
+	 * 
+	 * @param account
+	 * @param smsTime
+	 * @param code
+	 * @param valiCode
+	 * @return
+	 */
+	public JsonResult checkValiCode(String account, String smsTime, String code, String valiCode) {
+<span class="nc bnc" id="L701" title="All 2 branches missed.">		if (StringUtils.isEmpty(smsTime)) {</span>
+<span class="nc" id="L702">			return new JsonResult(false, &quot;验证码已失效！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L704" title="All 2 branches missed.">		if (StringUtils.isEmpty(valiCode)) {</span>
+<span class="nc" id="L705">			return new JsonResult(false, &quot;请传入加密过的验证码！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L707" title="All 2 branches missed.">		if (StringUtils.isEmpty(code)) {</span>
+<span class="nc" id="L708">			return new JsonResult(false, &quot;请输入验证码！&quot;, null);</span>
+		}
+<span class="nc bnc" id="L710" title="All 2 branches missed.">		if (code.trim().length() != 6) {</span>
+<span class="nc" id="L711">			return new JsonResult(false, &quot;请输入6位验证码！&quot;, null);</span>
+		}
+		/**
+		 * 验证码校验
+		 */
+<span class="nc" id="L716">		Long minute = (System.currentTimeMillis() - Long.parseLong(smsTime)) / 1000;</span>
+
+//		if (minute.intValue() &gt; Integer.parseInt(smsVerificateDomain.getExpirationTime())) {
+//			return new JsonResult(false, &quot;验证码已失效！&quot;, null);
+//		}
+//		String encryptStr = SmMd5Encrypt.EncryptIndentifyingCode(account, String.valueOf(code), smsVerificateDomain.getSmsEncryptKey());
+//		if (encryptStr.equals(valiCode)) {
+//			return new JsonResult(true, &quot;&quot;, null);
+//		}
+<span class="nc" id="L725">		return new JsonResult(false, &quot;验证码错误！&quot;, null);</span>
+	}
+
+	/**
+	 * 查询注册加入企业的待审核用户接口
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/approval/{cid}&quot;, method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResult findApprovalUser(@PathVariable String cid) {
+
+<span class="nc" id="L737">		List&lt;TAppUser&gt; users = appUserService.selectPendingApproval(cid);</span>
+<span class="nc bnc" id="L738" title="All 4 branches missed.">		if (users != null &amp;&amp; !users.isEmpty()) {</span>
+<span class="nc" id="L739">			return new JsonResult(true, &quot;获取待审核用户成功&quot;, users);</span>
+		}
+<span class="nc" id="L741">		return new JsonResult(false, &quot;获取待审核用户失败&quot;, users);</span>
+	}
+
+	/**
+	 * 更新待审核用户信息接口
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/approval/update&quot;, method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult updateApprovalUser(TAppUser user, Long orgId, Long cid, Long positionId) {
+
+		try {
+<span class="nc" id="L754">			user.setUpdateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L755">			user.setPassword(null);</span>
+<span class="nc" id="L756">			appUserService.updateByPrimaryKeySelective(user);</span>
+<span class="nc bnc" id="L757" title="All 4 branches missed.">			if (positionId != null || user.getShortNum() != null) {</span>
+<span class="nc" id="L758">				System.out.println(&quot;positionId【&quot; + positionId + &quot;】、shortNum【&quot; + user.getShortNum() + &quot;】 等待更新...&quot;);</span>
+<span class="nc" id="L759">				userOrgMapper.updateUserOrg(user.getId(), orgId, cid, positionId, user.getShortNum());</span>
+			}
+<span class="nc" id="L761">			return new JsonResult(true, &quot;更新待审核用户成功&quot;, null);</span>
+<span class="nc" id="L762">		} catch (Exception e) {</span>
+<span class="nc" id="L763">			return new JsonResult(false, &quot;更新待审核用户失败,失败原因：&quot; + e.getMessage(), null);</span>
+		}
+	}
+
+//	/**
+//	 * 提交审核结果
+//	 * 
+//	 * @return
+//	 */
+//	@RequestMapping(value = &quot;/approval/commit&quot;, method = RequestMethod.POST)
+//	@ResponseBody
+//	public JsonResult approvalUser(TAppUser user, String company) {
+//		SMTemp temp = SMTemp.REGISTER_APPROVAL;
+//		if (null != user.getStatus()) {
+//			TAppUserOrg org = new TAppUserOrg();
+//			org.setId(user.getId());
+//			if (user.getStatus() == Constants.USER_CAN_USE) {
+//				org.setStatus(Constants.USER_CAN_USE);
+//			} else {
+//				temp = SMTemp.REGISTER_NO_APPROVAL;
+//				org.setStatus(Constants.USER_NOT_PASS_VALIDATE);
+//			}
+//			userOrgMapper.updateByPrimaryKeySelective(org);
+//			smsSenderDomain.sendMassMessage(SmsUtils.SMS_TYPE_APPROVAL_NOTIFY, new String[] { user.getMobile() }, temp.createMessage(company),
+//					temp.getPriority(), temp.isRealTime(), null);
+//		} else {
+//			// 忽略申请
+//			userOrgMapper.deleteByPrimaryKey(user.getId());
+//		}
+//
+//		return new JsonResult(true, &quot;审核成功！&quot;, null);
+//	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

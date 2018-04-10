@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppUserClientMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppUserClient">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="client_id" property="clientId" jdbcType="VARCHAR" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="cid" property="cid" jdbcType="BIGINT" />
+		<result column="phone_type" property="phoneType" jdbcType="INTEGER" />
+		<result column="device_token" property="deviceToken" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, client_id, account, cid, phone_type, device_token
+	</sql>
+	<select id="selectByAccount" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_client
+		where 1 = 1
+		<if test="list != null">
+			and account in
+			<foreach collection="list" item="account" index="index" open="("
+				close=")" separator=",">
+				#{account,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+		<if test="cids != null">
+			and cid in 
+			<foreach collection="cids" item="cid" index="index" open="("
+				close=")" separator=",">
+				#{cid,jdbcType=BIGINT}
+			</foreach>
+		</if>
+		<if test="clientId != null">
+			and client_id = #{clientId,jdbcType=VARCHAR}
+		</if>
+		<if test="token != null">
+			and device_token = #{token,jdbcType=VARCHAR}
+		</if>
+		<if test="type != null">
+			and phone_type = #{type,jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<select id="selectByParams" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_client
+		where 1 = 1
+		<if test="account != null">
+			and account =#{account,jdbcType=VARCHAR}
+		</if>
+		<if test="cid != null">
+			and cid = #{cid,jdbcType=BIGINT}
+		</if>
+		<if test="clientId != null">
+			and client_id = #{clientId,jdbcType=VARCHAR}
+		</if>
+		<if test="token != null">
+			and device_token = #{token,jdbcType=VARCHAR}
+		</if>
+		<if test="type != null">
+			and phone_type = #{type,jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_client
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		t_app_user_client
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppUserClient">
+		insert into t_app_user_client
+		(id, client_id, account,
+		cid, phone_type, device_token
+		)
+		values
+		(#{id,jdbcType=BIGINT}, #{clientId,jdbcType=VARCHAR},
+		#{account,jdbcType=VARCHAR},
+		#{cid,jdbcType=BIGINT},
+		#{phoneType,jdbcType=INTEGER}, #{deviceToken,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppUserClient">
+		insert into t_app_user_client
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="clientId != null">
+				client_id,
+			</if>
+			<if test="account != null">
+				account,
+			</if>
+			<if test="cid != null">
+				cid,
+			</if>
+			<if test="phoneType != null">
+				phone_type,
+			</if>
+			<if test="deviceToken != null">
+				device_token,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="clientId != null">
+				#{clientId,jdbcType=VARCHAR},
+			</if>
+			<if test="account != null">
+				#{account,jdbcType=VARCHAR},
+			</if>
+			<if test="cid != null">
+				#{cid,jdbcType=BIGINT},
+			</if>
+			<if test="phoneType != null">
+				#{phoneType,jdbcType=INTEGER},
+			</if>
+			<if test="deviceToken != null">
+				#{deviceToken,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppUserClient">
+		update t_app_user_client
+		<set>
+			<if test="clientId != null">
+				client_id = #{clientId,jdbcType=VARCHAR},
+			</if>
+			<if test="account != null">
+				account = #{account,jdbcType=VARCHAR},
+			</if>
+			<if test="cid != null">
+				cid = #{cid,jdbcType=BIGINT},
+			</if>
+			<if test="phoneType != null">
+				phone_type = #{phoneType,jdbcType=INTEGER},
+			</if>
+			<if test="deviceToken != null">
+				device_token = #{deviceToken,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppUserClient">
+		update
+		t_app_user_client
+		set client_id = #{clientId,jdbcType=VARCHAR},
+		account
+		= #{account,jdbcType=VARCHAR},
+		cid = #{cid,jdbcType=BIGINT},
+		phone_type
+		= #{phoneType,jdbcType=INTEGER},
+		device_token =
+		#{deviceToken,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

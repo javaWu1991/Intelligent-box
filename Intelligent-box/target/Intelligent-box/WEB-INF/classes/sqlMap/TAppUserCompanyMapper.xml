@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppUserCompanyMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="cid" property="cid" jdbcType="BIGINT" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="areaid" property="areaid" jdbcType="VARCHAR" />
+		<result column="cityname" property="cityname" jdbcType="VARCHAR" />
+		<result column="provincename" property="provincename" jdbcType="VARCHAR" />
+		<result column="aeraname" property="areaname" jdbcType="VARCHAR" />
+		<result column="areaids" property="areaids" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="selectCountByAccountAndType" resultType="int">
+		select count(id) from t_app_user_company where account = #{account}
+		<if test="type != null">
+			and type=#{type}
+		</if>
+		<if test="type == null">
+			and type in (0,1)
+		</if>
+		and status != 2
+	</select>
+
+	<select id="selectByName" resultType="tAppCompany">
+		select b.* from
+		t_app_user_company a,t_app_company b where account =
+		#{account} and b.name like
+		"%${name}%" and b.id = a.cid
+		and type in
+		(0,1)
+		<if test="startRow !=null and endRow !=null">
+			limit #{startRow},#{endRow}
+		</if>
+	</select>
+
+
+	<select id="selectCountByName" resultType="int">
+		select count(*) from
+		t_app_user_company a,t_app_company b where account = #{account} and
+		b.name like
+		"%${name}%" and b.id = a.cid
+		and type in (0,1)
+	</select>
+
+	<select id="selectByAccountAndType" resultMap="BaseResultMap">
+		select * from t_app_user_company where account = #{account}
+		<if test="type != null">
+			and type=#{type}
+		</if>
+		<if test="type == null">
+			and type in (0,1)
+		</if>
+		and status != 2
+		<if test="startRow !=null and endRow !=null">
+			limit #{startRow},#{endRow}
+		</if>
+	</select>
+
+	<select id="selectByCid" resultType="cmcc.mobile.yiqi.entity.TAppUser">
+		select b.* from t_app_user_company a,t_app_user b where a.cid = #{cid}
+		and b.id = a.uid
+		<if test="type != null">
+			and a.type=#{type}
+		</if>
+	</select>
+
+	<delete id="deleteByCid">
+		delete from t_app_user_company where cid = #{cid}
+	</delete>
+
+	<sql id="Base_Column_List">
+		id, uid, cid, type, status, account
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_company
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		t_app_user_company
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		insert into t_app_user_company
+		(id, uid, cid, type,
+		status, account)
+		values (#{id,jdbcType=BIGINT},
+		#{uid,jdbcType=BIGINT},
+		#{cid,jdbcType=BIGINT},
+		#{type,jdbcType=INTEGER},
+		#{status,jdbcType=INTEGER},
+		#{account,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		insert into t_app_user_company
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="uid != null">
+				uid,
+			</if>
+			<if test="cid != null">
+				cid,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="account != null">
+				account,
+			</if>
+			<if test="areaid != null">
+				areaid,
+			</if>
+			<if test="cityid != null">
+				cityid,
+			</if>
+			<if test="provinceid != null">
+				provinceid,
+			</if>
+			<if test="areaname != null">
+				areaname,
+			</if>
+			<if test="cityname != null">
+				cityname,
+			</if>
+			<if test="provincename != null">
+				provincename,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="uid != null">
+				#{uid,jdbcType=BIGINT},
+			</if>
+			<if test="cid != null">
+				#{cid,jdbcType=BIGINT},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="account != null">
+				#{account,jdbcType=VARCHAR},
+			</if>
+			<if test="areaid != null">
+				#{areaid,jdbcType=INTEGER},
+			</if>
+			<if test="cityid != null">
+				#{cityid,jdbcType=INTEGER},
+			</if>
+			<if test="provinceid != null">
+				#{provinceid,jdbcType=INTEGER},
+			</if>
+			<if test="areaname != null">
+				#{areaname,jdbcType=VARCHAR},
+			</if>
+			<if test="cityname != null">
+				#{cityname,jdbcType=VARCHAR},
+			</if>
+			<if test="provincename != null">
+				#{provincename,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		update t_app_user_company
+		<set>
+			<if test="uid != null">
+				uid = #{uid,jdbcType=BIGINT},
+			</if>
+			<if test="cid != null">
+				cid = #{cid,jdbcType=BIGINT},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="account != null">
+				account = #{account,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		update
+		t_app_user_company
+		set uid = #{uid,jdbcType=BIGINT},
+		cid =
+		#{cid,jdbcType=BIGINT},
+		type = #{type,jdbcType=INTEGER},
+		status =
+		#{status,jdbcType=INTEGER},
+		account = #{account,jdbcType=VARCHAR}
+		where
+		id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="selectAllByUID" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_company
+		where uid = #{uid,jdbcType=BIGINT}
+	</select>
+
+	<select id="selectAllByAccount" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_company
+		where account = #{account,jdbcType=VARCHAR} and status = 1
+	</select>
+
+	<select id="selectByUIDCID" resultMap="BaseResultMap"
+		parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user_company
+		where account = #{account,jdbcType=VARCHAR} and
+		cid =
+		#{cid,jdbcType=BIGINT}
+	</select>
+
+	<update id="updateByAreaAdmin" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		update t_app_user_company
+		<set>
+			<if test="uid != null">
+				uid = #{uid,jdbcType=BIGINT},
+			</if>
+			<if test="cid != null">
+				cid = #{cid,jdbcType=BIGINT},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="account != null">
+				account = #{account,jdbcType=VARCHAR},
+			</if>
+			<if test="areaid != null">
+				areaid = #{areaid,jdbcType=INTEGER},
+			</if>
+			<if test="areaname != null">
+				areaname = #{areaname,jdbcType=VARCHAR},
+			</if>
+			<if test="cityname != null">
+				cityname = #{cityname,jdbcType=VARCHAR},
+			</if>
+			<if test="provincename != null">
+				provincename = #{provincename,jdbcType=VARCHAR},
+			</if>
+			<if test="cityid != null">
+				cityid = #{cityid,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceid != null">
+				provinceid = #{provinceid,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updatecustomer" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		update
+		t_app_user_company
+		set status = #{status,jdbcType=INTEGER}
+		where id =
+		#{id,jdbcType=INTEGER}
+	</update>
+	<select id="selectCountByAreraAccount" parameterType="cmcc.mobile.yiqi.entity.TAppUserCompany"
+		resultType="java.lang.Integer">
+		select count(*) from t_app_user_company where account =
+		#{account,jdbcType=VARCHAR} and areaid = #{areaid,jdbcType=INTEGER}
+		and cid is null and status !=2
+
+	</select>
+
+
+	<select id="selectByCidAccountType" resultType="cmcc.mobile.yiqi.entity.TAppUserCompany">
+		select * from
+		t_app_user_company where account =
+		#{account,jdbcType=VARCHAR} 
+		<if test="cid != null">
+			and cid	= #{cid,jdbcType=BIGINT}
+		</if>
+		<if test="cid == null">
+			and ISNULL(cid)
+		</if>
+		and type = #{type,jdbcType=INTEGER} and status =1
+	</select>
+
+</mapper>

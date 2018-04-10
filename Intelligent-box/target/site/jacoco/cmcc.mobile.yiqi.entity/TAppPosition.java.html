@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TAppPosition.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.entity</a> &gt; <span class="el_source">TAppPosition.java</span></div><h1>TAppPosition.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.entity;
+
+import java.io.Serializable;
+
+<span class="nc" id="L5">public class TAppPosition implements Serializable{</span>
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 191780478181409467L;
+	//职位ID
+	private Long id;
+	//公司ID
+	private Long cid;
+	//职位名称
+	private String positionName;
+	//职位级别
+	private Long level;
+	
+	public Long getId() {
+<span class="nc" id="L21">		return id;</span>
+	}
+	public void setId(Long id) {
+<span class="nc" id="L24">		this.id = id;</span>
+<span class="nc" id="L25">	}</span>
+	public Long getCid() {
+<span class="nc" id="L27">		return cid;</span>
+	}
+	public void setCid(Long cid) {
+<span class="nc" id="L30">		this.cid = cid;</span>
+<span class="nc" id="L31">	}</span>
+	public String getPositionName() {
+<span class="nc" id="L33">		return positionName;</span>
+	}
+	public void setPositionName(String positionName) {
+<span class="nc" id="L36">		this.positionName = positionName;</span>
+<span class="nc" id="L37">	}</span>
+	public Long getLevel() {
+<span class="nc" id="L39">		return level;</span>
+	}
+	public void setLevel(Long level) {
+<span class="nc" id="L42">		this.level = level;</span>
+<span class="nc" id="L43">	}</span>
+	@Override
+	public String toString() {
+<span class="nc" id="L46">		return &quot;TAppPosition [id=&quot; + id + &quot;, cid=&quot; + cid + &quot;, positionName=&quot; + positionName + &quot;, level=&quot; + level + &quot;]&quot;;</span>
+	}
+
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

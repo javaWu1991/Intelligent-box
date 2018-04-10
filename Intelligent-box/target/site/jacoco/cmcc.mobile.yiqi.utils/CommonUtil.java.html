@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CommonUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">CommonUtil.java</span></div><h1>CommonUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+
+import java.math.BigDecimal;
+
+import org.apache.commons.lang3.StringUtils;
+
+<span class="nc" id="L7">public class CommonUtil {</span>
+	/**
+	 * 除法
+	 */
+	public static BigDecimal divide(String arg1, String arg2) {
+<span class="nc bnc" id="L12" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg1)) {</span>
+<span class="nc" id="L13">			arg1 = &quot;0.0&quot;;</span>
+		}
+<span class="nc bnc" id="L15" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg2)) {</span>
+<span class="nc" id="L16">			arg2 = &quot;0.0&quot;;</span>
+		}
+<span class="nc" id="L18">		BigDecimal big3 = new BigDecimal(&quot;0.00&quot;);</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">		if (Double.parseDouble(arg2) != 0) {</span>
+<span class="nc" id="L20">			BigDecimal big1 = new BigDecimal(arg1);</span>
+<span class="nc" id="L21">			BigDecimal big2 = new BigDecimal(arg2);</span>
+<span class="nc" id="L22">			big3 = big1.divide(big2, 2, BigDecimal.ROUND_HALF_EVEN);</span>
+		}
+<span class="nc" id="L24">		return big3;</span>
+	}
+
+	/**
+	 * 乘法
+	 */
+	public static BigDecimal mul(String arg1, String arg2) {
+<span class="nc bnc" id="L31" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg1)) {</span>
+<span class="nc" id="L32">			arg1 = &quot;0.0&quot;;</span>
+		}
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg2)) {</span>
+<span class="nc" id="L35">			arg2 = &quot;0.0&quot;;</span>
+		}
+<span class="nc" id="L37">		BigDecimal big1 = new BigDecimal(arg1);</span>
+<span class="nc" id="L38">		BigDecimal big2 = new BigDecimal(arg2);</span>
+<span class="nc" id="L39">		BigDecimal big3 = big1.multiply(big2);</span>
+<span class="nc" id="L40">		return big3;</span>
+	}
+
+	/**
+	 * 减法
+	 */
+	public static BigDecimal sub(String arg1, String arg2) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg1)) {</span>
+<span class="nc" id="L48">			arg1 = &quot;0.0&quot;;</span>
+		}
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg2)) {</span>
+<span class="nc" id="L51">			arg2 = &quot;0.0&quot;;</span>
+		}
+<span class="nc" id="L53">		BigDecimal big1 = new BigDecimal(arg1);</span>
+<span class="nc" id="L54">		BigDecimal big2 = new BigDecimal(arg2);</span>
+<span class="nc" id="L55">		BigDecimal big3 = big1.subtract(big2);</span>
+<span class="nc" id="L56">		return big3;</span>
+	}
+
+	/**
+	 * 加法
+	 */
+	public static BigDecimal add(String arg1, String arg2) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg1)) {</span>
+<span class="nc" id="L64">			arg1 = &quot;0.0&quot;;</span>
+		}
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg2)) {</span>
+<span class="nc" id="L67">			arg2 = &quot;0.0&quot;;</span>
+		}
+<span class="nc" id="L69">		BigDecimal big1 = new BigDecimal(arg1);</span>
+<span class="nc" id="L70">		BigDecimal big2 = new BigDecimal(arg2);</span>
+<span class="nc" id="L71">		BigDecimal big3 = big1.add(big2);</span>
+<span class="nc" id="L72">		return big3;</span>
+	}
+
+	/**
+	 * 加法
+	 */
+	public static String add2(String arg1, String arg2) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg1)) {</span>
+<span class="nc" id="L80">			arg1 = &quot;0.0&quot;;</span>
+		}
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (StringUtils.isEmpty(arg2)) {</span>
+<span class="nc" id="L83">			arg2 = &quot;0.0&quot;;</span>
+		}
+<span class="nc" id="L85">		BigDecimal big1 = new BigDecimal(arg1);</span>
+<span class="nc" id="L86">		BigDecimal big2 = new BigDecimal(arg2);</span>
+<span class="nc" id="L87">		BigDecimal big3 = big1.add(big2);</span>
+<span class="nc" id="L88">		return big3.toString();</span>
+	}
+
+	/**
+	 * 四舍五入保留N位小数 先四舍五入在使用double值自动去零
+	 * 
+	 * @param arg
+	 * @param scare
+	 *            保留位数
+	 * @return
+	 */
+	public static String setScare(BigDecimal arg, int scare) {
+<span class="nc" id="L100">		BigDecimal bl = arg.setScale(scare, BigDecimal.ROUND_HALF_UP);</span>
+<span class="nc" id="L101">		return String.valueOf(bl.doubleValue());</span>
+	}
+
+	public static double setDifScare(double arg) {
+<span class="nc" id="L105">		BigDecimal bd = new BigDecimal(arg);</span>
+<span class="nc" id="L106">		BigDecimal bl = bd.setScale(2, BigDecimal.ROUND_HALF_UP);</span>
+<span class="nc" id="L107">		return Double.parseDouble(bl.toString());</span>
+	}
+
+	/**
+	 * 四舍五入保留两位小数 先四舍五入在使用double值自动去零
+	 * 
+	 * @param arg
+	 * @return
+	 */
+	public static String setDifScare(String arg) {
+<span class="nc" id="L117">		BigDecimal bd = new BigDecimal(arg);</span>
+<span class="nc" id="L118">		BigDecimal bl = bd.setScale(2, BigDecimal.ROUND_HALF_UP);</span>
+<span class="nc" id="L119">		return bl.toString();</span>
+	}
+
+	/**
+	 * 四舍五入保留N位小数 先四舍五入在使用double值自动去零（传参String类型）
+	 * 
+	 * @param arg
+	 * @return
+	 */
+	public static String setDifScare(String arg, int i) {
+<span class="nc" id="L129">		BigDecimal bd = new BigDecimal(arg);</span>
+<span class="nc" id="L130">		BigDecimal bl = bd.setScale(i, BigDecimal.ROUND_HALF_UP);</span>
+<span class="nc" id="L131">		return bl.toString();</span>
+	}
+
+	/**
+	 * 转化成百分数 先四舍五入在使用double值自动去零
+	 * 
+	 * @param arg
+	 * @return
+	 */
+	public static String setFenScare(BigDecimal arg) {
+<span class="nc" id="L141">		BigDecimal bl = arg.setScale(3, BigDecimal.ROUND_HALF_UP);</span>
+<span class="nc" id="L142">		String scare = String.valueOf(mul(bl.toString(), &quot;100&quot;).doubleValue());</span>
+<span class="nc" id="L143">		String fenScare = scare + &quot;%&quot;;</span>
+<span class="nc" id="L144">		return fenScare;</span>
+	}
+
+	/**
+	 * 使用java正则表达式去掉多余的.与0
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String subZeroAndDot(String s) {
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		if (s.indexOf(&quot;.&quot;) &gt; 0) {</span>
+<span class="nc" id="L155">			s = s.replaceAll(&quot;0+?$&quot;, &quot;&quot;);// 去掉多余的0</span>
+<span class="nc" id="L156">			s = s.replaceAll(&quot;[.]$&quot;, &quot;&quot;);// 如最后一位是.则去掉</span>
+		}
+<span class="nc" id="L158">		return s;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

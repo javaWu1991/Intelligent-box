@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppEnterpriseServiceNumberMapper" >
+  <resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppEnterpriseServiceNumber" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="link" property="link" jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="BIGINT" />
+		<result column="f_menu" property="fMenu" jdbcType="BIGINT" />
+		<result column="sid" property="sid" jdbcType="BIGINT" />
+		<collection property="children" column="id" select="selectChlidrenBypid"></collection>
+  </resultMap>
+  
+   <resultMap id="ChildResultMap" type="cmcc.mobile.yiqi.entity.TAppEnterpriseServiceNumber" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="link" property="link" jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="BIGINT" />
+		<result column="f_menu" property="fMenu" jdbcType="BIGINT" />
+		<result column="sid" property="sid" jdbcType="BIGINT" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, name, link, level,f_menu,sid
+  </sql>
+ 
+  <select id="selectByLevelKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select  <include refid="Base_Column_List"/>
+    from t_app_enterprise_service_menu a 
+		     where f_menu = #{fMenu,jdbcType=BIGINT} and level=#{level,jdbcType=BIGINT} and sid=#{sid,jdbcType=BIGINT}  
+  </select>
+  
+    <select id="selectByInnLevelKey" resultMap="ChildResultMap" parameterType="java.lang.Long" >
+    select a.*
+    from t_app_enterprise_service_menu a left join t_app_apply b on a.sid=b.id 
+		     where  a.level=#{level,jdbcType=BIGINT} and a.sid=#{sid,jdbcType=BIGINT} 
+  </select>
+  
+  <select id="selectByFMenuKey" resultMap="ChildResultMap" parameterType="java.lang.Long" >
+    select a.*
+    from t_app_enterprise_service_menu a, t_app_apply b 
+		     where  a.f_menu = #{fMenu,jdbcType=BIGINT} and a.sid=#{sid,jdbcType=BIGINT} and a.sid=b.id
+  </select>
+  
+  <select id="selectChlidrenBypid" resultMap="ChildResultMap" parameterType="java.lang.Long" >
+    select <include refid="Base_Column_List"/> 
+    from t_app_enterprise_service_menu 
+		     where  f_menu = #{id,jdbcType=BIGINT} 
+  </select>
+  
+   <select id="selectBySid" resultMap="ChildResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List"/>
+    from t_app_enterprise_service_menu 
+		     where sid=#{sid,jdbcType=BIGINT}  
+  </select>
+   
+ 
+  
+  	<delete id="deleteBylevelKey" parameterType="java.lang.Long">
+		delete from
+		t_app_enterprise_service_menu
+		where id=#{id,jdbcType=BIGINT}
+	</delete>
+	
+  <insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppEnterpriseServiceNumber">
+		insert into t_app_enterprise_service_menu (id,
+		name, link,
+		f_menu, level,sid)
+		values
+		(#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
+		#{link,jdbcType=VARCHAR},
+	    #{fMenu,jdbcType=INTEGER},
+		#{level,jdbcType=INTEGER},
+		#{sid,jdbcType=INTEGER})
+	</insert>
+	
+  <update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppEnterpriseServiceNumber">
+		update t_app_enterprise_service_menu
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="level != null">
+				level = #{level,jdbcType=BIGINT},
+			</if>
+			<if test="link != null">
+				link = #{link,jdbcType=VARCHAR},
+			</if>
+			<if test="fMenu != null">
+				f_menu = #{fMenu,jdbcType=BIGINT},
+			</if>
+			<if test="sid != null">
+				sid = #{sid,jdbcType=BIGINT},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+  
+  
+</mapper>

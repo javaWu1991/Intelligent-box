@@ -1,0 +1,238 @@
+﻿.header-bar{
+	margin-top:-1px;
+	height:0.4rem;line-height: 0.4rem;background:#ffffff;text-align: center;font-size:0.18rem;color:#333333;border-bottom: 1px solid #e0e0e0;border-top:  1px solid #e0e0e0;}
+.jia{float:right;height:100%;line-height: 0.35rem;padding-right:0.15rem;color: #CCCCCC;}
+.sousuo{float:right;height:17px;width:15px;line-height: 0.35rem;padding-right:0.2rem;margin-top: 0.1rem;}
+html{height:100%;background: #f0f0f0;}
+*{
+	margin:0;
+	padding:0;
+}
+.header-1{
+	height: 0.4rem;
+    line-height: 0.4rem;
+    background: #ffffff;
+    text-align: center;
+    font-size: 0.18rem;
+    color: #333333;
+    border-bottom: 1px solid #e0e0e0;
+    
+}
+#cartoonDetail{
+	position:fixed;
+	left:0;
+	width:100%;
+	height:0.4rem;
+}
+.header-2{
+	height: 0.4rem;
+    line-height: 0.4rem;
+    background: #ffffff;
+    text-align: center;
+    font-size: 0.18rem;
+    color: #333333;
+    border-bottom: 1px solid #e0e0e0;
+    border-top: 1px solid #e0e0e0;
+}
+/*督办事项首页*/
+.tab{font-size:0.16rem;}
+.tab_menu li{float:left;text-align: center;cursor: pointer;list-style: none;width:1.25rem;background:#ffffff;padding:0.2rem 0;color:#333333;padding-top: 0.27rem;}
+.tab_menu li.selected { color:#53aadd; border-bottom: 3px solid #53aadd;}
+.tab_box {
+	padding-left:0.15rem;
+	padding-right: 0.15rem;
+	background: #f0f0f0;
+	margin-top: 0.15rem;
+	}
+ .hide{display:none}
+#guidang{
+	overflow: hidden;
+	padding-right: 0.15rem;
+}
+
+.dubanName{
+	width: 80%;
+	overflow: hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+.daiban{
+	border-radius: 4px;
+	margin-bottom: 0.15rem;
+	padding-left: 0.15rem;
+	padding-top: 0.15rem;
+	padding-bottom: 0.15rem;
+	color:#8c8c8c;
+}
+.daiban>p{
+	width: 80%;
+	font-size:0.14rem;
+}
+
+.oUl>li{
+	position: relative;
+}
+.shuzi{
+	position: absolute;
+	top:0.13rem;
+	background: #f3554e;
+	width: 0.2rem;
+	height:0.2rem;
+	line-height: 0.2rem;
+	color:#ffffff;
+	font-size:0.16rem;
+	border-radius: 50%;
+	display: inline-block;
+}
+/*红点*/
+.Reddot{
+	display: inline-block;
+	width: 0.1rem;
+	height:0.1rem;
+	border-radius: 50%;
+	margin-right: 0.05rem;
+	background: #f3554e;
+}
+/*滞后*/
+.zhihou{
+	width: 0.4rem;
+	height:0.2rem;
+	line-height: 0.2rem;
+	display: inline-block;
+	border-radius: 4px;
+	background: #fabc26;
+	color:#FFFFFF;
+	text-align: center;
+	margin-top: 0.04rem;
+	margin-right: 0.1rem;
+	font-size:0.12rem;
+}
+ 
+/*底部*/
+.footer{height:0.35rem;line-height: 0.35rem;background:#f0f0f0;text-align: center;font-size:0.14rem;color:#8C8C8C;display: block;width: 100%;}
+
+/*gif*/
+
+.chenfagif{
+	position: fixed;
+	z-index: 999;	
+	top:90px;
+}
+.chenfa{
+	width:3.8rem;
+	height:4.6rem;
+	position:absolute;
+	top:0.2rem;
+	left:0.1rem;
+	z-index:300;
+}
+.daoqi{
+	width:3.6rem;
+	height:4.6rem;
+	position:absolute;
+	top:0.2rem;
+	left:0rem;
+	z-index:300;
+}
+/*奖励动画*/
+.jiangli{
+	position: absolute;
+	bottom:0;
+	z-index: 999;
+	top:90px;
+}
+#daiban{
+	positon:relative;
+}
+.biaoyang{
+	width:3.5rem;
+	height:4.5rem;
+	position:absolute;
+	top:0.2rem;
+	left:0.1rem;
+	z-index:300;
+}
+.daicaozuo{
+	position: absolute;
+	bottom:0;
+	z-index: 999;
+	left:2rem;	
+}
+.tixing{
+	width:144px;
+	height:150px;
+	display: none;
+}
+
+.welcome{
+	position: absolute;
+	bottom:0;
+	z-index: 999;
+	left:2.2rem;
+}
+.huanying{
+	width:144px;
+	height:150px;	
+	display: none;
+}
+.txbox{
+	position: absolute;
+	top:-0.5rem;
+	left:-0.4rem;
+	width:1.15rem;
+	height:0.45rem;
+	border:1px solid #8c8c8c;
+	font-size:0.16rem;
+	padding-left: 0.15rem;
+	padding-top: 0.1rem;
+	display: none;
+	background: #FFFFFF;
+}
+.sanjiao{
+	border-left: 1px solid #8c8c8c;
+	border-bottom: 1px solid #8c8c8c;
+	position: absolute;
+	background: #FFFFFF;
+	top:0.456rem;
+	left:1rem;
+	width:0.16rem;
+	height:0.16rem;
+	transform:rotate(-47deg);
+	-ms-transform:rotate(-47deg); /* Internet Explorer */
+	-moz-transform:rotate(-47deg); /* Firefox */
+	-webkit-transform:rotate(-47deg); /* Safari 和 Chrome */
+	-o-transform:rotate(-47deg); /* Opera */
+}
+.dban{margin-bottom: 0.05rem;}
+
+/*我的待办*/
+#dBan{
+	display: none;
+	position:fixed;
+	left:0;
+	width:100%;
+	height:0.4rem;
+}
+.dbanbox,.zbanbox{
+	padding-left: 0.15rem;
+    padding-right: 0.15rem;
+    background: #f0f0f0;
+    margin-top: 0.15rem;
+}
+
+#zBan{
+	display: none;
+	position:fixed;
+	left:0;
+	width:100%;
+	height:0.4rem;
+}
+/*背景层*/
+#mask{
+	background: rgba(0,0,0,.4);
+	display: none;
+	width: 100%;
+	height:300%;
+	position: absolute;
+	z-index: 999;
+}

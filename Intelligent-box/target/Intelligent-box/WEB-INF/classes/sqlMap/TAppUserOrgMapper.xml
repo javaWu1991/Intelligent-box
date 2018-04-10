@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppUserOrgMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppUserOrg">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="oid" property="oid" jdbcType="BIGINT" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="path_id" property="pathId" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="position_id" property="positionId" jdbcType="BIGINT" />
+		<result column="short_num" property="shortNum" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, uid, oid, sort, path_id, status, position_id, short_num, email
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_userorg
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from t_app_userorg
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppUserOrg">
+		insert into t_app_userorg (id, uid, oid, sort,
+		path_id, status, position_id,
+		short_num, email)
+		values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT},
+		#{oid,jdbcType=BIGINT}, #{sort,jdbcType=INTEGER},
+		#{pathId,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+		#{positionId,jdbcType=BIGINT},
+		#{shortNum,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppUserOrg">
+		insert into t_app_userorg
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="uid != null">
+				uid,
+			</if>
+			<if test="oid != null">
+				oid,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="pathId != null">
+				path_id,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="positionId != null">
+				position_id,
+			</if>
+			<if test="shortNum != null">
+				short_num,
+			</if>
+			<if test="email != null">
+				email,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="uid != null">
+				#{uid,jdbcType=BIGINT},
+			</if>
+			<if test="oid != null">
+				#{oid,jdbcType=BIGINT},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="pathId != null">
+				#{pathId,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="positionId != null">
+				#{positionId,jdbcType=BIGINT},
+			</if>
+			<if test="shortNum != null">
+				#{shortNum,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				#{email,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppUserOrg">
+		update t_app_userorg
+		<set>
+			<if test="uid != null">
+				uid = #{uid,jdbcType=BIGINT},
+			</if>
+			<if test="oid != null">
+				oid = #{oid,jdbcType=BIGINT},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="pathId != null">
+				path_id = #{pathId,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="positionId != null">
+				position_id = #{positionId,jdbcType=BIGINT},
+			</if>
+			<if test="shortNum != null">
+				short_num = #{shortNum,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				email = #{email,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppUserOrg">
+		update t_app_userorg
+		set uid = #{uid,jdbcType=BIGINT},
+		oid = #{oid,jdbcType=BIGINT},
+		sort = #{sort,jdbcType=INTEGER},
+		path_id = #{pathId,jdbcType=VARCHAR},
+		status = #{status,jdbcType=INTEGER},
+		position_id = #{positionId,jdbcType=BIGINT},
+		short_num = #{shortNum,jdbcType=VARCHAR},
+		email = #{email,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="selectByOidUid" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_userorg
+		where oid = #{oid,jdbcType=BIGINT} and uid = #{uid,jdbcType=BIGINT}
+	</select>
+
+	<select id="selectAllByOid" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_userorg
+		where oid = #{oid,jdbcType=BIGINT}
+	</select>
+
+	<update id="updateUserOrg">
+		update t_app_userorg r, t_app_organization o
+		set
+		r.position_id = #{positionId,jdbcType=BIGINT},
+		r.short_num = #{shortNum,jdbcType=VARCHAR}
+		where r.oid = o.id and o.cid = #{cid,jdbcType=BIGINT} and r.uid =
+		#{uid,jdbcType=BIGINT}
+		and r.oid = #{oid,jdbcType=BIGINT}
+	</update>
+</mapper>

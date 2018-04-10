@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>IntelligentBoxServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">IntelligentBoxServiceImpl.java</span></div><h1>IntelligentBoxServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import cmcc.mobile.yiqi.entity.BannerImg;
+import cmcc.mobile.yiqi.entity.TAppProduct;
+import cmcc.mobile.yiqi.entity.TOpenBoxLog;
+import cmcc.mobile.yiqi.entity.TProductLog;
+import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppProductMapper;
+import cmcc.mobile.yiqi.entity.dao.TOpenBoxLogMapper;
+import cmcc.mobile.yiqi.utils.FileUpload;
+import cmcc.mobile.yiqi.utils.IntelligentUtil;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.RandomNumUtil;
+import cmcc.mobile.yiqi.utils.RandomUtil;
+import cmcc.mobile.yiqi.vo.ConsumeVo;
+import cmcc.mobile.yiqi.vo.Product;
+import cmcc.mobile.yiqi.web.service.IWeixinPayService;
+import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
+import javassist.compiler.ast.NewExpr;
+
+@Service
+<span class="nc" id="L34">public class IntelligentBoxServiceImpl implements IntelligentBoxService{</span>
+
+	@Autowired
+	private IntelligentBoxMapper intelligentBoxMapper ;
+	@Autowired
+	private TAppProductMapper tAppProductMapper ;
+	@Autowired
+	private TOpenBoxLogMapper tOpenBoxLogMapper ;
+	@Autowired
+	private IWeixinPayService weixinPayService;
+	@Override
+	public JsonResult uploadImages(MultipartFile mr) {
+		 /**
+         * 查询banner图是否超过最多限制如果超过删除不上传
+         */
+<span class="nc bnc" id="L49" title="All 4 branches missed.">        if (intelligentBoxMapper.selectAll().size() &lt; 3 &amp;&amp; mr.getSize() &gt; 0) {</span>
+<span class="nc" id="L50">            String picurl = &quot;&quot;;</span>
+            try {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                if (!mr.isEmpty()) {</span>
+<span class="nc" id="L53">                    picurl = FileUpload.uploadFile(mr, &quot;banner&quot;);</span>
+                }
+<span class="nc" id="L55">            } catch (IOException e) {</span>
+<span class="nc" id="L56">                return new JsonResult(false, &quot;文件上传失败！&quot;, null);</span>
+<span class="nc" id="L57">            }</span>
+<span class="nc" id="L58">            BannerImg bannerImg = new BannerImg();</span>
+<span class="nc" id="L59">            bannerImg.setCreateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L60">            bannerImg.setImgUrl(picurl);</span>
+<span class="nc" id="L61">            intelligentBoxMapper.insertSelective(bannerImg);</span>
+<span class="nc" id="L62">            return new JsonResult(true, &quot;图片上传成功&quot;, bannerImg);</span>
+        }
+<span class="nc" id="L64">        return new JsonResult(false, &quot;图片上传失败&quot;, null);</span>
+	}
+	/**
+	 * 获取banner图
+	 */
+	@Override
+	public JsonResult getImages() {
+<span class="nc" id="L71">		 List&lt;String&gt; list = intelligentBoxMapper.selectAll();</span>
+<span class="nc" id="L72">		return new JsonResult(true,&quot;获取成功&quot;,list);</span>
+	}
+	/**
+	 * 添加产品
+	 */
+	@Override
+	public JsonResult addProduct(TAppProduct tAppProduct, MultipartFile mr) {
+<span class="nc" id="L79">		 String picurl = &quot;&quot;;</span>
+         try {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">             if (!mr.isEmpty()) {</span>
+<span class="nc" id="L82">                 picurl = FileUpload.uploadFile(mr, &quot;product&quot;);</span>
+             }
+<span class="nc" id="L84">         } catch (IOException e) {</span>
+<span class="nc" id="L85">             return new JsonResult(false, &quot;文件上传失败！&quot;, null);</span>
+<span class="nc" id="L86">         }</span>
+<span class="nc" id="L87">         tAppProduct.setProductImg(picurl);</span>
+<span class="nc" id="L88">         tAppProduct.setStatus(1);</span>
+<span class="nc" id="L89">         tAppProduct.setCreateTime(System.currentTimeMillis());</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">         if(tAppProductMapper.insertSelective(tAppProduct)==1){</span>
+<span class="nc" id="L91">        	 return new JsonResult(true,&quot;添加成功&quot;,null) ;</span>
+         }
+         
+<span class="nc" id="L94">		return new JsonResult(false,&quot;添加失败&quot;,null) ;</span>
+	}
+	/**
+	 * 获取产品列表
+	 */
+	@Override
+	public JsonResult getProductList(String code) {
+<span class="nc" id="L101">		List&lt;TAppProduct&gt; tAppProducts = tAppProductMapper.selectByMachineId(code) ;</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">		if(tAppProducts.size()==0||tAppProducts==null){</span>
+<span class="nc" id="L103">			return new JsonResult(false,&quot;该编码不存在&quot;,null) ;</span>
+			
+		}
+<span class="nc" id="L106">		return new JsonResult(true,&quot;获取成功！&quot;,tAppProducts) ;</span>
+	}
+	/**
+	 * 更新产品
+	 */
+	@Override
+	public JsonResult updateProductList(TAppProduct tAppProduct, MultipartFile mr) {
+<span class="nc" id="L113">		 String picurl = &quot;&quot;;</span>
+         try {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">             if (null !=mr) {</span>
+<span class="nc" id="L116">                 picurl = FileUpload.uploadFile(mr, &quot;product&quot;);</span>
+<span class="nc" id="L117">                 tAppProduct.setProductImg(picurl);</span>
+             }
+<span class="nc" id="L119">         } catch (IOException e) {</span>
+<span class="nc" id="L120">             return new JsonResult(false, &quot;文件上传失败！&quot;, null);</span>
+<span class="nc" id="L121">         }</span>
+<span class="nc" id="L122">         tAppProduct.setUpdateTime(System.currentTimeMillis());</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">         if(tAppProductMapper.updateByPrimaryKeySelective(tAppProduct)==1){</span>
+<span class="nc" id="L124">        	 return new JsonResult(true,&quot;更新成功&quot;,null) ;</span>
+         }
+<span class="nc" id="L126">		return new JsonResult(false,&quot;更新失败&quot;,null) ;</span>
+	}
+	/**
+	 * 获取产品详情
+	 */
+	@Override
+	public JsonResult getProductDetail(Long productId) {
+<span class="nc" id="L133">		TAppProduct tAppProduct = tAppProductMapper.selectByPrimaryKey(productId) ;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		if(tAppProduct==null){</span>
+<span class="nc" id="L135">			return new JsonResult(false, &quot;产品不存在&quot;,null);</span>
+		}
+<span class="nc" id="L137">		return new JsonResult(true, &quot;获取成功！&quot;,tAppProduct);</span>
+	}
+	/**
+	 * 一键上架
+	 */
+	@Override
+	public JsonResult upShelves(String code,Integer number,Long productId,long userId,long corpId) {
+		//数量如果是0则只是更改下架的产品状态否则则更改下架的产品的同事也要更改缺货的产品数量
+<span class="nc" id="L145">		TAppProduct tAppProduct = new TAppProduct() ;</span>
+<span class="nc" id="L146">		tAppProduct.setMachineId(code) ;</span>
+<span class="nc" id="L147">		tAppProduct.setStatus(1);</span>
+		//查询下架的产品
+<span class="nc" id="L149">		List&lt;TAppProduct&gt; taAppProducts = tAppProductMapper.selectByMachine(code) ;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">		if(taAppProducts.size()!=0){</span>
+<span class="nc" id="L151">			tAppProductMapper.updateByCode(tAppProduct) ;</span>
+<span class="nc" id="L152">			insertReplenishment(taAppProducts, userId, corpId, 0, 2);</span>
+<span class="nc bnc" id="L153" title="All 4 branches missed.">		}else if(number!=null &amp;&amp; productId!=null){</span>
+			//查询需要补货的产品
+<span class="nc" id="L155">			List&lt;TAppProduct&gt; tAppProducts = new ArrayList&lt;&gt;() ;</span>
+<span class="nc" id="L156">			tAppProducts.add(tAppProductMapper.selectByPrimaryKey(productId)) ;</span>
+<span class="nc" id="L157">			insertReplenishment(taAppProducts, userId, corpId, number, 1);</span>
+<span class="nc" id="L158">			tAppProduct.setProductNumber(number);</span>
+<span class="nc" id="L159">			tAppProduct.setId(productId);</span>
+<span class="nc" id="L160">			tAppProductMapper.updateByNumber(tAppProduct) ;</span>
+		}
+<span class="nc" id="L162">		return new JsonResult(true,&quot;上架成功！&quot;,null);</span>
+	}
+	/**
+	 * 下架
+	 */
+	@Override
+	public JsonResult downShelves(Long  productId,long userId,long corpId) {
+<span class="nc" id="L169">		TAppProduct tAppProduct = new TAppProduct() ;</span>
+<span class="nc" id="L170">		tAppProduct.setId(productId);</span>
+<span class="nc" id="L171">		tAppProduct.setStatus(0);</span>
+<span class="nc" id="L172">		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;</span>
+<span class="nc" id="L173">		List&lt;TAppProduct&gt; tAppProducts = new ArrayList&lt;&gt;() ;</span>
+<span class="nc" id="L174">		tAppProducts.add(tAppProductMapper.selectByPrimaryKey(productId)) ;</span>
+<span class="nc" id="L175">		insertReplenishment(tAppProducts, userId, corpId, 0,0);</span>
+<span class="nc" id="L176">		return new JsonResult(true,&quot;下架成功&quot;,null);</span>
+	}
+	/**
+	 * 下发开门指令
+	 * 并本地记录开门时间
+	 */
+	@Override
+	public JsonResult openDoor(String code, String containerNumber,long userId) {
+		//下发开门指令
+<span class="nc" id="L185">		boolean isOpen = IntelligentUtil.openDooR(code,containerNumber) ;</span>
+		//查询货柜产品
+<span class="nc" id="L187">		TAppProduct tAppProduct = new TAppProduct() ;</span>
+<span class="nc" id="L188">		tAppProduct.setContainerNumber(containerNumber);</span>
+<span class="nc" id="L189">		tAppProduct.setMachineId(code);</span>
+<span class="nc" id="L190">		tAppProduct = tAppProductMapper.selectByMachineIdAndContainerNumber(tAppProduct) ;</span>
+<span class="nc" id="L191">		TOpenBoxLog tOpenBoxLog = new TOpenBoxLog() ;</span>
+<span class="nc" id="L192">		tOpenBoxLog.setProductName(tAppProduct.getProductName());</span>
+<span class="nc" id="L193">		tOpenBoxLog.setType(1);</span>
+<span class="nc" id="L194">		tOpenBoxLog.setUserId(userId);</span>
+		//记录开门状态
+<span class="nc bnc" id="L196" title="All 2 branches missed.">		if(isOpen){</span>
+<span class="nc" id="L197">			tOpenBoxLog.setStatus(1);</span>
+		}else{
+<span class="nc" id="L199">			tOpenBoxLog.setStatus(0);</span>
+		}
+<span class="nc" id="L201">		insertOpenDoorLog(tOpenBoxLog);</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">		return new JsonResult(isOpen,isOpen?&quot;开门成功&quot;:&quot;开门失败机器异常&quot;,null);</span>
+	}
+
+	/**
+	 * 记录开门log
+	 */
+	private void insertOpenDoorLog(TOpenBoxLog tOpenBoxLog){
+<span class="nc" id="L209">		tOpenBoxLogMapper.insertSelective(tOpenBoxLog) ;</span>
+<span class="nc" id="L210">	}</span>
+	/**
+	 * 单个上架产品
+	 */
+	@Override
+	public JsonResult upBox(Long productId, Integer number,long userId,long corpId) {
+<span class="nc" id="L216">		TAppProduct tAppProduct = new TAppProduct() ;</span>
+<span class="nc" id="L217">		tAppProduct.setId(productId); ;</span>
+<span class="nc" id="L218">		tAppProduct.setStatus(1);</span>
+<span class="nc" id="L219">		tAppProduct.setProductNumber(number);</span>
+<span class="nc" id="L220">		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;</span>
+<span class="nc" id="L221">		List&lt;TAppProduct&gt; tAppProducts = new ArrayList&lt;&gt;() ;</span>
+<span class="nc" id="L222">		tAppProducts.add(tAppProductMapper.selectByPrimaryKey(productId)) ;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">		insertReplenishment(tAppProducts, userId, corpId, number,number==0?0:2);</span>
+<span class="nc" id="L224">		return new JsonResult(true,&quot;上架成功&quot;,null) ;</span>
+	}
+	/**
+	 * 记录补货log
+	 */
+	private void insertReplenishment(List&lt;TAppProduct&gt; taAppProducts,long userId,long corpId,int productNumber,int type){
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		for(TAppProduct tAppProduct : taAppProducts){</span>
+<span class="nc" id="L231">			TProductLog tProductLog = new TProductLog() ;</span>
+<span class="nc" id="L232">			tProductLog.setContainerNumber(tAppProduct.getContainerNumber());</span>
+<span class="nc" id="L233">			tProductLog.setCorpId(corpId);</span>
+<span class="nc" id="L234">			tProductLog.setCreateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L235">			tProductLog.setCreateUserId(userId);</span>
+<span class="nc" id="L236">			tProductLog.setMachineId(tAppProduct.getMachineId());</span>
+<span class="nc" id="L237">			tProductLog.setProductNumber(productNumber);</span>
+<span class="nc" id="L238">			tProductLog.setType(type);</span>
+<span class="nc" id="L239">			intelligentBoxMapper.addReplenishment(tProductLog) ;</span>
+<span class="nc" id="L240">		}</span>
+<span class="nc" id="L241">	}</span>
+	/**
+	 * 管理页面获取产品
+	 */
+	@Override
+	public JsonResult getProductListByCorpId(long corpId,String productName,Integer status) {
+<span class="nc" id="L247">		TAppProduct tAppProduct = new TAppProduct() ;</span>
+<span class="nc" id="L248">		tAppProduct.setCorpId(corpId);</span>
+<span class="nc" id="L249">		tAppProduct.setStatus(status);</span>
+<span class="nc" id="L250">		tAppProduct.setProductName(productName);</span>
+<span class="nc" id="L251">		List&lt;TAppProduct&gt; tAppProducts = tAppProductMapper.selectByCorp(tAppProduct);</span>
+<span class="nc bnc" id="L252" title="All 4 branches missed.">		if(tAppProducts.size()==0||tAppProducts==null){</span>
+<span class="nc" id="L253">			return new JsonResult(false,&quot;该编码不存在&quot;,null) ;</span>
+			
+		}
+<span class="nc" id="L256">		return new JsonResult(true,&quot;获取成功！&quot;,tAppProducts) ;</span>
+	}
+	/**
+	 * 更新产品
+	 */
+	@Override
+	public JsonResult updateProduct(TAppProduct tAppProduct,Long userId,Long corpId) {
+<span class="nc" id="L263">		int type = 0 ;</span>
+<span class="nc" id="L264">		List&lt;TAppProduct&gt; taAppProducts = new ArrayList&lt;&gt;() ;</span>
+<span class="nc" id="L265">		tAppProduct.setUpdateTime(System.currentTimeMillis());</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		if(tAppProductMapper.updateByPrimaryKeySelective(tAppProduct)==1){</span>
+<span class="nc bnc" id="L267" title="All 5 branches missed.">			switch(tAppProduct.getStatus()){</span>
+<span class="nc" id="L268">			 case 3 : type=0 ;</span>
+<span class="nc" id="L269">			 break ;</span>
+<span class="nc" id="L270">			 case 1 : type=2 ;</span>
+<span class="nc" id="L271">			 break ;</span>
+<span class="nc" id="L272">			 case 4 : type=4 ;</span>
+<span class="nc" id="L273">			 break ;</span>
+<span class="nc" id="L274">			 case 2 : type=3 ;			 	</span>
+			}
+<span class="nc" id="L276">		tAppProduct = tAppProductMapper.selectByPrimaryKey(tAppProduct.getId()) ;</span>
+<span class="nc" id="L277">		taAppProducts.add(tAppProduct) ;</span>
+<span class="nc" id="L278">		insertReplenishment(taAppProducts, userId, corpId, 0, type);</span>
+<span class="nc" id="L279">       	return new JsonResult(true,&quot;更新成功&quot;,null) ;</span>
+        }
+<span class="nc" id="L281">		return new JsonResult(false,&quot;更新失败&quot;,null) ;</span>
+	}
+	/**
+	 * 支付接口
+	 */
+	@Override
+	public String weixinPayH5(double money, Long productId,String ip) {
+<span class="nc" id="L288">		ConsumeVo consumeVo = intelligentBoxMapper.selectByProduct(productId) ;</span>
+<span class="nc" id="L289">		Product product = new Product() ;</span>
+<span class="nc" id="L290">		product.setAppId(consumeVo.getAppId());</span>
+<span class="nc" id="L291">		product.setMchId(consumeVo.getMchId());</span>
+<span class="nc" id="L292">		product.setProductId(String.valueOf(productId));</span>
+<span class="nc" id="L293">		product.setProductName(consumeVo.getProductName());</span>
+<span class="nc" id="L294">		product.setOutTradeNo(RandomNumUtil.genRandomNum());</span>
+<span class="nc" id="L295">		product.setTotalFee(String.valueOf(money));</span>
+<span class="nc" id="L296">		product.setSpbillCreateIp(ip);</span>
+<span class="nc" id="L297">		String mweb_url = weixinPayService.weixinPayH5(product) ;</span>
+<span class="nc" id="L298">		return mweb_url ;</span>
+	}
+
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

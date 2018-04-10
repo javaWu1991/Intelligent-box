@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WeChatPayController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.api.controller</a> &gt; <span class="el_source">WeChatPayController.java</span></div><h1>WeChatPayController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.api.controller;
+
+import java.io.BufferedOutputStream;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import cmcc.mobile.yiqi.utils.AddressUtils;
+import cmcc.mobile.yiqi.utils.ConfigUtil;
+import cmcc.mobile.yiqi.utils.DateUtil;
+import cmcc.mobile.yiqi.utils.HttpUtil;
+import cmcc.mobile.yiqi.utils.MobileUtil;
+import cmcc.mobile.yiqi.utils.PayCommonUtil;
+import cmcc.mobile.yiqi.utils.XMLUtil;
+import cmcc.mobile.yiqi.vo.Product;
+import cmcc.mobile.yiqi.web.service.IWeixinPayService;
+
+/**
+ * 微信H5支付
+ * 创建者 吴奔江
+ * 创建时间	2018年3月28日
+ *
+ */
+@Controller
+@RequestMapping(value = &quot;weixinMobile&quot;)
+<span class="nc" id="L38">public class WeChatPayController {</span>
+<span class="nc" id="L39">	private static final Logger logger = LoggerFactory.getLogger(WeChatPayController.class);</span>
+	@Autowired
+	private IWeixinPayService weixinPayService;
+	@Value(&quot;${server.context.url}&quot;)
+	private String server_url;
+	
+	//H5支付(需要公众号内支付
+	@RequestMapping(value=&quot;pay&quot;,method=RequestMethod.POST)
+    public String  pay(Product product,ModelMap map) {
+<span class="nc" id="L48">		logger.info(&quot;H5支付(需要公众号内支付)&quot;);</span>
+<span class="nc" id="L49">		String url =  weixinPayService.weixinPayMobile(product);</span>
+<span class="nc" id="L50">		return &quot;redirect:&quot;+url;</span>
+    }
+	//公众号H5支付主页
+	@RequestMapping(value=&quot;payPage&quot;,method=RequestMethod.GET)
+	public String pay(HttpServletRequest request, HttpServletResponse response) throws Exception {
+<span class="nc" id="L55">		return &quot;weixin/payPage&quot;;</span>
+	}
+	//纯H5支付(不建议在APP端使用
+	@RequestMapping(value=&quot;h5pay&quot;,method=RequestMethod.POST)
+    public String  h5pay(Product product,ModelMap map) {
+<span class="nc" id="L60">		logger.info(&quot;纯H5支付(不建议在APP端使用)&quot;);</span>
+		//mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。
+<span class="nc" id="L62">		String mweb_url =  weixinPayService.weixinPayH5(product);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if(StringUtils.isNotBlank(mweb_url)){</span>
+<span class="nc" id="L64">			return &quot;redirect:&quot;+mweb_url;</span>
+		}else{
+<span class="nc" id="L66">			return &quot;redirect:https://blog.52itstyle.com&quot;;//自定义错误页面</span>
+		}
+    }
+	//小程序支付(需要HTTPS
+	@RequestMapping(value=&quot;smallRoutine&quot;,method=RequestMethod.POST)
+    public String  smallRoutine(Product product,ModelMap map) {
+<span class="nc" id="L72">		logger.info(&quot;小程序支付(需要HTTPS)、不需要支付目录和授权域名&quot;);</span>
+<span class="nc" id="L73">		String url =  weixinPayService.weixinPayMobile(product);</span>
+<span class="nc" id="L74">		return &quot;redirect:&quot;+url;</span>
+    }
+	/**
+	 * 预下单(对于已经产生的订单)
+	 * @Author  科帮网
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception  String
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	//预下单
+	@RequestMapping(value=&quot;dopay&quot;,method=RequestMethod.POST)
+	public String dopay(HttpServletRequest request, HttpServletResponse response) throws Exception {
+<span class="nc" id="L92">		String orderNo = request.getParameter(&quot;outTradeNo&quot;);</span>
+<span class="nc" id="L93">		String totalFee = request.getParameter(&quot;totalFee&quot;);</span>
+		//获取code 这个在微信支付调用时会自动加上这个参数 无须设置
+<span class="nc" id="L95">		String code = request.getParameter(&quot;code&quot;);</span>
+		//获取用户openID(JSAPI支付必须传openid)
+<span class="nc" id="L97">		String openId = MobileUtil.getOpenId(code);</span>
+<span class="nc" id="L98">		String notify_url =server_url+&quot;/weixinMobile/WXPayBack&quot;;//回调接口</span>
+<span class="nc" id="L99">		String trade_type = &quot;JSAPI&quot;;// 交易类型H5支付 也可以是小程序支付参数</span>
+<span class="nc" id="L100">		SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L101">		ConfigUtil.commonParams(packageParams);</span>
+<span class="nc" id="L102">		packageParams.put(&quot;body&quot;,&quot;报告&quot;);// 商品描述</span>
+<span class="nc" id="L103">		packageParams.put(&quot;out_trade_no&quot;, orderNo);// 商户订单号</span>
+<span class="nc" id="L104">		packageParams.put(&quot;total_fee&quot;, totalFee);// 总金额</span>
+<span class="nc" id="L105">		packageParams.put(&quot;spbill_create_ip&quot;, AddressUtils.getIpAddr(request));// 发起人IP地址</span>
+<span class="nc" id="L106">		packageParams.put(&quot;notify_url&quot;, notify_url);// 回调地址</span>
+<span class="nc" id="L107">		packageParams.put(&quot;trade_type&quot;, trade_type);// 交易类型</span>
+<span class="nc" id="L108">		packageParams.put(&quot;openid&quot;, openId);//用户openID</span>
+<span class="nc" id="L109">		String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams,ConfigUtil.API_KEY);</span>
+<span class="nc" id="L110">		packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+<span class="nc" id="L111">		String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L112">		String resXml = HttpUtil.postData(ConfigUtil.UNIFIED_ORDER_URL, requestXML);</span>
+<span class="nc" id="L113">		Map map = XMLUtil.doXMLParse(resXml);</span>
+<span class="nc" id="L114">		String returnCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc" id="L115">		String returnMsg = (String) map.get(&quot;return_msg&quot;);</span>
+<span class="nc" id="L116">		StringBuffer url = new StringBuffer();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		if(&quot;SUCCESS&quot;.equals(returnCode)){</span>
+<span class="nc" id="L118">			String resultCode = (String) map.get(&quot;result_code&quot;);</span>
+<span class="nc" id="L119">			String errCodeDes = (String) map.get(&quot;err_code_des&quot;);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">			if(&quot;SUCCESS&quot;.equals(resultCode)){</span>
+				//获取预支付交易会话标识
+<span class="nc" id="L122">				String prepay_id = (String) map.get(&quot;prepay_id&quot;);</span>
+<span class="nc" id="L123">				String prepay_id2 = &quot;prepay_id=&quot; + prepay_id;</span>
+<span class="nc" id="L124">				String packages = prepay_id2;</span>
+<span class="nc" id="L125">				SortedMap&lt;Object, Object&gt; finalpackage = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L126">				String timestamp = DateUtil.getTimestamp();</span>
+<span class="nc" id="L127">				String nonceStr = packageParams.get(&quot;nonce_str&quot;).toString();</span>
+<span class="nc" id="L128">				finalpackage.put(&quot;appId&quot;,  ConfigUtil.APP_ID);</span>
+<span class="nc" id="L129">				finalpackage.put(&quot;timeStamp&quot;, timestamp);</span>
+<span class="nc" id="L130">				finalpackage.put(&quot;nonceStr&quot;, nonceStr);</span>
+<span class="nc" id="L131">				finalpackage.put(&quot;package&quot;, packages);  </span>
+<span class="nc" id="L132">				finalpackage.put(&quot;signType&quot;, &quot;MD5&quot;);</span>
+				//这里很重要  参数一定要正确 狗日的腾讯 参数到这里就成大写了
+				//可能报错信息(支付验证签名失败 get_brand_wcpay_request:fail)
+<span class="nc" id="L135">				sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, finalpackage,ConfigUtil.API_KEY);</span>
+<span class="nc" id="L136">				url.append(&quot;redirect:/weixinMobile/payPage?&quot;);</span>
+<span class="nc" id="L137">				url.append(&quot;timeStamp=&quot;+timestamp+&quot;&amp;nonceStr=&quot; + nonceStr + &quot;&amp;package=&quot; + packages);</span>
+<span class="nc" id="L138">				url.append(&quot;&amp;signType=MD5&quot; + &quot;&amp;paySign=&quot; + sign+&quot;&amp;appid=&quot;+ ConfigUtil.APP_ID);</span>
+<span class="nc" id="L139">				url.append(&quot;&amp;orderNo=&quot;+orderNo+&quot;&amp;totalFee=&quot;+totalFee);</span>
+<span class="nc" id="L140">			}else{</span>
+<span class="nc" id="L141">				logger.info(&quot;订单号:{}错误信息:{}&quot;,orderNo,errCodeDes);</span>
+<span class="nc" id="L142">				url.append(&quot;redirect:/weixinMobile/error?code=0&amp;orderNo=&quot;+orderNo);//该订单已支付</span>
+			}
+<span class="nc" id="L144">		}else{</span>
+<span class="nc" id="L145">			logger.info(&quot;订单号:{}错误信息:{}&quot;,orderNo,returnMsg);</span>
+<span class="nc" id="L146">			url.append(&quot;redirect:/weixinMobile/error?code=1&amp;orderNo=&quot;+orderNo);//系统错误</span>
+		}
+<span class="nc" id="L148">		return url.toString();</span>
+	}
+	/**
+	 * 手机支付完成回调
+	 * @Author  科帮网
+	 * @param request
+	 * @param response
+	 * @param platForm  void
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+	//手机支付完成回调
+	@RequestMapping(value=&quot;WXPayBack&quot;,method=RequestMethod.POST)
+	public void WXPayBack(HttpServletRequest request, HttpServletResponse response){
+<span class="nc" id="L164">		String resXml = &quot;&quot;;</span>
+		try {
+			//解析XML
+<span class="nc" id="L167">			Map&lt;String, String&gt; map = MobileUtil.parseXml(request);</span>
+<span class="nc" id="L168">	        String return_code = map.get(&quot;return_code&quot;);//状态</span>
+<span class="nc" id="L169">	        String out_trade_no = map.get(&quot;out_trade_no&quot;);//订单号</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">			if (return_code.equals(&quot;SUCCESS&quot;)) {</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">				if (out_trade_no != null) {</span>
+					//处理订单逻辑
+<span class="nc" id="L173">					logger.info(&quot;微信手机支付回调成功订单号:{}&quot;,out_trade_no);</span>
+<span class="nc" id="L174">					resXml = &quot;&lt;xml&gt;&quot; + &quot;&lt;return_code&gt;&lt;![CDATA[SUCCESS]]&gt;&lt;/return_code&gt;&quot; + &quot;&lt;return_msg&gt;&lt;![CDATA[OK]]&gt;&lt;/return_msg&gt;&quot; + &quot;&lt;/xml&gt; &quot;;</span>
+				}
+			}else{
+<span class="nc" id="L177">				logger.info(&quot;微信手机支付回调失败订单号:{}&quot;,out_trade_no);</span>
+<span class="nc" id="L178">				resXml = &quot;&lt;xml&gt;&quot; + &quot;&lt;return_code&gt;&lt;![CDATA[FAIL]]&gt;&lt;/return_code&gt;&quot; + &quot;&lt;return_msg&gt;&lt;![CDATA[报文为空]]&gt;&lt;/return_msg&gt;&quot; + &quot;&lt;/xml&gt; &quot;;</span>
+			}
+<span class="nc" id="L180">		} catch (Exception e) {</span>
+<span class="nc" id="L181">			logger.error(&quot;手机支付回调通知失败&quot;,e);</span>
+<span class="nc" id="L182">			 resXml = &quot;&lt;xml&gt;&quot; + &quot;&lt;return_code&gt;&lt;![CDATA[FAIL]]&gt;&lt;/return_code&gt;&quot; + &quot;&lt;return_msg&gt;&lt;![CDATA[报文为空]]&gt;&lt;/return_msg&gt;&quot; + &quot;&lt;/xml&gt; &quot;;</span>
+<span class="nc" id="L183">		}</span>
+		try {
+			// ------------------------------
+			// 处理业务完毕
+			// ------------------------------
+<span class="nc" id="L188">			BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());</span>
+<span class="nc" id="L189">			out.write(resXml.getBytes());</span>
+<span class="nc" id="L190">			out.flush();</span>
+<span class="nc" id="L191">			out.close();</span>
+<span class="nc" id="L192">		} catch (Exception e) {</span>
+<span class="nc" id="L193">			e.printStackTrace();</span>
+<span class="nc" id="L194">		}</span>
+<span class="nc" id="L195">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

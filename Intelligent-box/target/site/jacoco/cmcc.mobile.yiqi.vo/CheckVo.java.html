@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CheckVo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.vo</a> &gt; <span class="el_source">CheckVo.java</span></div><h1>CheckVo.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.vo;
+
+import java.io.Serializable;
+
+import cmcc.mobile.yiqi.entity.TAppCheck;
+
+public class CheckVo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6287935528835645342L;
+	
+	private Long checkTime;
+	private String message;
+	private Boolean isPass ;
+	private String departmentName;
+	private String assigneeName;
+	private String assigneeId;
+	private Long checkId;
+	
+	public CheckVo() {
+<span class="nc" id="L22">		super();</span>
+<span class="nc" id="L23">	}</span>
+
+	public CheckVo(TAppCheck tAppCheck) {
+<span class="nc" id="L26">		super();</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">		this.checkTime = tAppCheck.getCreateTime()==null ?System.currentTimeMillis() :tAppCheck.getCreateTime();</span>
+<span class="nc" id="L28">		this.message = tAppCheck.getMessage();</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">		this.isPass = tAppCheck.getIsPass() == null ?false :tAppCheck.getIsPass();</span>
+<span class="nc" id="L30">		this.departmentName = tAppCheck.getDepartmentName();</span>
+<span class="nc" id="L31">		this.assigneeName = tAppCheck.getAssigneeName();</span>
+<span class="nc" id="L32">		this.assigneeId =tAppCheck.getAssigneeId();</span>
+<span class="nc" id="L33">		this.checkId = tAppCheck.getId();</span>
+<span class="nc" id="L34">	}</span>
+
+	public Long getCheckId() {
+<span class="nc" id="L37">		return checkId;</span>
+	}
+
+	public void setCheckId(Long checkId) {
+<span class="nc" id="L41">		this.checkId = checkId;</span>
+<span class="nc" id="L42">	}</span>
+
+	public Long getCheckTime() {
+<span class="nc" id="L45">		return checkTime;</span>
+	}
+
+	public void setCheckTime(Long checkTime) {
+<span class="nc" id="L49">		this.checkTime = checkTime;</span>
+<span class="nc" id="L50">	}</span>
+
+	public String getMessage() {
+<span class="nc" id="L53">		return message;</span>
+	}
+
+	public void setMessage(String message) {
+<span class="nc" id="L57">		this.message = message;</span>
+<span class="nc" id="L58">	}</span>
+
+	public Boolean getIsPass() {
+<span class="nc" id="L61">		return isPass;</span>
+	}
+
+	public void setIsPass(Boolean isPass) {
+<span class="nc" id="L65">		this.isPass = isPass;</span>
+<span class="nc" id="L66">	}</span>
+
+	public String getDepartmentName() {
+<span class="nc" id="L69">		return departmentName;</span>
+	}
+
+	public void setDepartmentName(String departmentName) {
+<span class="nc" id="L73">		this.departmentName = departmentName;</span>
+<span class="nc" id="L74">	}</span>
+
+	public String getAssigneeName() {
+<span class="nc" id="L77">		return assigneeName;</span>
+	}
+
+	public void setAssigneeName(String assigneeName) {
+<span class="nc" id="L81">		this.assigneeName = assigneeName;</span>
+<span class="nc" id="L82">	}</span>
+
+	public String getAssigneeId() {
+<span class="nc" id="L85">		return assigneeId;</span>
+	}
+
+	public void setAssigneeId(String assigneeId) {
+<span class="nc" id="L89">		this.assigneeId = assigneeId;</span>
+<span class="nc" id="L90">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

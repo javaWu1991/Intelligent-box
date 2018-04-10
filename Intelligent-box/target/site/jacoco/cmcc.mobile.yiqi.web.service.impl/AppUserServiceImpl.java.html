@@ -1,0 +1,1162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AppUserServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">AppUserServiceImpl.java</span></div><h1>AppUserServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.entity.SysUseRole;
+import cmcc.mobile.yiqi.entity.TAppCompany;
+import cmcc.mobile.yiqi.entity.TAppOrganization;
+import cmcc.mobile.yiqi.entity.TAppPosition;
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.TAppUserCompany;
+import cmcc.mobile.yiqi.entity.TAppUserOrg;
+import cmcc.mobile.yiqi.entity.dao.SysUseRoleMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppCompanyMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppOrganizationMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppPositionMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserCompanyMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserOrgMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppbakExcelMapper;
+import cmcc.mobile.yiqi.utils.CheckoutUtil;
+import cmcc.mobile.yiqi.utils.ExportExcelUtils;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.RandomUtil;
+import cmcc.mobile.yiqi.vo.AppCompanyVo;
+import cmcc.mobile.yiqi.vo.AppOrganizationVo;
+import cmcc.mobile.yiqi.vo.AppUserVo;
+import cmcc.mobile.yiqi.vo.DeleteExportExcelVo;
+import cmcc.mobile.yiqi.vo.ExportExcelVo;
+import cmcc.mobile.yiqi.vo.PageVo;
+import cmcc.mobile.yiqi.vo.RegisterCompanyVo;
+import cmcc.mobile.yiqi.web.service.IAppOrganizationService;
+import cmcc.mobile.yiqi.web.service.IAppUserServices;
+import cmcc.mobile.yiqi.web.service.IAuthorityService;
+
+/**
+ * 
+ * @author zhangxs
+ *
+ */
+@Service
+<span class="nc" id="L71">public class AppUserServiceImpl implements IAppUserServices {</span>
+
+	@Autowired
+	private TAppUserMapper appUserMapper;
+
+	@Autowired
+	private TAppUserCompanyMapper appUserCompanyMapper;
+
+	@Autowired
+	private TAppCompanyMapper appCompanyMapper;
+
+	@Autowired
+	private TAppOrganizationMapper appOrganizationMapper;
+
+	@Autowired
+	private TAppUserOrgMapper appUserOrgMapper;
+
+	@Autowired
+	private TAppbakExcelMapper appbakExcelMapper;
+
+	@Autowired
+	private TAppUserCompanyMapper userCompanyMapper;
+
+	@Autowired
+	private TAppCompanyMapper tAppCompanyMapper;
+
+	@Autowired
+	private TAppPositionMapper postionMapper;
+
+	@Autowired
+	private IAppOrganizationService appOrganizationService;
+
+	@Autowired
+	private IAuthorityService authorityService;
+	
+	@Autowired
+	private SysUseRoleMapper sysUseRoleMapper ;
+
+<span class="nc" id="L109">	private static Logger logger = Logger.getLogger(AppUserServiceImpl.class);</span>
+
+	@Override
+	public JsonResult webRegister(RegisterCompanyVo vo, TAppUser user) {
+
+<span class="nc" id="L114">		TAppCompany company = new TAppCompany();</span>
+<span class="nc" id="L115">		company.setCode(RandomUtil.createRandomCharData(6));</span>
+<span class="nc" id="L116">		company.setAdress(vo.getDetailAddress());</span>
+<span class="nc" id="L117">		company.setAreaId(Long.parseLong(vo.getAreaId()));</span>
+<span class="nc" id="L118">		company.setCityId(Integer.parseInt(vo.getCityId()));</span>
+<span class="nc" id="L119">		company.setProvinceId(Integer.parseInt(vo.getProvinceId()));</span>
+<span class="nc" id="L120">		company.setAreaName(vo.getAreaName());</span>
+<span class="nc" id="L121">		company.setCityName(vo.getCityName());</span>
+<span class="nc" id="L122">		company.setProvinceName(vo.getProvinceName());</span>
+<span class="nc" id="L123">		company.setContacts(vo.getName());</span>
+<span class="nc" id="L124">		company.setContactsMobile(vo.getMobile());</span>
+<span class="nc" id="L125">		company.setCreate_time(System.currentTimeMillis());</span>
+<span class="nc" id="L126">		company.setName(vo.getCompanyName());</span>
+<span class="nc" id="L127">		company.setStatus(Constants.COMPANY_ADMIN);</span>
+<span class="nc" id="L128">		company.setCreator(&quot;Web 用户注册&quot;);</span>
+<span class="nc" id="L129">		tAppCompanyMapper.insertSelective(company);</span>
+		/**
+		 * 添加关联表
+		 */
+<span class="nc" id="L133">		TAppUserCompany userCompany = new TAppUserCompany();</span>
+<span class="nc" id="L134">		userCompany.setAccount(user.getAccount());</span>
+<span class="nc" id="L135">		userCompany.setAreaid(Integer.parseInt(vo.getAreaId()));</span>
+
+<span class="nc" id="L137">		userCompany.setProvincename(vo.getProvinceName());</span>
+<span class="nc" id="L138">		userCompany.setCityname(vo.getCityName());</span>
+<span class="nc" id="L139">		userCompany.setAreaname(vo.getAreaName());</span>
+<span class="nc" id="L140">		userCompany.setUid(user.getId());</span>
+<span class="nc" id="L141">		userCompany.setType(Constants.COMPANY_ADMIN);</span>
+<span class="nc" id="L142">		userCompany.setStatus(1);</span>
+<span class="nc" id="L143">		userCompany.setCid(company.getId());</span>
+<span class="nc" id="L144">		userCompanyMapper.insertSelective(userCompany);</span>
+
+		/**
+		 * 设置角色
+		 */
+
+<span class="nc" id="L150">		authorityService.addUserRole(</span>
+				new SysUseRole(Integer.parseInt(user.getId().toString()), Integer.parseInt(company.getId().toString()), SysUseRole.COMPANY_MANAGER));
+
+<span class="nc" id="L153">		return new JsonResult(true, &quot;企业注册成功，请登录！&quot;, null);</span>
+
+	}
+
+	@Override
+	public int selectCompanyByAccount(String account) {
+<span class="nc" id="L159">		return appUserCompanyMapper.selectCountByAccountAndType(account, 1);</span>
+	}
+
+	@Override
+	public List&lt;TAppUser&gt; selectAll() {
+<span class="nc" id="L164">		return appUserMapper.selectAll();</span>
+	}
+
+	@Override
+	public TAppUser selectByAccount(String account) {
+<span class="nc" id="L169">		return appUserMapper.selectByAccount(account);</span>
+	}
+
+	@Override
+	public int updatePasswordByApp(TAppUser userVo) {
+<span class="nc" id="L174">		return appUserMapper.updatePasswordByApp(userVo);</span>
+	}
+
+	@Override
+	public int deleteByPrimaryKey(Long id) {
+<span class="nc" id="L179">		return 0;</span>
+	}
+
+	@Override
+	public int insert(TAppUser record) {
+<span class="nc" id="L184">		return appUserMapper.insert(record);</span>
+	}
+
+	@Override
+	public JsonResult deleteOrgUser(String orgId, String id) {
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		for (String ids : id.split(&quot;,&quot;)) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">			if (StringUtils.isNotEmpty(ids)) {</span>
+<span class="nc" id="L191">				Long userId = Long.parseLong(ids);</span>
+<span class="nc" id="L192">				TAppUserOrg userOrg = appUserOrgMapper.selectByOidUid(Long.parseLong(orgId), userId);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">				if (null != userOrg) {</span>
+<span class="nc" id="L194">					appUserOrgMapper.deleteByPrimaryKey(userOrg.getId());</span>
+				}
+			}
+		}
+<span class="nc" id="L198">		return new JsonResult(true, &quot;操作成功！&quot;, null);</span>
+	}
+
+	@Override
+	public JsonResult toTop(String id, String orgId, Integer sort) {
+<span class="nc" id="L203">		TAppUserOrg userOrg = appUserOrgMapper.selectByOidUid(Long.parseLong(orgId), Long.parseLong(id));</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">		if (null != userOrg) {</span>
+<span class="nc" id="L205">			userOrg.setSort(sort);</span>
+<span class="nc" id="L206">			appUserOrgMapper.updateByPrimaryKeySelective(userOrg);</span>
+		}
+<span class="nc" id="L208">		return new JsonResult(true, &quot;操作成功！&quot;, null);</span>
+	}
+
+	@Override
+	public JsonResult setCompanyIsHide(String cid, int status, HttpServletRequest request) {
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		if (StringUtils.isEmpty(cid)) {</span>
+<span class="nc" id="L214">			return new JsonResult(false, &quot;参数错误！&quot;, null);</span>
+		}
+<span class="nc" id="L216">		TAppCompany company = appCompanyMapper.selectByPrimaryKey(Long.parseLong(cid));</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">		if (null != company) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			if (status != company.getIsHide()) {</span>
+<span class="nc" id="L219">				company.setIsHide(status);</span>
+<span class="nc" id="L220">				appCompanyMapper.updateByPrimaryKeySelective(company);</span>
+<span class="nc" id="L221">				request.getSession().setAttribute(&quot;company&quot;, company);</span>
+<span class="nc" id="L222">				return new JsonResult(true, &quot;设置成功！&quot;, null);</span>
+			}
+<span class="nc" id="L224">			return new JsonResult(false, &quot;该项设置已变更！&quot;, null);</span>
+		}
+<span class="nc" id="L226">		return new JsonResult(false, &quot;公司已被删除！&quot;, null);</span>
+	}
+
+	@Override
+	public JsonResult updateByPrimaryKeySelective(AppUserVo userVo) {
+<span class="nc" id="L231">		TAppUser user = new TAppUser();</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		if (null == userVo.getId()) {</span>
+<span class="nc" id="L233">			return new JsonResult(false, &quot;参数错误！ID不可为空&quot;, null);</span>
+		}
+<span class="nc" id="L235">		TAppUser appUser = appUserMapper.selectByPrimaryKey(userVo.getId());</span>
+<span class="nc" id="L236">		BeanUtils.copyProperties(userVo, user);</span>
+<span class="nc" id="L237">		user.setUpdateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L238">		user.setStatus(null);</span>
+<span class="nc" id="L239">		appUserMapper.updateByPrimaryKeySelective(user);</span>
+
+<span class="nc bnc" id="L241" title="All 2 branches missed.">		if (userVo.getOrgId() != null) {</span>
+<span class="nc" id="L242">			TAppUserOrg userOrg = appUserOrgMapper.selectByOidUid(userVo.getOrgId(), user.getId());</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">			if (null != userOrg) {</span>
+<span class="nc" id="L244">				Boolean changeOrg = false;</span>
+<span class="nc bnc" id="L245" title="All 6 branches missed.">				if (StringUtils.isNotEmpty(userVo.getChangeOrgId()) &amp;&amp; StringUtils.isNotEmpty(userVo.getChangeOrgName())</span>
+						&amp;&amp; Long.parseLong(userVo.getChangeOrgId()) != userVo.getOrgId()) {
+					// 修改人员部门
+<span class="nc" id="L248">					userOrg.setOid(Long.parseLong(userVo.getChangeOrgId()));</span>
+				}
+<span class="nc" id="L250">				userOrg.setShortNum(userVo.getShortNum());</span>
+<span class="nc" id="L251">				userOrg.setPositionId(userVo.getJobId());</span>
+<span class="nc" id="L252">				userOrg.setEmail(userVo.getEmail());</span>
+<span class="nc" id="L253">				userOrg.setSort(userVo.getSort());</span>
+<span class="nc" id="L254">				userOrg.setStatus(userVo.getStatus());</span>
+<span class="nc" id="L255">				appUserOrgMapper.updateByPrimaryKeySelective(userOrg);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">				if (changeOrg) {</span>
+<span class="nc" id="L257">					return new JsonResult(true, &quot;信息修改成功，您已将&lt;&quot; + userVo.getName() + &quot;&gt;移动到【&quot; + userVo.getChangeOrgName() + &quot;】！&quot;, null);</span>
+				}
+<span class="nc" id="L259">			} else {</span>
+<span class="nc" id="L260">				return new JsonResult(false, &quot;该部门下人员已删除！&quot;, null);</span>
+			}
+		}
+<span class="nc" id="L263">		return new JsonResult(true, &quot;人员信息修改成功！&quot;, null);</span>
+	}
+
+	/**
+	 * 
+	 * @param record
+	 * @param isAdmin
+	 *            是否注册为管理员
+	 * @return
+	 */
+
+	@Override
+	public JsonResult insertSelective(AppUserVo record, Boolean isAdmin, HttpServletRequest request) {
+
+<span class="nc bnc" id="L277" title="All 2 branches missed.">		if (StringUtils.isEmpty(record.getPassword())) {</span>
+<span class="nc" id="L278">			record.setPassword(record.getMobile());</span>
+		}
+<span class="nc" id="L280">		JsonResult result = this.apiRegister(record.getName(), record.getMobile(), record.getPassword(), record.getSex(), true);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">		if (result.getSuccess()) {</span>
+<span class="nc" id="L282">			TAppUser user = (TAppUser) result.getModel();</span>
+			// appUserMapper.updateByPrimaryKeySelective(user);
+			// 如果注册为管理员
+<span class="nc bnc" id="L285" title="All 2 branches missed.">			if (isAdmin) {</span>
+				// 更新相关用户信息
+<span class="nc" id="L287">				TAppUserCompany userCompany = new TAppUserCompany();</span>
+<span class="nc" id="L288">				userCompany.setCid(record.getCid());</span>
+<span class="nc" id="L289">				userCompany.setStatus(1);</span>
+<span class="nc" id="L290">				userCompany.setUid(user.getId());</span>
+<span class="nc" id="L291">				userCompany.setAccount(user.getAccount());</span>
+<span class="nc" id="L292">				SysUseRole role = new SysUseRole();</span>
+<span class="nc" id="L293">				role.setUid(Integer.valueOf(user.getId().toString()));</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">				if (null != record.getCid()) {</span>
+<span class="nc" id="L295">					role.setCid(Integer.valueOf(record.getCid().toString()));</span>
+				} else {
+<span class="nc" id="L297">					role.setCid(0);</span>
+				}
+
+<span class="nc bnc" id="L300" title="All 4 branches missed.">				if (record.getType()==null ||record.getType()==1) {</span>
+<span class="nc" id="L301">					TAppUserCompany company = appUserCompanyMapper.selectByCidAccountType(record.getCid(), user.getAccount(),</span>
+							Constants.COMPANY_ADMIN);
+<span class="nc bnc" id="L303" title="All 2 branches missed.">					if (null != company) {</span>
+<span class="nc" id="L304">						return new JsonResult(false, &quot;管理员已存在，不可重复添加！&quot;, null);</span>
+					}
+<span class="nc" id="L306">					userCompany.setType(Constants.COMPANY_ADMIN);</span>
+<span class="nc" id="L307">					role.setRid(SysUseRole.COMPANY_MANAGER);</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">				} else if (record.getAreaid() != null) {</span>
+<span class="nc" id="L309">					TAppUserCompany company = appUserCompanyMapper.selectByCidAccountType(record.getCid(), user.getAccount(), Constants.AREA_ADMIN);</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">					if (null != company) {</span>
+<span class="nc" id="L311">						return new JsonResult(false, &quot;区域经理已存在，不可重复添加！&quot;, null);</span>
+					}
+<span class="nc" id="L313">					userCompany.setType(Constants.AREA_ADMIN);</span>
+<span class="nc" id="L314">					role.setRid(SysUseRole.AREA_MANAGER);</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">				} else if (record.getType()==2) {</span>
+<span class="nc" id="L316">					TAppUserCompany company = appUserCompanyMapper.selectByCidAccountType(record.getCid(), user.getAccount(),</span>
+							Constants.CUSTOMER_ADMIN);
+<span class="nc bnc" id="L318" title="All 2 branches missed.">					if (null != company) {</span>
+<span class="nc" id="L319">						return new JsonResult(false, &quot;客户经理已存在，不可重复添加！&quot;, null);</span>
+					}
+<span class="nc" id="L321">					userCompany.setType(Constants.CUSTOMER_ADMIN);</span>
+<span class="nc" id="L322">					role.setRid(SysUseRole.CUSTOMER_MANAGER);</span>
+				}
+<span class="nc" id="L324">				appUserCompanyMapper.insertSelective(userCompany) ;</span>
+<span class="nc" id="L325">				sysUseRoleMapper.insertSelective(role) ;</span>
+			}			
+<span class="nc" id="L327">			result.setModel(user);</span>
+<span class="nc" id="L328">			result.setMessage(&quot;添加成功！&quot;);</span>
+		}
+<span class="nc" id="L330">		return result;</span>
+	}
+
+	@Override
+	public TAppUser selectByPrimaryKey(Long id) {
+<span class="nc" id="L335">		return appUserMapper.selectByPrimaryKey(id);</span>
+	}
+
+	@Override
+	public int updateByPrimaryKeySelective(TAppUser record) {
+<span class="nc" id="L340">		return appUserMapper.updateByPrimaryKeySelective(record);</span>
+	}
+
+	@Override
+	public int updateByPrimaryKey(TAppUser record) {
+<span class="nc" id="L345">		return 0;</span>
+	}
+
+	/**
+	 * 登陆校验
+	 */
+	public TAppUser loginCheck(String account, String password) {
+<span class="nc" id="L352">		TAppUser user = new TAppUser();</span>
+<span class="nc" id="L353">		user.setAccount(account);</span>
+<span class="nc" id="L354">		user.setPassword(password);</span>
+<span class="nc" id="L355">		return appUserMapper.loginCheck(user);</span>
+	}
+
+	/**
+	 * 根据用户id查找所属公司 isApi 是否Api登陆
+	 */
+	@Override
+	public List&lt;TAppCompany&gt; findCompanyByUser(Long id, String account, Boolean isApi) {
+
+<span class="nc" id="L364">		List&lt;TAppCompany&gt; companies = new ArrayList&lt;&gt;();</span>
+
+		/**
+		 * App登陆接口，以用户部门关联表关联到部门，通过部门获取关联的公司
+		 */
+//		if (isApi) {
+//			List&lt;TAppOrganization&gt; orgs = appOrganizationMapper.selectAllByUid(id);
+//			List&lt;Long&gt; ids = new ArrayList&lt;Long&gt;();
+//			for (TAppOrganization tAppOrganization : orgs) {
+//				ids.add(tAppOrganization.getCid());
+//			}
+//			if (CollectionUtils.isNotEmpty(ids)) {
+//
+//				companies = appCompanyMapper.selectByPrimaryKeys(ids);
+//				Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
+//				map.put(&quot;uid&quot;, id);
+//				map.put(&quot;list&quot;, ids);
+//				for (TAppCompany company : companies) {
+//					StringBuffer idString = new StringBuffer();
+//					StringBuffer nameString = new StringBuffer();
+//					StringBuffer emails = new StringBuffer();
+//					StringBuffer shortNum = new StringBuffer();
+//					for (TAppOrganization tAppOrganization : orgs) {
+//						if (company.getId().equals(tAppOrganization.getCid())) {
+//							idString.append(tAppOrganization.getId() + &quot;,&quot;);
+//							nameString.append(tAppOrganization.getOrgName() + &quot;/&quot; + tAppOrganization.getJobName() + &quot;,&quot;);
+//							emails.append(StringUtils.isEmpty(tAppOrganization.getEmail()) ? &quot;&quot; : tAppOrganization.getEmail() + &quot;,&quot;);
+//							if (StringUtils.isNotEmpty(tAppOrganization.getShortNum())
+//									&amp;&amp; !shortNum.toString().contains(tAppOrganization.getShortNum())) {
+//								shortNum.append(tAppOrganization.getShortNum() + &quot;,&quot;);
+//							}
+//						}
+//					}
+//
+//					String num = &quot;&quot;;
+//					if (StringUtils.isNotEmpty(shortNum) &amp;&amp; shortNum.toString().contains(&quot;,&quot;)) {
+//						num = shortNum.toString().substring(0, shortNum.toString().lastIndexOf(&quot;,&quot;));
+//					}
+//					company.setShortNum(num);
+//					company.setOrgId(idString.toString().substring(0, idString.toString().lastIndexOf(&quot;,&quot;)));
+//					company.setOrgName(nameString.toString().substring(0, nameString.toString().lastIndexOf(&quot;,&quot;)));
+//					/**
+//					 * 对邮箱展示内容处理
+//					 */
+//					String strs = emails.toString();
+//					String email = &quot;&quot;;
+//					String[] strings = strs.split(&quot;,&quot;);
+//					for (String string : strings) {
+//						if (StringUtils.isNotEmpty(string) &amp;&amp; !email.contains(string)) {
+//							email += string + &quot;,&quot;;
+//						}
+//					}
+//
+//					if (StringUtils.isNotEmpty(email)) {
+//						company.setEmails(email.substring(0, email.lastIndexOf(&quot;,&quot;)));
+//					} else {
+//						company.setEmails(&quot;&quot;);
+//					}
+//				}
+//			}
+//		} else {
+<span class="nc" id="L425">			List&lt;TAppUserCompany&gt; list = appUserCompanyMapper.selectAllByAccount(account);</span>
+<span class="nc" id="L426">			List&lt;Long&gt; ids = new ArrayList&lt;Long&gt;();</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">			for (TAppUserCompany tAppUserCompany : list) {</span>
+<span class="nc" id="L428">				ids.add(tAppUserCompany.getCid());</span>
+<span class="nc" id="L429">			}</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">			if (CollectionUtils.isNotEmpty(list)) {</span>
+<span class="nc" id="L431">				companies = appCompanyMapper.selectByPrimaryKeys(ids);</span>
+				// Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
+				// map.put(&quot;uid&quot;, id);
+				// map.put(&quot;list&quot;, ids);
+				//
+				// List&lt;TAppOrganization&gt; orgs =
+				// appOrganizationMapper.selectAllByCidsUid(map);
+				//
+				// for (TAppCompany company : companies) {
+				// for (TAppOrganization tAppOrganization : orgs) {
+				// if (company.getId().equals(tAppOrganization.getCid())) {
+				// company.setOrgId(tAppOrganization.getId().toString());
+				// }
+				// }
+				// }
+			}
+		//}
+
+<span class="nc" id="L449">		return companies;</span>
+	}
+
+	/**
+	 * 查询所有管理员列表
+	 */
+	@Override
+	public JsonResult selectAllByParams(AppUserVo userVo) {
+<span class="nc" id="L457">		List&lt;TAppUser&gt; list = appUserMapper.selectAllByParams(userVo);</span>
+<span class="nc" id="L458">		int count = appUserMapper.selectCountByParams(userVo);</span>
+
+<span class="nc" id="L460">		JsonResult result = new JsonResult(true, &quot;&quot;, list);</span>
+<span class="nc" id="L461">		PageVo vo = new PageVo(userVo.getPageNo(), userVo.getPageSize());</span>
+<span class="nc" id="L462">		vo.setTotalCountAndPageTotal(count);</span>
+<span class="nc" id="L463">		result.setPageVo(vo);</span>
+<span class="nc" id="L464">		return result;</span>
+	}
+
+	@Override
+	public List&lt;TAppOrganization&gt; selectOrgByCidAndHigherId(Long companyId, String orgId) {
+<span class="nc" id="L469">		TAppOrganization org = new TAppOrganization();</span>
+<span class="nc" id="L470">		org.setCid(companyId);</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(orgId)) {</span>
+<span class="nc" id="L472">			org.setHigherId(Long.parseLong(orgId));</span>
+		} else
+<span class="nc" id="L474">			org.setHigherId(0L);</span>
+<span class="nc" id="L475">		List&lt;TAppOrganization&gt; orgs = appOrganizationMapper.selectOrgByCidAndHigherId(org);</span>
+<span class="nc" id="L476">		return orgs;</span>
+	}
+
+	// 根据部门查询总人数
+	@Override
+	public Long getCountPeolpeByOid(Long id) {
+<span class="nc" id="L482">		return appUserOrgMapper.countPeopleByOid(id);</span>
+	}
+
+	// 根据公司id查询公司总人数
+	@Override
+	public Long getCountPeopleByCid(Long cid) {
+<span class="nc" id="L488">		List&lt;TAppOrganization&gt; organizations = selectOrgByCidAndHigherId(cid, null);</span>
+<span class="nc" id="L489">		Long count = 0l;</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">		for (TAppOrganization tAppOrganization : organizations) {</span>
+<span class="nc" id="L491">			count += getCountPeolpeByOid(tAppOrganization.getId());</span>
+<span class="nc" id="L492">		}</span>
+<span class="nc" id="L493">		return count;</span>
+	}
+
+	/**
+	 * 获取管理公司的组织架构
+	 */
+	@Override
+	public List&lt;AppCompanyVo&gt; companyOrgUser(long parseLong) {
+		// List&lt;TAppCompany&gt; companies = this.findCompanyByUser(parseLong);
+<span class="nc" id="L502">		TAppCompany company = appCompanyMapper.selectByPrimaryKey(parseLong);</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">		if (null != company) {</span>
+<span class="nc" id="L504">			List&lt;AppCompanyVo&gt; companyVos = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L505">			AppCompanyVo vo = new AppCompanyVo();</span>
+<span class="nc" id="L506">			BeanUtils.copyProperties(company, vo);</span>
+
+			/**
+			 * 获取一级部门
+			 */
+<span class="nc" id="L511">			TAppOrganization organization = new TAppOrganization();</span>
+<span class="nc" id="L512">			organization.setCid(company.getId());</span>
+<span class="nc" id="L513">			organization.setHigherId(0L);</span>
+
+<span class="nc" id="L515">			List&lt;TAppOrganization&gt; orgs = appOrganizationMapper.selectOrgByCidAndHigherId(organization);</span>
+
+			// 获取所有部门，遍历获取所有部门下员工
+<span class="nc" id="L518">			List&lt;AppOrganizationVo&gt; orgVos = orgUsers(orgs);</span>
+
+<span class="nc" id="L520">			vo.setOrgList(orgVos);</span>
+<span class="nc" id="L521">			companyVos.add(vo);</span>
+<span class="nc" id="L522">			return companyVos;</span>
+		}
+<span class="nc" id="L524">		return null;</span>
+	}
+
+	/**
+	 * 递归获取部门元素，包括多个部门或者人员 传入一个一级部门，递归查询下面所有部门信息
+	 */
+	public List&lt;AppOrganizationVo&gt; orgUsers(List&lt;TAppOrganization&gt; orgs) {
+<span class="nc" id="L531">		List&lt;AppOrganizationVo&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L532" title="All 2 branches missed.">		for (TAppOrganization tAppOrganization : orgs) {</span>
+			// 查询所有部门下人员
+<span class="nc" id="L534">			AppOrganizationVo orgVo = new AppOrganizationVo();</span>
+<span class="nc" id="L535">			BeanUtils.copyProperties(tAppOrganization, orgVo);</span>
+<span class="nc" id="L536">			List&lt;TAppUser&gt; users = appUserMapper.selectAllByOrgId(tAppOrganization.getId());</span>
+<span class="nc bnc" id="L537" title="All 2 branches missed.">			for (TAppUser tAppUser : users) {</span>
+<span class="nc" id="L538">				tAppUser.setPassword(null);</span>
+<span class="nc" id="L539">			}</span>
+<span class="nc" id="L540">			orgVo.setUsers(users);</span>
+			// 查询次级部门
+<span class="nc" id="L542">			tAppOrganization.setHigherId(tAppOrganization.getId());</span>
+<span class="nc" id="L543">			List&lt;TAppOrganization&gt; childOrg = appOrganizationMapper.selectOrgByCidAndHigherId(tAppOrganization);</span>
+			// 递归
+<span class="nc bnc" id="L545" title="All 2 branches missed.">			if (CollectionUtils.isNotEmpty(childOrg)) {</span>
+<span class="nc" id="L546">				List&lt;AppOrganizationVo&gt; childs = orgUsers(childOrg);</span>
+<span class="nc" id="L547">				orgVo.setOrgs(childs);</span>
+			}
+			// 参数封装
+<span class="nc" id="L550">			list.add(orgVo);</span>
+<span class="nc" id="L551">		}</span>
+<span class="nc" id="L552">		return list;</span>
+	}
+
+	@Override
+	public HashMap&lt;String, Long&gt; selectAllUsersByOrgid(Long orgId) {
+<span class="nc" id="L557">		return null;</span>
+	}
+
+	@Override
+	public List&lt;TAppUser&gt; selectUsersByOrgId(Long orgId) {
+<span class="nc" id="L562">		List&lt;TAppUser&gt; users = appUserMapper.selectAllByOrgId(orgId);</span>
+<span class="nc" id="L563">		return users;</span>
+	}
+
+	@Override
+	public JsonResult selectAllByOrgId(AppUserVo vo) {
+<span class="nc" id="L568">		JsonResult result = new JsonResult(true, &quot;&quot;, null);</span>
+		// vo.setOrgId(null);
+<span class="nc" id="L570">		List&lt;Long&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L571" title="All 2 branches missed.">		if (null != vo.getOrgId()) {</span>
+<span class="nc" id="L572">			list.add(vo.getOrgId());</span>
+		} else {
+<span class="nc" id="L574">			List&lt;AppOrganizationVo&gt; vos = appOrganizationService.selectAllOrganization(vo.getCid());</span>
+<span class="nc bnc" id="L575" title="All 2 branches missed.">			for (AppOrganizationVo appOrganizationVo : vos) {</span>
+<span class="nc" id="L576">				list.add(appOrganizationVo.getId());</span>
+<span class="nc" id="L577">			}</span>
+		}
+
+<span class="nc" id="L580">		vo.setOrgIds(list);</span>
+
+<span class="nc" id="L582">		List&lt;TAppUser&gt; users = appUserMapper.selectAllByOrgIdPage(vo);</span>
+
+<span class="nc" id="L584">		result.setModel(users);</span>
+<span class="nc" id="L585">		int count = appUserMapper.selectCountByOrgIdPage(vo);</span>
+<span class="nc" id="L586">		PageVo pageVo = new PageVo();</span>
+<span class="nc" id="L587">		pageVo.setPageNo(vo.getPageNo());</span>
+<span class="nc" id="L588">		pageVo.setPageSize(vo.getPageSize());</span>
+<span class="nc" id="L589">		pageVo.setTotalCountAndPageTotal(count);</span>
+<span class="nc" id="L590">		result.setPageVo(pageVo);</span>
+<span class="nc" id="L591">		return result;</span>
+	}
+
+	
+	
+	
+	@Override
+	public JsonResult apiRegister(String name, String mobile, String pass, Integer sex, Boolean isAdminRegister) {
+		// 根据手机号查询用户是否注册过
+<span class="nc" id="L600">		TAppUser appUser = appUserMapper.selectByAccount(mobile);</span>
+<span class="nc" id="L601">		JsonResult result = new JsonResult();</span>
+		// 如果不是管理员注册 APP端注册，校验账户是否是否已存在
+<span class="nc bnc" id="L603" title="All 2 branches missed.">		if (null != appUser) {</span>
+<span class="nc bnc" id="L604" title="All 2 branches missed.">			if (!isAdminRegister) {</span>
+<span class="nc" id="L605">				return new JsonResult(false, &quot;该号码已注册，请直接登陆！&quot;, appUser);</span>
+			} else {
+<span class="nc" id="L607">				return new JsonResult(true, null, appUser);</span>
+			}
+		} else {
+			/**
+			 * 注册到本地
+			 */
+<span class="nc" id="L613">			appUser = new TAppUser();</span>
+<span class="nc" id="L614">			appUser.setMobile(mobile);</span>
+<span class="nc" id="L615">			appUser.setPassword(pass);</span>
+<span class="nc bnc" id="L616" title="All 2 branches missed.">			appUser.setSex(null == sex ? 1 : sex);</span>
+<span class="nc bnc" id="L617" title="All 2 branches missed.">			appUser.setName(StringUtils.isEmpty(name) ? mobile : name);</span>
+<span class="nc" id="L618">			appUser.setAccount(mobile);</span>
+<span class="nc" id="L619">			appUser.setStatus(Constants.USER_CAN_USE);</span>
+<span class="nc" id="L620">			appUser.setCreateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L621">			appUserMapper.insertSelective(appUser);</span>
+<span class="nc" id="L622">			result.setSuccess(true);</span>
+<span class="nc" id="L623">			result.setModel(appUser);</span>
+		}
+<span class="nc" id="L625">		return new JsonResult(true, &quot;注册成功！&quot;, appUser);</span>
+	}
+
+	/**
+	 * 停用，禁用
+	 */
+	@Override
+	public JsonResult updateAdminStatus(String account, String cid, int oldStatus) {
+<span class="nc" id="L633">		TAppUserCompany companys = new TAppUserCompany();</span>
+<span class="nc" id="L634">		companys.setAccount(account);</span>
+<span class="nc" id="L635">		companys.setCid(Long.parseLong(cid));</span>
+<span class="nc" id="L636">		TAppUserCompany company = appUserCompanyMapper.selectByUIDCID(companys);</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">		if (null != company) {</span>
+			// oldStatus = oldStatus == 1 ? 0 : oldStatus;
+<span class="nc" id="L639">			company.setStatus(oldStatus);</span>
+<span class="nc" id="L640">			appUserCompanyMapper.updateByPrimaryKeySelective(company);</span>
+		}
+
+<span class="nc" id="L643">		return new JsonResult(true, &quot;操作成功！&quot;, null);</span>
+	}
+
+	@Override
+	public JsonResult deleteUserCompany(String account, String cid, String uid, String rid) {
+<span class="nc" id="L648">		TAppUserCompany companys = new TAppUserCompany();</span>
+<span class="nc" id="L649">		companys.setAccount(account);</span>
+<span class="nc" id="L650">		companys.setCid(Long.parseLong(cid));</span>
+<span class="nc" id="L651">		TAppUserCompany company = appUserCompanyMapper.selectByUIDCID(companys);</span>
+<span class="nc bnc" id="L652" title="All 2 branches missed.">		if (null != company) {</span>
+<span class="nc" id="L653">			appUserCompanyMapper.deleteByPrimaryKey(company.getId());</span>
+			/**
+			 * 删除角色权限
+			 */
+<span class="nc" id="L657">			authorityService.deleteUserRoleByUidCidRid(rid, Integer.parseInt(cid), Integer.parseInt(uid));</span>
+		}
+<span class="nc" id="L659">		return new JsonResult(true, &quot;操作成功！&quot;, null);</span>
+	}
+
+	/**
+	 * 批量导入用户
+	 */
+	@Override
+	public JsonResult importExcel(String cid, MultipartFile excel, HttpServletRequest request, HttpServletResponse response, Boolean isExport,
+			Boolean isJunit, HSSFWorkbook workbook) {
+<span class="nc" id="L668">		Long start = System.currentTimeMillis();</span>
+<span class="nc" id="L669">		Long company = 0L;</span>
+<span class="nc bnc" id="L670" title="All 2 branches missed.">		if (StringUtils.isNotEmpty(cid)) {</span>
+<span class="nc" id="L671">			company = Long.parseLong(cid);</span>
+		} else {
+<span class="nc" id="L673">			return new JsonResult(false, &quot;请选择公司导入！&quot;, null);</span>
+		}
+
+		/**
+		 * 导出公司备份备份数据
+		 */
+<span class="nc bnc" id="L679" title="All 2 branches missed.">		if (!isJunit) {</span>
+<span class="nc" id="L680">			this.export(cid, isExport, request, response);</span>
+		}
+
+		Workbook work;
+<span class="nc" id="L684">		Map&lt;String, TAppOrganization&gt; insertMap = new HashMap&lt;String, TAppOrganization&gt;();</span>
+<span class="nc" id="L685">		Map&lt;Object, Object&gt; mobileMap = new HashMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L686">		Map&lt;String, String&gt; shortNumMap = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L687">		Map&lt;String, Object&gt; jobMap = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L688">		Map&lt;String, List&lt;TAppUser&gt;&gt; deptMap = new HashMap&lt;String, List&lt;TAppUser&gt;&gt;();</span>
+		try {
+<span class="nc bnc" id="L690" title="All 2 branches missed.">			if (isJunit) {</span>
+<span class="nc" id="L691">				work = workbook;</span>
+			} else {
+				try {
+<span class="nc" id="L694">					work = new HSSFWorkbook(new POIFSFileSystem(excel.getInputStream()));</span>
+<span class="nc" id="L695">				} catch (Exception e) {</span>
+<span class="nc" id="L696">					work = new XSSFWorkbook(excel.getInputStream());</span>
+<span class="nc" id="L697">				}</span>
+			}
+			/**
+			 * 遍历每个 sheet 页
+			 */
+<span class="nc" id="L702">			Sheet sheet = null;</span>
+
+<span class="nc" id="L704">			List&lt;TAppUser&gt; list = null;</span>
+<span class="nc" id="L705">			sheet = work.getSheetAt(0);</span>
+			// 查询所有职位
+<span class="nc" id="L707">			List&lt;TAppPosition&gt; positions = postionMapper.selectAllByCid(Integer.parseInt(company.toString()));</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">			for (TAppPosition tAppPosition : positions) {</span>
+<span class="nc" id="L709">				jobMap.put(tAppPosition.getPositionName() + &quot;/&quot; + tAppPosition.getLevel(), tAppPosition);</span>
+<span class="nc" id="L710">			}</span>
+
+<span class="nc" id="L712">			Map&lt;String, String&gt; unJob = new HashMap&lt;String, String&gt;();</span>
+
+<span class="nc bnc" id="L714" title="All 2 branches missed.">			for (int j = 2; j &lt; sheet.getPhysicalNumberOfRows(); j++) {// 获取每行</span>
+<span class="nc" id="L715">				Row row = sheet.getRow(j);</span>
+				/**
+				 * 校验手机号码是否有重复
+				 */
+<span class="nc bnc" id="L719" title="All 2 branches missed.">				if (null != row) {</span>
+<span class="nc" id="L720">					String name = getCellValue(row.getCell(0));</span>
+<span class="nc" id="L721">					String mobile = getCellValue(row.getCell(1));</span>
+<span class="nc" id="L722">					String shortNum = getCellValue(row.getCell(2));</span>
+<span class="nc" id="L723">					String sex = getCellValue(row.getCell(3));</span>
+<span class="nc" id="L724">					String email = getCellValue(row.getCell(4));</span>
+<span class="nc" id="L725">					String dept = getCellValue(row.getCell(5));</span>
+<span class="nc" id="L726">					String job = getCellValue(row.getCell(6));</span>
+<span class="nc" id="L727">					String level = getCellValue(row.getCell(7));</span>
+					/*
+					 * String parentDept = &quot;&quot;; Cell cell6 = row.getCell(7); if
+					 * (null != cell6) { parentDept =
+					 * cell6.getStringCellValue(); }
+					 */
+<span class="nc bnc" id="L733" title="All 2 branches missed.">					if (StringUtils.isNotEmpty(name)) {</span>
+<span class="nc bnc" id="L734" title="All 2 branches missed.">						if (StringUtils.isNotEmpty(dept)) {</span>
+							/**
+							 * 校验手机号码是否正确
+							 */
+
+<span class="nc" id="L739">							Boolean mobileCheck = CheckoutUtil.checkMobile(mobile);</span>
+<span class="nc bnc" id="L740" title="All 2 branches missed.">							if (!mobileCheck) {</span>
+<span class="nc" id="L741">								list = null;</span>
+<span class="nc" id="L742">								dept = null;</span>
+<span class="nc" id="L743">								mobileMap = null;</span>
+<span class="nc" id="L744">								shortNumMap = null;</span>
+<span class="nc" id="L745">								return new JsonResult(false, &quot;第&quot; + (j + 1) + &quot;行&quot; + mobile + &quot; 手机号码不正确！&quot;, null);</span>
+							}
+
+<span class="nc bnc" id="L748" title="All 4 branches missed.">							if (StringUtils.isNotEmpty(shortNum) &amp;&amp; !CheckoutUtil.checkShortNum(shortNum)) {</span>
+<span class="nc" id="L749">								list = null;</span>
+<span class="nc" id="L750">								dept = null;</span>
+<span class="nc" id="L751">								mobileMap = null;</span>
+<span class="nc" id="L752">								shortNumMap = null;</span>
+<span class="nc" id="L753">								return new JsonResult(false, &quot;第&quot; + (j + 1) + &quot;行&quot; + shortNum + &quot; 短号号码格式不正确！&quot;, null);</span>
+							}
+
+<span class="nc bnc" id="L756" title="All 2 branches missed.">							if (mobileMap.containsKey(mobile)) {</span>
+<span class="nc" id="L757">								return new JsonResult(false, mobile + &quot; 号码重复，请处理！&quot;, null);</span>
+<span class="nc bnc" id="L758" title="All 2 branches missed.">							} else if (shortNumMap.containsKey(shortNum)) {</span>
+<span class="nc" id="L759">								return new JsonResult(false, shortNum + &quot; 短号重复，请处理！&quot;, null);</span>
+							} else {
+<span class="nc" id="L761">								mobileMap.put(mobile, mobile);</span>
+								// 如果填写短号，放入Map，校验唯一性
+<span class="nc bnc" id="L763" title="All 2 branches missed.">								if (StringUtils.isNotEmpty(shortNum)) {</span>
+<span class="nc" id="L764">									shortNumMap.put(shortNum, shortNum);</span>
+								}
+
+<span class="nc bnc" id="L767" title="All 2 branches missed.">								if (StringUtils.isEmpty(level)) {</span>
+<span class="nc" id="L768">									level = &quot;1&quot;;</span>
+								}
+<span class="nc bnc" id="L770" title="All 2 branches missed.">								if (!jobMap.containsKey(job + &quot;/&quot; + level)) {</span>
+<span class="nc" id="L771">									unJob.put(job + &quot;/&quot; + level, job);</span>
+								}
+
+<span class="nc" id="L774">								String key = (dept).trim();</span>
+								/**
+								 * 封装数据
+								 */
+<span class="nc" id="L778">								TAppUser user = new TAppUser();</span>
+<span class="nc" id="L779">								user.setAccount(mobile);</span>
+<span class="nc" id="L780">								user.setMobile(mobile);</span>
+<span class="nc" id="L781">								user.setName(name);</span>
+<span class="nc" id="L782">								user.setJob(job + &quot;/&quot; + level);</span>
+<span class="nc bnc" id="L783" title="All 2 branches missed.">								user.setSex(sex.equals(&quot;男&quot;) ? 1 : 0);</span>
+<span class="nc" id="L784">								user.setPassword(mobile);</span>
+<span class="nc" id="L785">								user.setEmail(email);</span>
+<span class="nc" id="L786">								user.setShortNum(shortNum);</span>
+								// -1 表示该用户已存在，但未通过注册激活账户
+								// user.setStatus(-1);
+
+								// 保存去掉重复之后的部门关联人员信息
+<span class="nc" id="L791">								list = deptMap.get(key);</span>
+<span class="nc bnc" id="L792" title="All 2 branches missed.">								if (CollectionUtils.isEmpty(list)) {</span>
+<span class="nc" id="L793">									list = new ArrayList&lt;TAppUser&gt;();</span>
+<span class="nc" id="L794">									deptMap.put(key, list);</span>
+								}
+<span class="nc" id="L796">								list.add(user);</span>
+							}
+<span class="nc" id="L798">						} else {</span>
+<span class="nc" id="L799">							list = null;</span>
+<span class="nc" id="L800">							dept = null;</span>
+<span class="nc" id="L801">							mobileMap = null;</span>
+<span class="nc" id="L802">							jobMap = null;</span>
+<span class="nc" id="L803">							unJob = null;</span>
+<span class="nc" id="L804">							return new JsonResult(false, &quot;行号：&quot; + (j + 1) + &quot;的所属部门不可为空！&quot;, null);</span>
+						}
+					} else {
+<span class="nc" id="L807">						list = null;</span>
+<span class="nc" id="L808">						dept = null;</span>
+<span class="nc" id="L809">						jobMap = null;</span>
+<span class="nc" id="L810">						unJob = null;</span>
+<span class="nc" id="L811">						mobileMap = null;</span>
+<span class="nc" id="L812">						return new JsonResult(false, &quot;行号：&quot; + (j + 1) + &quot;的员工姓名不可为空！&quot;, null);</span>
+					}
+				}
+			}
+
+			// /**
+			// * 插入职位信息
+			// */
+<span class="nc bnc" id="L820" title="All 2 branches missed.">			for (Map.Entry&lt;String, String&gt; entry : unJob.entrySet()) {</span>
+<span class="nc" id="L821">				String[] jobLevel = entry.getKey().split(&quot;/&quot;);</span>
+<span class="nc" id="L822">				String name = jobLevel[0];</span>
+<span class="nc" id="L823">				String level = jobLevel[1];</span>
+<span class="nc" id="L824">				TAppPosition position = new TAppPosition();</span>
+<span class="nc" id="L825">				position.setCid(company);</span>
+<span class="nc bnc" id="L826" title="All 2 branches missed.">				position.setLevel(StringUtils.isEmpty(level) ? 1L : Long.parseLong(level));</span>
+<span class="nc" id="L827">				position.setPositionName(name);</span>
+<span class="nc" id="L828">				postionMapper.addPosition(position);</span>
+<span class="nc" id="L829">				jobMap.put(entry.getKey(), position);</span>
+<span class="nc" id="L830">			}</span>
+
+			/**
+			 * 校验部门关联信息是否完整
+			 */
+<span class="nc bnc" id="L835" title="All 2 branches missed.">			for (Map.Entry&lt;String, List&lt;TAppUser&gt;&gt; entry : deptMap.entrySet()) {</span>
+<span class="nc" id="L836">				String fullPath = entry.getKey();</span>
+<span class="nc" id="L837">				String parentName = &quot;&quot;;</span>
+<span class="nc bnc" id="L838" title="All 2 branches missed.">				if (fullPath.indexOf(&quot;/&quot;) &gt; 0) {</span>
+<span class="nc" id="L839">					parentName = fullPath.substring(0, fullPath.lastIndexOf(&quot;/&quot;));</span>
+					// 如果上级部门不存在
+<span class="nc bnc" id="L841" title="All 2 branches missed.">					if (!deptMap.containsKey(parentName)) {</span>
+<span class="nc" id="L842">						return new JsonResult(false, &quot;部门【&quot; + parentName + &quot;】不存在，请补全信息！&quot;, null);</span>
+					}
+				}
+<span class="nc" id="L845">			}</span>
+
+			/**
+			 * 更新部门信息
+			 */
+<span class="nc bnc" id="L850" title="All 2 branches missed.">			for (Map.Entry&lt;String, List&lt;TAppUser&gt;&gt; entry : deptMap.entrySet()) {</span>
+<span class="nc" id="L851">				String fullPath = entry.getKey();</span>
+<span class="nc" id="L852">				String orgName = fullPath;</span>
+<span class="nc bnc" id="L853" title="All 2 branches missed.">				if (fullPath.indexOf(&quot;/&quot;) &gt; 0) {</span>
+<span class="nc" id="L854">					orgName = fullPath.substring(fullPath.lastIndexOf(&quot;/&quot;) + 1);</span>
+				}
+				// 查询部门信息
+<span class="nc" id="L857">				TAppOrganization organization = appOrganizationMapper.selectByPathAndCid(fullPath, company);</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">				if (null != organization) {</span>
+					// List&lt;TAppUserOrg&gt; list3 =
+					// appUserOrgMapper.selectAllByOid(organization.getId());
+					// for (TAppUserOrg tAppUserOrg : list3) {
+					// appUserOrgMapper.deleteByPrimaryKey(tAppUserOrg.getId());
+					// }
+					// 不删除已存在的部门用户关联信息
+				} else {
+<span class="nc" id="L866">					organization = new TAppOrganization();</span>
+<span class="nc" id="L867">					organization.setCid(company);</span>
+<span class="nc" id="L868">					organization.setCreateTime(System.currentTimeMillis() / 1000);</span>
+<span class="nc" id="L869">					organization.setFullPath(fullPath);</span>
+<span class="nc" id="L870">					organization.setOrgName(orgName);</span>
+<span class="nc" id="L871">					organization.setSource(&quot;管理员导入数据&quot;);</span>
+<span class="nc" id="L872">					appOrganizationMapper.insertSelective(organization);</span>
+				}
+
+<span class="nc" id="L875">				insertMap.put(fullPath, organization);</span>
+<span class="nc" id="L876">			}</span>
+
+<span class="nc bnc" id="L878" title="All 2 branches missed.">			for (Map.Entry&lt;String, List&lt;TAppUser&gt;&gt; entry : deptMap.entrySet()) {</span>
+<span class="nc" id="L879">				String fullPath = entry.getKey();</span>
+<span class="nc" id="L880">				String parentPath = &quot;&quot;;</span>
+				// 是否有上级部门
+<span class="nc bnc" id="L882" title="All 2 branches missed.">				if (fullPath.indexOf(&quot;/&quot;) &gt; 0) {</span>
+<span class="nc" id="L883">					parentPath = fullPath.substring(0, fullPath.lastIndexOf(&quot;/&quot;));</span>
+				}
+				/**
+				 * 修改部门关联
+				 */
+<span class="nc" id="L888">				TAppOrganization child = insertMap.get(fullPath);</span>
+<span class="nc bnc" id="L889" title="All 2 branches missed.">				if (StringUtils.isNotEmpty(parentPath)) {</span>
+<span class="nc" id="L890">					TAppOrganization parent = insertMap.get(parentPath);</span>
+<span class="nc" id="L891">					child.setHigherId(parent.getId());</span>
+<span class="nc" id="L892">					appOrganizationMapper.updateByPrimaryKeySelective(child);</span>
+				}
+				/**
+				 * 操作用户信息
+				 */
+<span class="nc" id="L897">				List&lt;TAppUser&gt; lUsers = (List&lt;TAppUser&gt;) entry.getValue();</span>
+<span class="nc bnc" id="L898" title="All 2 branches missed.">				for (TAppUser tAppUser : lUsers) {</span>
+					/**
+					 * 插入用户信息 如果存在就修改状态，修改其他信息
+					 */
+<span class="nc" id="L902">					TAppUser user = appUserMapper.selectByAccount(tAppUser.getAccount());</span>
+<span class="nc bnc" id="L903" title="All 2 branches missed.">					if (null != user) {</span>
+						/*
+						 * // 如果是管理员 将状态设置为未激活状态 TAppUserCompany userCompany =
+						 * appUserCompanyMapper.selectByUIDCID(user.getId(),
+						 * Long.parseLong(cid)); if (null == userCompany) {
+						 * user.setStatus(-1); }
+						 */
+<span class="nc" id="L910">						user.setName(tAppUser.getName());</span>
+<span class="nc" id="L911">						user.setMobile(tAppUser.getMobile());</span>
+<span class="nc" id="L912">						user.setSex(tAppUser.getSex());</span>
+<span class="nc" id="L913">						user.setJob(tAppUser.getJob());</span>
+<span class="nc" id="L914">						user.setEmail(tAppUser.getEmail());</span>
+<span class="nc" id="L915">						user.setPassword(null);</span>
+<span class="nc" id="L916">						user.setUpdateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L917">						appUserMapper.updateByPrimaryKeySelective(user);</span>
+<span class="nc" id="L918">						tAppUser.setId(user.getId());</span>
+					} else {
+						// 冻结账户信息，激活时需要在小溪注册
+<span class="nc" id="L921">						tAppUser.setStatus(-1);</span>
+<span class="nc" id="L922">						appUserMapper.insertSelective(tAppUser);</span>
+					}
+
+					/**
+					 * 插入部门与新增用户关联信息
+					 */
+<span class="nc" id="L928">					TAppUserOrg org = appUserOrgMapper.selectByOidUid(child.getId(), tAppUser.getId());</span>
+<span class="nc bnc" id="L929" title="All 2 branches missed.">					if (null == org) {</span>
+<span class="nc" id="L930">						TAppUserOrg userOrg = new TAppUserOrg();</span>
+<span class="nc" id="L931">						userOrg.setOid(child.getId());</span>
+<span class="nc" id="L932">						userOrg.setStatus(1);</span>
+<span class="nc" id="L933">						userOrg.setUid(tAppUser.getId());</span>
+<span class="nc" id="L934">						userOrg.setShortNum(tAppUser.getShortNum());</span>
+<span class="nc" id="L935">						userOrg.setEmail(tAppUser.getEmail());</span>
+<span class="nc" id="L936">						TAppPosition position = (TAppPosition) jobMap.get(tAppUser.getJob() + &quot;&quot;);</span>
+<span class="nc" id="L937">						userOrg.setPositionId(Integer.parseInt(position.getId().toString()));</span>
+<span class="nc" id="L938">						appUserOrgMapper.insertSelective(userOrg);</span>
+<span class="nc" id="L939">					} else {</span>
+<span class="nc" id="L940">						org.setShortNum(tAppUser.getShortNum());</span>
+<span class="nc" id="L941">						org.setEmail(tAppUser.getEmail());</span>
+<span class="nc" id="L942">						TAppPosition position = (TAppPosition) jobMap.get(tAppUser.getJob() + &quot;&quot;);</span>
+<span class="nc" id="L943">						org.setPositionId(Integer.parseInt(position.getId().toString()));</span>
+<span class="nc" id="L944">						appUserOrgMapper.updateByPrimaryKeySelective(org);</span>
+					}
+<span class="nc" id="L946">				}</span>
+<span class="nc" id="L947">			}</span>
+<span class="nc" id="L948">		} catch (FileNotFoundException e) {</span>
+<span class="nc" id="L949">			return new JsonResult(false, &quot;导入模板不存在！&quot;, null);</span>
+<span class="nc" id="L950">		} catch (IOException e) {</span>
+<span class="nc" id="L951">			e.printStackTrace();</span>
+		} finally {
+<span class="nc" id="L953">			deptMap = null;</span>
+<span class="nc" id="L954">			insertMap = null;</span>
+<span class="nc" id="L955">			mobileMap = null;</span>
+<span class="nc" id="L956">			jobMap = null;</span>
+<span class="nc" id="L957">			shortNumMap = null;</span>
+			// System.gc();
+<span class="nc" id="L959">		}</span>
+<span class="nc" id="L960">		Long end = System.currentTimeMillis();</span>
+<span class="nc" id="L961">		String time = ((end - start) / 1000 / 60L) + &quot;分&quot; + ((end - start) / 1000 % 60) + &quot;秒&quot;;</span>
+<span class="nc" id="L962">		return new JsonResult(true, &quot;数据导入成功，耗时:&quot; + time, null);</span>
+	}
+
+	/**
+	 * 针对不同单元格类型转换，并返回单元格值
+	 * 
+	 * @param cell
+	 * @return
+	 */
+	private String getCellValue(Cell cell) {
+<span class="nc" id="L972">		String cellValue = &quot;&quot;;</span>
+<span class="nc bnc" id="L973" title="All 2 branches missed.">		if (null != cell) {</span>
+<span class="nc" id="L974">			DecimalFormat df = new DecimalFormat(&quot;#&quot;);</span>
+<span class="nc bnc" id="L975" title="All 5 branches missed.">			switch (cell.getCellType()) {</span>
+			case Cell.CELL_TYPE_STRING:
+<span class="nc" id="L977">				cellValue = cell.getRichStringCellValue().getString().trim();</span>
+<span class="nc" id="L978">				break;</span>
+			case Cell.CELL_TYPE_NUMERIC:
+<span class="nc" id="L980">				cellValue = df.format(cell.getNumericCellValue()).toString();</span>
+<span class="nc" id="L981">				break;</span>
+			case Cell.CELL_TYPE_BOOLEAN:
+<span class="nc" id="L983">				cellValue = String.valueOf(cell.getBooleanCellValue()).trim();</span>
+<span class="nc" id="L984">				break;</span>
+			case Cell.CELL_TYPE_FORMULA:
+<span class="nc" id="L986">				cellValue = cell.getCellFormula();</span>
+<span class="nc" id="L987">				break;</span>
+			default:
+<span class="nc" id="L989">				cellValue = &quot;&quot;;</span>
+			}
+		}
+<span class="nc" id="L992">		return cellValue;</span>
+	}
+
+	/**
+	 * cid 公司id isNeedBak 是否需要进行通讯录备份至服务器
+	 */
+	@Override
+	public void export(String cid, Boolean isNeedBak, HttpServletRequest request, HttpServletResponse response) {
+<span class="nc" id="L1000">		List&lt;DeleteExportExcelVo&gt; excels = appUserMapper.selectExportUser(Long.parseLong(cid));</span>
+<span class="nc" id="L1001">		List&lt;ExportExcelVo&gt; list = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L1003" title="All 2 branches missed.">		for (DeleteExportExcelVo deleteExportExcelVo : excels) {</span>
+<span class="nc" id="L1004">			ExportExcelVo vo = new ExportExcelVo();</span>
+<span class="nc" id="L1005">			BeanUtils.copyProperties(deleteExportExcelVo, vo);</span>
+<span class="nc" id="L1006">			list.add(vo);</span>
+<span class="nc" id="L1007">		}</span>
+
+<span class="nc bnc" id="L1009" title="All 2 branches missed.">		if (CollectionUtils.isNotEmpty(excels)) {</span>
+<span class="nc" id="L1010">			String[] headers = new String[] { &quot;员工姓名&quot;, &quot;手机号码&quot;, &quot;短号&quot;, &quot;性别&quot;, &quot;邮箱&quot;, &quot;所属部门&quot;, &quot;职位&quot;, &quot;职级&quot; };</span>
+<span class="nc" id="L1011">			Collection&lt;ExportExcelVo&gt; excelVos = list;</span>
+			try {
+<span class="nc" id="L1013">				response.setContentType(&quot;application/vnd.ms-excel&quot;);// 设置生成的文件类型</span>
+<span class="nc" id="L1014">				SimpleDateFormat format = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+<span class="nc" id="L1015">				String companyName = request.getSession().getAttribute(&quot;companyName&quot;).toString();</span>
+<span class="nc" id="L1016">				String fileName = &quot;&quot; + companyName + &quot;公司通讯录 &quot; + format.format(new Date()) + &quot;.xls&quot;;</span>
+<span class="nc" id="L1017">				response.setHeader(&quot;Content-Disposition&quot;, &quot;filename=&quot; + new String(fileName.getBytes(&quot;gb2312&quot;), &quot;iso8859-1&quot;));</span>
+<span class="nc" id="L1018">				HSSFWorkbook workbook = ExportExcelUtils.exportExcel(appbakExcelMapper, cid, fileName, headers, excelVos, isNeedBak, request, format);</span>
+<span class="nc bnc" id="L1019" title="All 2 branches missed.">				if (isNeedBak) {</span>
+<span class="nc" id="L1020">					workbook.write(response.getOutputStream());</span>
+				}
+<span class="nc" id="L1022">			} catch (IOException e) {</span>
+<span class="nc" id="L1023">				e.printStackTrace();</span>
+<span class="nc" id="L1024">			}</span>
+		}
+<span class="nc" id="L1026">	}</span>
+
+	/**
+	 * 查询注册加入企业待审核的用户
+	 */
+	@Override
+	public List&lt;TAppUser&gt; selectPendingApproval(String cid) {
+		try {
+<span class="nc" id="L1034">			List&lt;TAppUser&gt; result = appUserMapper.selectPendingApproval(cid);</span>
+<span class="nc" id="L1035">			return result;</span>
+<span class="nc" id="L1036">		} catch (Exception e) {</span>
+<span class="nc" id="L1037">			logger.error(&quot;获取待审核用户失败，错误信息：&quot; + e.getMessage());</span>
+<span class="nc" id="L1038">			return null;</span>
+		}
+	}
+
+	@Override
+	public JsonResult selectAllByParam(AppUserVo userVo) {
+<span class="nc" id="L1044">		List&lt;TAppUserCompany&gt; list = appUserMapper.selectAllByParam(userVo);</span>
+<span class="nc" id="L1045">		int count = appUserMapper.selectCountByParam(userVo);</span>
+
+<span class="nc" id="L1047">		JsonResult result = new JsonResult(true, &quot;&quot;, list);</span>
+<span class="nc" id="L1048">		PageVo vo = new PageVo(userVo.getPageNo(), userVo.getPageSize());</span>
+<span class="nc" id="L1049">		vo.setTotalCountAndPageTotal(count);</span>
+<span class="nc" id="L1050">		result.setPageVo(vo);</span>
+<span class="nc" id="L1051">		return result;</span>
+	}
+
+	@Override
+	public JsonResult listCustomer(AppUserVo userVo) {
+<span class="nc" id="L1056">		List&lt;TAppUser&gt; list = appUserMapper.selectAllCustomer(userVo);</span>
+<span class="nc" id="L1057">		int count = appUserMapper.selectCountCustomer(userVo);</span>
+
+<span class="nc" id="L1059">		JsonResult result = new JsonResult(true, &quot;&quot;, list);</span>
+<span class="nc" id="L1060">		PageVo vo = new PageVo(userVo.getPageNo(), userVo.getPageSize());</span>
+<span class="nc" id="L1061">		vo.setTotalCountAndPageTotal(count);</span>
+<span class="nc" id="L1062">		result.setPageVo(vo);</span>
+<span class="nc" id="L1063">		return result;</span>
+	}
+
+	@Override
+	public JsonResult insertSelectiveAreaManager(AppUserVo userVo, Boolean isAdmin, HttpServletRequest request) {
+<span class="nc bnc" id="L1068" title="All 2 branches missed.">		if (null != userVo.getAccount()) {</span>
+<span class="nc" id="L1069">			userVo.setMobile(userVo.getAccount());</span>
+		}
+
+<span class="nc bnc" id="L1072" title="All 2 branches missed.">		if (StringUtils.isEmpty(userVo.getPassword())) {</span>
+<span class="nc" id="L1073">			userVo.setPassword(RandomUtil.createData(6));</span>
+		}
+		// 校验是否需要发送短信
+<span class="nc" id="L1076">		String template = &quot;感谢您使用工作手机后台管理系统，初始密码:&quot; + userVo.getPassword() + &quot;，请尽快修改您的密码。账号登录地址：&quot;</span>
+				+ (String) request.getSession().getAttribute(&quot;admin_url&quot;) + &quot;&quot;;
+<span class="nc" id="L1078">		TAppUser appUser = appUserMapper.selectByAccount(userVo.getMobile());</span>
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">		if (null != appUser) {</span>
+<span class="nc" id="L1080">			template = &quot;感谢您使用工作手机后台管理系统，账号登录地址：&quot; + (String) request.getSession().getAttribute(&quot;admin_url&quot;) + &quot;&quot;;</span>
+		}
+
+<span class="nc" id="L1083">		JsonResult result = this.apiRegister(userVo.getName(), userVo.getMobile(), userVo.getPassword(), userVo.getSex(), true);</span>
+<span class="nc bnc" id="L1084" title="All 2 branches missed.">		if (result.getSuccess()) {</span>
+<span class="nc" id="L1085">			TAppUser user = (TAppUser) result.getModel();</span>
+			// appUserMapper.updateByPrimaryKeySelective(user);
+			// 如果注册为管理员
+<span class="nc bnc" id="L1088" title="All 2 branches missed.">			if (isAdmin) {</span>
+
+<span class="nc" id="L1090">				TAppUserCompany company = appUserCompanyMapper.selectByCidAccountType(userVo.getCid(), user.getAccount(), Constants.AREA_ADMIN);</span>
+<span class="nc bnc" id="L1091" title="All 2 branches missed.">				if (null != company) {</span>
+<span class="nc" id="L1092">					return new JsonResult(false, &quot;该用户已是区域管理员(暂支持一个区域)!&quot;, null);</span>
+				}
+				// 更新相关用户信息
+<span class="nc" id="L1095">				TAppUserCompany userCompany = new TAppUserCompany();</span>
+
+<span class="nc bnc" id="L1097" title="All 4 branches missed.">				userVo.setAreaid(</span>
+						0 == userVo.getAreaid() ? 0 == userVo.getCityid() ? userVo.getProvinceid() : userVo.getCityid() : userVo.getAreaid());
+
+<span class="nc" id="L1100">				userCompany.setCid(userVo.getCid());</span>
+<span class="nc" id="L1101">				userCompany.setStatus(1);</span>
+<span class="nc" id="L1102">				userCompany.setType(Constants.AREA_ADMIN);</span>
+<span class="nc" id="L1103">				userCompany.setUid(user.getId());</span>
+<span class="nc" id="L1104">				userCompany.setAccount(user.getAccount());</span>
+<span class="nc" id="L1105">				userCompany.setAreaid(userVo.getAreaid());</span>
+<span class="nc" id="L1106">				userCompany.setCityid(userVo.getCityid());</span>
+<span class="nc" id="L1107">				userCompany.setProvinceid(userVo.getProvinceid());</span>
+<span class="nc" id="L1108">				userCompany.setCityname(userVo.getCityname());</span>
+<span class="nc" id="L1109">				userCompany.setProvincename(userVo.getProvincename());</span>
+<span class="nc" id="L1110">				userCompany.setAreaname(userVo.getAreaname());</span>
+
+				// int count =
+				// appUserCompanyMapper.selectCountByAreraAccount(userCompany);
+				// if (count != 0) {
+				// return new JsonResult(false, &quot;该区域管理员已经存在!&quot;, null);
+				// }
+<span class="nc" id="L1117">				appUserCompanyMapper.insertSelective(userCompany);</span>
+
+<span class="nc" id="L1119">				authorityService.addUserRole(new SysUseRole(Integer.valueOf(user.getId().toString()), 0, SysUseRole.AREA_MANAGER));</span>
+			}
+			/**
+			 * 插入部门关联信息
+			 */
+<span class="nc bnc" id="L1124" title="All 2 branches missed.">			if (userVo.getOrgId() != null) {</span>
+<span class="nc" id="L1125">				TAppUserOrg userOrg = appUserOrgMapper.selectByOidUid(userVo.getOrgId(), user.getId());</span>
+<span class="nc bnc" id="L1126" title="All 2 branches missed.">				if (null == userOrg) {</span>
+<span class="nc" id="L1127">					userOrg = new TAppUserOrg();</span>
+<span class="nc" id="L1128">					userOrg.setOid(userVo.getOrgId());</span>
+<span class="nc" id="L1129">					userOrg.setStatus(1);</span>
+<span class="nc" id="L1130">					userOrg.setSort(userVo.getSort());</span>
+<span class="nc" id="L1131">					userOrg.setUid(user.getId());</span>
+<span class="nc" id="L1132">					userOrg.setShortNum(userVo.getShortNum());</span>
+<span class="nc" id="L1133">					userOrg.setPositionId(userVo.getJobId());</span>
+<span class="nc" id="L1134">					userOrg.setEmail(userVo.getEmail());</span>
+<span class="nc" id="L1135">					appUserOrgMapper.insertSelective(userOrg);</span>
+				} else {
+<span class="nc" id="L1137">					return new JsonResult(false, &quot;不可在同一部门下添加相同人员！&quot;, null);</span>
+				}
+			}
+<span class="nc" id="L1140">			result.setModel(user);</span>
+<span class="nc" id="L1141">			result.setMessage(&quot;添加成功！&quot;);</span>
+		}
+<span class="nc" id="L1143">		return result;</span>
+	}
+
+	@Override
+	public Long selectParId(String account) {
+<span class="nc" id="L1148">		return appUserMapper.selectParId(account);</span>
+	}
+
+	@Override
+	public JsonResult resetPassword(String account) {
+<span class="nc" id="L1153">		TAppUser user = appUserMapper.selectByAccount(account);</span>
+<span class="nc bnc" id="L1154" title="All 2 branches missed.">		if (null != user) {</span>
+<span class="nc" id="L1155">			String newPass = RandomUtil.createData(6);</span>
+<span class="nc" id="L1156">			user.setPassword(RandomUtil.MD5(newPass));</span>
+<span class="nc" id="L1157">			appUserMapper.updatePasswordByApp(user);</span>
+		}
+<span class="nc" id="L1159">		return new JsonResult(false, &quot;用户信息不存在！&quot;, null);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

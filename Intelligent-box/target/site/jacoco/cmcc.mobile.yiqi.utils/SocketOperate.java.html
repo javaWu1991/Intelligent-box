@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SocketOperate.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">SocketOperate.java</span></div><h1>SocketOperate.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+import java.io.IOException; 
+import java.io.InputStream; 
+import java.io.PrintWriter; 
+import java.net.Socket; 
+
+
+/** 
+* 多线程处理socket接收的数据 
+* @author 吴奔江
+* 
+*/ 
+public class SocketOperate extends Thread{ 
+	
+	private Socket socket; 
+
+<span class="nc" id="L17">		public SocketOperate(Socket socket) { </span>
+<span class="nc" id="L18">			this.socket=socket; </span>
+<span class="nc" id="L19">		} </span>
+		@SuppressWarnings(&quot;unused&quot;) 
+		public void run() { 
+			try{ 
+
+<span class="nc" id="L24">				InputStream in= socket.getInputStream(); </span>
+
+<span class="nc" id="L26">				PrintWriter out=new PrintWriter(socket.getOutputStream()); </span>
+
+
+				while(true){ 
+					//读取客户端发送的信息 
+<span class="nc" id="L31">					String strXML = &quot;&quot;; </span>
+<span class="nc" id="L32">					byte[] temp = new byte[1024]; </span>
+<span class="nc" id="L33">					int length = 0; </span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">					while((length = in.read(temp)) != -1){ </span>
+<span class="nc" id="L35">						strXML += new String(temp,0,length); </span>
+					} 
+<span class="nc bnc" id="L37" title="All 2 branches missed.">					if(&quot;end&quot;.equals(strXML)){ </span>
+<span class="nc" id="L38">						System.out.println(&quot;准备关闭socket&quot;); </span>
+<span class="nc" id="L39">						break; </span>
+					} 
+<span class="nc bnc" id="L41" title="All 2 branches missed.">					if(&quot;&quot;.equals(strXML)) </span>
+<span class="nc" id="L42">						continue; </span>
+
+<span class="nc" id="L44">					System.out.println(&quot;客户端发来：&quot;+strXML.toString());</span>
+<span class="nc" id="L45">					out.flush(); </span>
+<span class="nc" id="L46">					out.close(); </span>
+<span class="nc" id="L47">				} </span>
+<span class="nc" id="L48">				socket.close(); </span>
+<span class="nc" id="L49">				System.out.println(&quot;socket stop.....&quot;); </span>
+
+<span class="nc" id="L51">			}catch(IOException ex){ </span>
+
+<span class="nc" id="L53">			}finally{ </span>
+
+<span class="nc" id="L55">			} </span>
+<span class="nc" id="L56">		} </span>
+	}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

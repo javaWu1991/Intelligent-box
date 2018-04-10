@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MobileUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">MobileUtil.java</span></div><h1>MobileUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import com.google.gson.Gson;
+/**
+ * 微信H5支付工具类
+ * 创建者 科帮网
+ * 创建时间	2017年7月31日
+ */
+<span class="nc" id="L18">public class MobileUtil {</span>
+	/**
+	 * 获取用户openID
+	 * @Author  科帮网
+	 * @param code
+	 * @return  String
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+	public static String getOpenId(String code){
+<span class="nc bnc" id="L30" title="All 2 branches missed.">		if (code != null) {</span>
+<span class="nc" id="L31">			String url = &quot;https://api.weixin.qq.com/sns/oauth2/access_token?&quot;</span>
+					+ &quot;appid=&quot;+ ConfigUtil.APP_ID
+					+ &quot;&amp;secret=&quot;+ ConfigUtil.APP_SECRET + &quot;&amp;code=&quot;
+					+code + &quot;&amp;grant_type=authorization_code&quot;;
+<span class="nc" id="L35">			String returnData = getReturnData(url);</span>
+<span class="nc" id="L36">			Gson gson = new Gson();</span>
+<span class="nc" id="L37">			OpenIdClass openIdClass = gson.fromJson(returnData,</span>
+					OpenIdClass.class);
+<span class="nc bnc" id="L39" title="All 2 branches missed.">			if (openIdClass.getOpenid() != null) {</span>
+<span class="nc" id="L40">				return openIdClass.getOpenid();</span>
+			}
+		}
+<span class="nc" id="L43">		return &quot;**************&quot;;</span>
+	}
+	public static String getReturnData(String urlString) {
+<span class="nc" id="L46">		String res = &quot;&quot;;</span>
+		try {
+<span class="nc" id="L48">			URL url = new URL(urlString);</span>
+<span class="nc" id="L49">			java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url</span>
+					.openConnection();
+<span class="nc" id="L51">			conn.connect();</span>
+<span class="nc" id="L52">			java.io.BufferedReader in = new java.io.BufferedReader(</span>
+					new java.io.InputStreamReader(conn.getInputStream(),
+							&quot;UTF-8&quot;));
+			String line;
+<span class="nc bnc" id="L56" title="All 2 branches missed.">			while ((line = in.readLine()) != null) {</span>
+<span class="nc" id="L57">				res += line;</span>
+			}
+<span class="nc" id="L59">			in.close();</span>
+<span class="nc" id="L60">		} catch (Exception e) {</span>
+<span class="nc" id="L61">			e.printStackTrace();</span>
+<span class="nc" id="L62">		}</span>
+<span class="nc" id="L63">		return res;</span>
+	}
+	/**
+	 * 回调request 参数解析为map格式
+	 * @Author  科帮网
+	 * @param request
+	 * @return
+	 * @throws Exception  Map&lt;String,String&gt;
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static Map&lt;String, String&gt; parseXml(HttpServletRequest request)
+			throws Exception {
+		// 解析结果存储在HashMap
+<span class="nc" id="L80">		Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L81">		InputStream inputStream = request.getInputStream();</span>
+		// 读取输入流
+<span class="nc" id="L83">		SAXReader reader = new SAXReader();</span>
+<span class="nc" id="L84">		Document document = reader.read(inputStream);</span>
+		// 得到xml根元素
+<span class="nc" id="L86">		Element root = document.getRootElement();</span>
+		// 得到根元素的所有子节点
+<span class="nc" id="L88">		List&lt;Element&gt; elementList = root.elements();</span>
+		// 遍历所有子节点
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		for (Element e : elementList)</span>
+<span class="nc" id="L91">			map.put(e.getName(), e.getText());</span>
+		// 释放资源
+<span class="nc" id="L93">		inputStream.close();</span>
+<span class="nc" id="L94">		inputStream = null;</span>
+<span class="nc" id="L95">		return map;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

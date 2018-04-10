@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppOrganizationMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppOrganization">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="org_name" property="orgName" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="update_time" property="updateTime" jdbcType="BIGINT" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="path_id" property="pathId" jdbcType="VARCHAR" />
+		<result column="full_path" property="fullPath" jdbcType="VARCHAR" />
+		<result column="cid" property="cid" jdbcType="BIGINT" />
+		<result column="higher_id" property="higherId" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<resultMap id="loginMap" type="cmcc.mobile.yiqi.entity.TAppOrganization" extends="BaseResultMap">
+		<result column="jobName" property="jobName" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="shortNum" property="shortNum" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		id, org_name, status, sort, create_time, update_time,
+		source, path_id,
+		full_path,
+		cid, higher_id
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_organization
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		t_app_organization
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppOrganization">
+		insert into t_app_organization
+		(id, org_name, status,
+		sort, create_time, update_time,
+		source, path_id,
+		full_path,
+		cid, higher_id)
+		values (#{id,jdbcType=BIGINT},
+		#{orgName,jdbcType=VARCHAR},
+		#{status,jdbcType=INTEGER},
+		#{sort,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT},
+		#{updateTime,jdbcType=BIGINT},
+		#{source,jdbcType=VARCHAR},
+		#{pathId,jdbcType=VARCHAR},
+		#{fullPath,jdbcType=VARCHAR},
+		#{cid,jdbcType=BIGINT}, #{higherId,jdbcType=BIGINT})
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppOrganization"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into t_app_organization
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="orgName != null">
+				org_name,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updateTime != null">
+				update_time,
+			</if>
+			<if test="source != null">
+				source,
+			</if>
+			<if test="pathId != null">
+				path_id,
+			</if>
+			<if test="fullPath != null">
+				full_path,
+			</if>
+			<if test="cid != null">
+				cid,
+			</if>
+			<if test="higherId != null">
+				higher_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="orgName != null">
+				#{orgName,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime,jdbcType=BIGINT},
+			</if>
+			<if test="source != null">
+				#{source,jdbcType=VARCHAR},
+			</if>
+			<if test="pathId != null">
+				#{pathId,jdbcType=VARCHAR},
+			</if>
+			<if test="fullPath != null">
+				#{fullPath,jdbcType=VARCHAR},
+			</if>
+			<if test="cid != null">
+				#{cid,jdbcType=BIGINT},
+			</if>
+			<if test="higherId != null">
+				#{higherId,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppOrganization">
+		update t_app_organization
+		<set>
+			<if test="orgName != null">
+				org_name = #{orgName,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=BIGINT},
+			</if>
+			<if test="source != null">
+				source = #{source,jdbcType=VARCHAR},
+			</if>
+			<if test="pathId != null">
+				path_id = #{pathId,jdbcType=VARCHAR},
+			</if>
+			<if test="fullPath != null">
+				full_path = #{fullPath,jdbcType=VARCHAR},
+			</if>
+			<if test="cid != null">
+				cid = #{cid,jdbcType=BIGINT},
+			</if>
+			<if test="higherId != null">
+				higher_id = #{higherId,jdbcType=BIGINT},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppOrganization">
+		update
+		t_app_organization
+		set org_name = #{orgName,jdbcType=VARCHAR},
+		status =
+		#{status,jdbcType=INTEGER},
+		sort = #{sort,jdbcType=INTEGER},
+		create_time = #{createTime,jdbcType=BIGINT},
+		update_time =
+		#{updateTime,jdbcType=BIGINT},
+		source = #{source,jdbcType=VARCHAR},
+		path_id = #{pathId,jdbcType=VARCHAR},
+		full_path =
+		#{fullPath,jdbcType=VARCHAR},
+		cid = #{cid,jdbcType=BIGINT},
+		higher_id =
+		#{higherId,jdbcType=BIGINT}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="selectByCompanyId" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_organization
+		where cid = #{id,jdbcType=BIGINT} and higher_id
+		= 0
+	</select>
+
+	<select id="selectOrgByCidAndHigherId" resultMap="BaseResultMap"
+		parameterType="cmcc.mobile.yiqi.entity.TAppOrganization">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_organization
+		where cid = #{cid,jdbcType=BIGINT}
+		<if test="higherId != null">
+			and higher_id = #{higherId,jdbcType=BIGINT}
+		</if>
+		order by sort asc
+	</select>
+
+	<select id="selectAllByCidsUid" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select a.*
+		from t_app_organization a left join t_app_userorg b
+		on a.id =
+		b.oid
+		where b.uid = #{uid,jdbcType=BIGINT} and a.cid in
+		<foreach collection="list" item="id" index="index" open="("
+			close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="selectByNameAndCid" resultMap="BaseResultMap">
+		select a.*
+		from
+		t_app_organization a
+		where a.cid = #{cid,jdbcType=BIGINT} and
+		a.org_name =
+		#{orgName,jdbcType=VARCHAR}
+	</select>
+
+
+	<select id="selectByPathAndCid" resultMap="BaseResultMap">
+		select *
+		from
+		t_app_organization
+		where cid =
+		#{cid,jdbcType=BIGINT} and
+		full_path =
+		#{path,jdbcType=VARCHAR}
+	</select>
+
+
+	<select id="selectAllByUid" resultMap="loginMap"
+		parameterType="java.lang.Long">
+		select a.*,p.position_name as jobName,b.email as email,b.short_num as shortNum
+		from t_app_organization a left join
+		t_app_userorg b
+		on a.id = b.oid left join t_app_position p on p.id = b.position_id
+		where b.uid = #{uid,jdbcType=BIGINT}
+	</select>
+	
+		<select id="selectAllByUserId" resultMap="loginMap"
+		parameterType="java.lang.Long">
+		select a.*
+		from t_app_organization a left join
+		t_app_userorg b on a.id = b.oid 
+		where b.uid = #{userId,jdbcType=BIGINT}
+	</select>
+	
+		<select id="selctByOrgName" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_organization
+		where org_name = #{orgName,jdbcType=VARCHAR}
+	</select>
+</mapper>

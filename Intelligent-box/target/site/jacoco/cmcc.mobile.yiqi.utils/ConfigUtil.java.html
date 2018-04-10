@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ConfigUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">ConfigUtil.java</span></div><h1>ConfigUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
+/**
+ * 相关配置参数 
+ * 创建者 吴奔江 
+ * 创建时间 2017年7月31日
+ */
+<span class="nc" id="L14">public class ConfigUtil {</span>
+	private static Configuration configs;
+	public  static String APP_ID;// 服务号的应用ID
+	public  static String APP_SECRET;// 服务号的应用密钥
+	public  static String TOKEN;// 服务号的配置token
+	public  static String MCH_ID;// 商户号
+	public  static final String API_KEY = &quot;xiaoaojun&quot;;// API密钥
+	public  static String SIGN_TYPE;// 签名加密方式
+	public  static String CERT_PATH ;//微信支付证书
+
+	public static synchronized void init(String filePath) {
+<span class="nc bnc" id="L25" title="All 2 branches missed.">		if (configs != null) {</span>
+<span class="nc" id="L26">			return;</span>
+		}
+		try {
+<span class="nc" id="L29">			configs = new PropertiesConfiguration(filePath);</span>
+<span class="nc" id="L30">		} catch (ConfigurationException e) {</span>
+<span class="nc" id="L31">			e.printStackTrace();</span>
+<span class="nc" id="L32">		}</span>
+
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		if (configs == null) {</span>
+<span class="nc" id="L35">			throw new IllegalStateException(&quot;can`t find file by path:&quot;</span>
+					+ filePath);
+		}
+<span class="nc" id="L38">		APP_ID = configs.getString(&quot;APP_ID&quot;);</span>
+<span class="nc" id="L39">		APP_SECRET = configs.getString(&quot;APP_SECRET&quot;);</span>
+<span class="nc" id="L40">		TOKEN = configs.getString(&quot;TOKEN&quot;);</span>
+<span class="nc" id="L41">		MCH_ID = configs.getString(&quot;MCH_ID&quot;);</span>
+<span class="nc" id="L42">		SIGN_TYPE = configs.getString(&quot;SIGN_TYPE&quot;);</span>
+<span class="nc" id="L43">		CERT_PATH = configs.getString(&quot;CERT_PATH&quot;);</span>
+<span class="nc" id="L44">	}</span>
+
+	/**
+	 * 微信基础接口地址
+	 */
+	// 获取token接口(GET)
+	public final static String TOKEN_URL = &quot;https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=APPSECRET&quot;;
+	// oauth2授权接口(GET)
+	public final static String OAUTH2_URL = &quot;https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code&quot;;
+	// 刷新access_token接口（GET）
+	public final static String REFRESH_TOKEN_URL = &quot;https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=APPID&amp;grant_type=refresh_token&amp;refresh_token=REFRESH_TOKEN&quot;;
+	// 菜单创建接口（POST）
+	public final static String MENU_CREATE_URL = &quot;https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN&quot;;
+	// 菜单查询（GET）
+	public final static String MENU_GET_URL = &quot;https://api.weixin.qq.com/cgi-bin/menu/get?access_token=ACCESS_TOKEN&quot;;
+	// 菜单删除（GET）
+	public final static String MENU_DELETE_URL = &quot;https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN&quot;;
+	/**
+	 * 微信支付接口地址
+	 */
+	// 微信支付统一接口(POST)
+	public final static String UNIFIED_ORDER_URL = &quot;https://api.mch.weixin.qq.com/pay/unifiedorder&quot;;
+	// 微信退款接口(POST)
+	public final static String REFUND_URL = &quot;https://api.mch.weixin.qq.com/secapi/pay/refund&quot;;
+	// 订单查询接口(POST)
+	public final static String CHECK_ORDER_URL = &quot;https://api.mch.weixin.qq.com/pay/orderquery&quot;;
+	// 关闭订单接口(POST)
+	public final static String CLOSE_ORDER_URL = &quot;https://api.mch.weixin.qq.com/pay/closeorder&quot;;
+	// 退款查询接口(POST)
+	public final static String CHECK_REFUND_URL = &quot;https://api.mch.weixin.qq.com/pay/refundquery&quot;;
+	// 对账单接口(POST)
+	public final static String DOWNLOAD_BILL_URL = &quot;https://api.mch.weixin.qq.com/pay/downloadbill&quot;;
+	// 短链接转换接口(POST)
+	public final static String SHORT_URL = &quot;https://api.mch.weixin.qq.com/tools/shorturl&quot;;
+	// 接口调用上报接口(POST)
+	public final static String REPORT_URL = &quot;https://api.mch.weixin.qq.com/payitil/report&quot;;
+    
+	/**
+	 * 基础参数
+	 * @Author  科帮网
+	 * @param packageParams  void
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+	public static void commonParams(SortedMap&lt;Object, Object&gt; packageParams) {
+		// 账号信息
+<span class="nc" id="L92">		String appid = ConfigUtil.APP_ID; // appid</span>
+<span class="nc" id="L93">		String mch_id = ConfigUtil.MCH_ID; // 商业号</span>
+		// 生成随机字符串
+<span class="nc" id="L95">		String currTime = PayCommonUtil.getCurrTime();</span>
+<span class="nc" id="L96">		String strTime = currTime.substring(8, currTime.length());</span>
+<span class="nc" id="L97">		String strRandom = PayCommonUtil.buildRandom(4) + &quot;&quot;;</span>
+<span class="nc" id="L98">		String nonce_str = strTime + strRandom;</span>
+<span class="nc" id="L99">		packageParams.put(&quot;appid&quot;, appid);// 公众账号ID</span>
+<span class="nc" id="L100">		packageParams.put(&quot;mch_id&quot;, mch_id);// 商户号</span>
+<span class="nc" id="L101">		packageParams.put(&quot;nonce_str&quot;, nonce_str);// 随机字符串</span>
+<span class="nc" id="L102">	}</span>
+
+	/**
+	 * 该接口主要用于扫码原生支付模式一中的二维码链接转成短链接(weixin://wxpay/s/XXXXXX)，减小二维码数据量，提升扫描速度和精确度
+	 * @Author  科帮网
+	 * @param urlCode  void
+	 * @Date	2017年7月31日
+	 * 更新日志
+	 * 2017年7月31日  科帮网 首次创建
+	 *
+	 */
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	public static void shorturl(String urlCode) {
+		try {
+<span class="nc" id="L116">			String key = ConfigUtil.API_KEY; // key</span>
+<span class="nc" id="L117">			SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L118">			ConfigUtil.commonParams(packageParams);</span>
+<span class="nc" id="L119">			packageParams.put(&quot;long_url&quot;, urlCode);// URL链接</span>
+<span class="nc" id="L120">			String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, key);</span>
+<span class="nc" id="L121">			packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+<span class="nc" id="L122">			String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L123">			String resXml = HttpUtil.postData(ConfigUtil.SHORT_URL, requestXML);</span>
+<span class="nc" id="L124">			Map map = XMLUtil.doXMLParse(resXml);</span>
+<span class="nc" id="L125">			String returnCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			if (&quot;SUCCESS&quot;.equals(returnCode)) {</span>
+<span class="nc" id="L127">				String resultCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">				if (&quot;SUCCESS&quot;.equals(resultCode)) {</span>
+<span class="nc" id="L129">					urlCode = (String) map.get(&quot;short_url&quot;);</span>
+				}
+			}
+<span class="nc" id="L132">		} catch (Exception e) {</span>
+<span class="nc" id="L133">			e.printStackTrace();</span>
+<span class="nc" id="L134">		}</span>
+<span class="nc" id="L135">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

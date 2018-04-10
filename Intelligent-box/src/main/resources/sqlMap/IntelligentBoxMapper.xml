@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper">
+    <resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.BannerImg">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+        <result column="img_url" property="imgUrl" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="text" property="text" jdbcType="VARCHAR"/>
+    </resultMap>
+      <resultMap id="BaseMap" type="cmcc.mobile.yiqi.vo.ConsumeVo">
+     <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="product_img" jdbcType="VARCHAR" property="productImg" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="original_price" jdbcType="DOUBLE" property="originalPrice" />
+    <result column="favorable_price" jdbcType="DOUBLE" property="favorablePrice" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="discount" jdbcType="DOUBLE" property="discount" />
+    <result column="product_number" jdbcType="INTEGER" property="productNumber" />
+    <result column="container_number" jdbcType="INTEGER" property="containerNumber" />
+    <result column="corp_id" jdbcType="BIGINT" property="corpId" />
+    <result column="machine_id" jdbcType="VARCHAR" property="machineId" />
+     <result column="product_detail" jdbcType="VARCHAR" property="productDetail" />
+     <result column="app_id" jdbcType="VARCHAR" property="appId" />
+     <result column="mch_id" jdbcType="VARCHAR" property="mchId" />
+     <result column="order_code" jdbcType="VARCHAR" property="order_code" />
+      <result column="money" jdbcType="DOUBLE" property="money" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, create_time, img_url, type, text
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from banner_img
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from banner_img
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        insert into banner_img (id, create_time, img_url,
+        type, text)
+        values (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{imgUrl,jdbcType=VARCHAR},
+        #{type,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        insert into banner_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="imgUrl != null">
+                img_url,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="text != null">
+                text,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=BIGINT},
+            </if>
+            <if test="imgUrl != null">
+                #{imgUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="text != null">
+                #{text,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        update banner_img
+        <set>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=BIGINT},
+            </if>
+            <if test="imgUrl != null">
+                img_url = #{imgUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="text != null">
+                text = #{text,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.BannerImg">
+        update banner_img
+        set create_time = #{createTime,jdbcType=BIGINT},
+        img_url = #{imgUrl,jdbcType=VARCHAR},
+        type = #{type,jdbcType=VARCHAR},
+        text = #{text,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from banner_img
+    </select>
+    
+     <insert id="addReplenishment" parameterType="cmcc.mobile.yiqi.entity.TProductLog">
+        insert into t_product_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="machineId != null">
+                machine_id,
+            </if>
+            <if test="corpId != null">
+                corp_id,
+            </if>
+            <if test="containerNumber != null">
+                container_number,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+               <if test="productNumber != null">
+                product_number,
+            </if>
+                  <if test="createUserId != null">
+                create_user_id,
+            </if>
+                  <if test="type != null">
+                type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="machineId != null">
+                #{machineId,jdbcType=VARCHAR},
+            </if>
+            <if test="corpId != null">
+                #{corpId,jdbcType=BIGINT},
+            </if>
+            <if test="containerNumber != null">
+                #{containerNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=BIGINT},
+            </if>
+                  <if test="productNumber != null">
+                #{productNumber,jdbcType=INTEGER},
+            </if>
+                  <if test="createUserId !=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+                  <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <insert id="insertOrder" parameterType="cmcc.mobile.yiqi.vo.Product">
+     insert into t_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+              <if test="outTradeNo != null">
+                order_code,
+            </if>
+              <if test="productId != null">
+                product_id,
+            </if>
+              <if test="totalFee != null">
+                money,
+            </if>
+             <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="returnCode != null">
+                return_code,
+            </if>
+             <if test="spbillCreateIp != null">
+                order_ip,
+            </if>
+               <if test="appId != null">
+                app_id,
+            </if>
+               <if test="mchId != null">
+                mch_id,
+            </if>
+             </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="outTradeNo != null">
+                #{outTradeNo},
+            </if>
+              <if test="productId != null">
+                #{productId},
+            </if>
+              <if test="totalFee != null">
+                #{totalFee},
+            </if>
+             <if test="createTime != null">
+                #{create_time},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="returnCode != null">
+                #{returnCode},
+            </if>
+             <if test="spbillCreateIp != null">
+                #{spbillCreateIp},
+            </if>
+                 <if test="appId != null">
+                #{appId},
+            </if>
+               <if test="mchId != null">
+                #{mchId},
+            </if>
+            </trim>
+    </insert>
+    <select id="selectByProduct" resultMap="BaseMap" parameterType="java.lang.Long">
+    select t.*,c.app_id as appId,c.mch_id as mchId from t_app_product t left join 
+    t_app_company c on t.corp_id = c.id where t.id = #{productId}
+    </select>
+    
+</mapper>

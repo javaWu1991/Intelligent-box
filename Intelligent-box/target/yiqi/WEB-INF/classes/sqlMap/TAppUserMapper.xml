@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppUserMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppUser">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="is_leader" property="isLeader" jdbcType="INTEGER" />
+		<result column="job" property="job" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="short_num" property="shortNum" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="update_time" property="updateTime" jdbcType="BIGINT" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="head_url" property="headUrl" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="imei" property="imei" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="APP_tongxunlu_map" type="cmcc.mobile.yiqi.entity.TAppUser">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="is_leader" property="isLeader" jdbcType="INTEGER" />
+		<result column="job" property="job" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="short_num" property="shortNum" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="update_time" property="updateTime" jdbcType="BIGINT" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="head_url" property="headUrl" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="imei" property="imei" jdbcType="VARCHAR" />
+		<result column="jobLevel" property="jobLevel" jdbcType="VARCHAR" />
+		<result column="jobId" property="jobId" jdbcType="BIGINT" />
+		<result column="orgName" property="orgName" jdbcType="VARCHAR" />
+		<result column="orgId" property="orgId" jdbcType="BIGINT" />
+	</resultMap>
+	<resultMap id="exportMap" type="cmcc.mobile.yiqi.vo.ExportExcelVo">
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="job" property="job" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="full_path" property="fullPath" jdbcType="VARCHAR" />
+		<result column="positionId" property="positionId" jdbcType="BIGINT" />
+	</resultMap>
+	<resultMap id="deleteMap" type="cmcc.mobile.yiqi.vo.DeleteExportExcelVo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<id column="orgId" property="orgId" jdbcType="BIGINT" />
+		<id column="userOrgId" property="userOrgId" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="short_num" property="shortNum" jdbcType="VARCHAR" />
+		<result column="job" property="job" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="full_path" property="fullPath" jdbcType="VARCHAR" />
+		<result column="positionId" property="positionId" jdbcType="BIGINT" />
+		<result column="level" property="level" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="resultMap" type="cmcc.mobile.yiqi.vo.AppUserVo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="account" property="account" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="job" property="job" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="update_time" property="updateTime" jdbcType="BIGINT" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="head_url" property="headUrl" jdbcType="VARCHAR" />
+		<result column="cid" property="cid" jdbcType="BIGINT" />
+		<result column="companyNo" property="companyNo" jdbcType="VARCHAR" />
+		<result column="companyName" property="companyName" jdbcType="VARCHAR" />
+		<result column="areaid" property="areaid" jdbcType="INTEGER" />
+		<result column="areaname" property="areaname" jdbcType="VARCHAR" />
+		<result column="cityname" property="cityname" jdbcType="VARCHAR" />
+		<result column="provincename" property="provincename" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, name, sex, account, password, is_leader, job, mobile,
+		short_num,
+		email, status,
+		create_time, update_time, source, head_url,
+		sort, imei
+	</sql>
+	<sql id="select_user_org">
+		id, name, sex, account, password, is_leader, mobile,,
+		status,
+		create_time, update_time, source, head_url,
+		sort, imei
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		t_app_user
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppUser">
+		insert into t_app_user (id,
+		name, sex,
+		account, password, is_leader,
+		job, mobile, short_num,
+		email,
+		status, create_time,
+		update_time, source, head_url,
+		sort)
+		values
+		(#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
+		#{sex,jdbcType=INTEGER},
+		#{account,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR}, #{isLeader,jdbcType=INTEGER},
+		#{job,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
+		#{shortNum,jdbcType=VARCHAR},
+		#{email,jdbcType=VARCHAR},
+		#{status,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT},
+		#{updateTime,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR},
+		#{headUrl,jdbcType=VARCHAR},
+		#{sort,jdbcType=INTEGER})
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppUser"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into t_app_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="sex != null">
+				sex,
+			</if>
+			<if test="account != null">
+				account,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="isLeader != null">
+				is_leader,
+			</if>
+			<if test="job != null">
+				job,
+			</if>
+			<if test="mobile != null">
+				mobile,
+			</if>
+			<if test="shortNum != null">
+				short_num,
+			</if>
+			<if test="email != null">
+				email,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updateTime != null">
+				update_time,
+			</if>
+			<if test="source != null">
+				source,
+			</if>
+			<if test="headUrl != null">
+				head_url,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				#{sex,jdbcType=INTEGER},
+			</if>
+			<if test="account != null">
+				#{account,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				md5(#{password,jdbcType=VARCHAR}),
+			</if>
+			<if test="isLeader != null">
+				#{isLeader,jdbcType=INTEGER},
+			</if>
+			<if test="job != null">
+				#{job,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				#{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="shortNum != null">
+				#{shortNum,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime,jdbcType=BIGINT},
+			</if>
+			<if test="source != null">
+				#{source,jdbcType=VARCHAR},
+			</if>
+			<if test="headUrl != null">
+				#{headUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppUser">
+		update t_app_user
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				sex = #{sex,jdbcType=INTEGER},
+			</if>
+			<if test="account != null">
+				account = #{account,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = md5(#{password,jdbcType=VARCHAR}),
+			</if>
+			<if test="isLeader != null">
+				is_leader = #{isLeader,jdbcType=INTEGER},
+			</if>
+			<if test="job != null">
+				job = #{job,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile = #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="shortNum != null">
+				short_num = #{shortNum,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				email = #{email,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=BIGINT},
+			</if>
+			<if test="source != null">
+				source = #{source,jdbcType=VARCHAR},
+			</if>
+			<if test="headUrl != null">
+				head_url = #{headUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="imei != null">
+				imei = #{imei,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppUser">
+		update t_app_user
+		set name = #{name,jdbcType=VARCHAR},
+		sex = #{sex,jdbcType=INTEGER},
+		account = #{account,jdbcType=VARCHAR},
+		password =
+		#{password,jdbcType=VARCHAR},
+		is_leader = #{isLeader,jdbcType=INTEGER},
+		job = #{job,jdbcType=VARCHAR},
+		mobile = #{mobile,jdbcType=VARCHAR},
+		short_num = #{shortNum,jdbcType=VARCHAR},
+		email =
+		#{email,jdbcType=VARCHAR},
+		status = #{status,jdbcType=INTEGER},
+		create_time = #{createTime,jdbcType=BIGINT},
+		update_time =
+		#{updateTime,jdbcType=BIGINT},
+		source = #{source,jdbcType=VARCHAR},
+		head_url = #{headUrl,jdbcType=VARCHAR},
+		sort = #{sort,jdbcType=INTEGER}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="loginCheck" resultMap="BaseResultMap"
+		parameterType="cmcc.mobile.yiqi.entity.TAppUser">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user
+		where account = #{account,jdbcType=VARCHAR} and
+		password =
+		md5(#{password,jdbcType=VARCHAR}) and (status = 1 or status = -1 or status = 0)
+	</select>
+	<select id="selectAllByParams" resultMap="resultMap"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		SELECT
+		u.id,u.`name`,u.account,u.mobile,u.short_num,u.job,u.is_leader,uc.`status`,c.`name`
+		as
+		companyName,c.code as companyNo,c.id as cid
+		FROM t_app_user u LEFT
+		JOIN
+		t_app_user_company uc ON u.account = uc.account  LEFT
+		JOIN
+		t_app_company c ON
+		uc.cid = c.id WHERE c.`status` = 1 and uc.`status` != 2  
+		<if test="cid != null">
+			AND c.id = #{cid,jdbcType=BIGINT}
+		</if>
+		<if test="name != null">
+			AND u.`name` like '%${name}%'
+		</if>
+		<if test="mobile != null">
+			AND u.mobile like '%${mobile}%'
+		</if>
+		<if test="startRow != null and endRow != null">
+			limit
+			#{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="selectCountByParams" resultType="java.lang.Integer"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		SELECT count(u.id) as id
+		FROM t_app_user u LEFT JOIN
+		t_app_user_company
+		uc ON u.account = uc.account LEFT
+		JOIN
+		t_app_company c ON
+		uc.cid = c.id WHERE
+		c.`status` = 1
+		<if test="cid != null">
+			AND c.id = #{cid,jdbcType=BIGINT}
+		</if>
+		<if test="name != null">
+			AND u.`name` like '%${name}%'
+		</if>
+		<if test="mobile != null">
+			AND u.mobile like '%${mobile}%'
+		</if>
+	</select>
+	<select id="selectByPhone" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user
+		where mobile = #{mobile,jdbcType=BIGINT}
+	</select>
+	<select id="selectByAccount" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user
+		where account = #{account,jdbcType=BIGINT} 
+	</select>
+
+	<select id="selectAllByOrgId" resultMap="APP_tongxunlu_map"
+		parameterType="java.lang.Long">
+		select
+		a.id,a.`name`,uo.sort as
+		sort,a.is_leader,a.sex,a.account,a.mobile,a.status,uo.email as
+		email,p.position_name as job,p.level as jobLevel,uo.short_num as
+		short_num,a.is_leader,'' as orgName,o.id as orgId ,a.head_url as headUrl
+		FROM
+		t_app_user a
+		LEFT JOIN t_app_userorg uo
+		ON a.id = uo.uid
+		LEFT JOIN
+		t_app_organization o
+		ON uo.oid = o.id LEFT JOIN t_app_position
+		p ON
+		uo.position_id=p.id WHERE
+		uo.`status` = 1
+		AND o.id =
+		#{id,jdbcType=BIGINT}
+		order by uo.sort,a.id asc
+	</select>
+
+	<select id="selectByID" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_user
+		where account = #{mobile,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectParId" resultType="java.lang.Long" parameterType="java.lang.String">
+		select id from t_app_user
+		where account = #{account,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectExportUser" resultMap="deleteMap"
+		parameterType="java.lang.Long">
+		select
+		a.id,a.name,a.account,a.sex,b.email as
+		email,p.position_name as job,p.id as positionId,p.level as level,b.short_num as short_num,c.full_path
+		from
+		t_app_user a
+		left join t_app_userorg b on a.id = b.uid
+		left join
+		t_app_organization c on b.oid = c.id LEFT JOIN t_app_position p ON
+		b.position_id = p.id
+		where c.cid =
+		#{cid,jdbcType=BIGINT} order by p.level asc,c.full_path
+	</select>
+
+
+	<select id="selectAllByOrgIdPage" resultMap="APP_tongxunlu_map"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		select
+		a.id,a.`name`,uo.sort as sort,a.sex,a.account,a.mobile,uo.email
+		as email,p.position_name as job,p.id as jobId,uo.short_num as
+		short_num,a.is_leader,o.org_name as orgName,o.id as orgId,uo.`status`
+		FROM
+		t_app_user a LEFT JOIN t_app_userorg uo
+		ON a.id = uo.uid
+		LEFT JOIN
+		t_app_organization o
+		ON uo.oid = o.id LEFT JOIN t_app_position
+		p ON
+		uo.position_id=p.id WHERE
+		(uo.`status` = 1 or uo.`status` = 2)
+		<if test="orgIds != null">
+			AND o.id in
+			<foreach collection="orgIds" index="index" item="id" open="("  separator="," close=")">
+				#{id,jdbcType=BIGINT}
+			</foreach>
+		</if>
+		<if test="name != null">
+			and a.name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="mobile != null">
+			and a.mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+		<if test ="job != null">
+			and p.position_name like CONCAT('%',#{job,jdbcType=VARCHAR},'%')
+		</if>
+		order by uo.sort asc,a.name asc,a.create_time desc
+		<if test="startRow != null and endRow != null">
+			limit
+			#{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="selectCountByOrgIdPage" resultType="java.lang.Integer"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		select COUNT(a.id) FROM
+		t_app_user a LEFT JOIN t_app_userorg uo
+		ON a.id = uo.uid
+		LEFT JOIN
+		t_app_organization o
+		ON uo.oid = o.id LEFT JOIN t_app_position
+		p ON
+		uo.position_id=p.id WHERE
+		(uo.`status` = 1 or uo.`status` = 2)
+		<if test="orgIds != null">
+			AND o.id in
+			<foreach collection="orgIds" index="index" item="id" open="("  separator="," close=")">
+				#{id,jdbcType=BIGINT}
+			</foreach>
+		</if>
+		<if test="name != null">
+			and a.name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="mobile != null">
+			AND a.mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+		<if test ="job != null">
+			and p.position_name like CONCAT('%',#{job,jdbcType=VARCHAR},'%')
+		</if>
+		order by uo.sort asc,a.create_time desc
+<!-- 		<if test="startRow != null and endRow != null"> limit -->
+<!-- 			#{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER} -->
+<!-- 		</if> -->
+	</select>
+
+
+	<select id="selectAll" resultMap="BaseResultMap">
+		select * from t_app_user
+	</select>
+
+	<update id="updatePasswordByApp" parameterType="cmcc.mobile.yiqi.entity.TAppUser">
+		update t_app_user
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="selectPendingApproval" resultMap="BaseResultMap">
+		SELECT r.id,
+		u.name, u.sex, u.account, p.position_name as job, o.org_name as mobile,
+		r.email,u.is_leader,r.short_num,
+		r.status,
+		u.create_time, u.update_time,
+		u.source, u.head_url,r.id a
+		FROM t_app_user u, t_app_userorg r,
+		t_app_organization o,t_app_position p
+		where u.id = r.uid and r.oid = o.id and p.id = r.position_id
+		and r.status =
+		-2 and o.cid = #{cid,jdbcType=BIGINT}
+		order by r.sort asc
+	</select>
+	<select id="selectAllByParam" resultMap="resultMap"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		SELECT
+		u.id,u.`name`,u.account,u.mobile,u.short_num,u.job,u.is_leader,uc.`status`,
+		uc.`areaname`,uc.areaid,uc.cityname,uc.provincename,uc.cityid,uc.provinceid,u.sex,uc.id as tid
+		FROM t_app_user u
+		LEFT
+		JOIN
+		t_app_user_company uc ON u.id = uc.uid and uc.cid is null and uc.areaid is not null
+		WHERE
+		uc.`status` != 2  
+		<if test="areaid != null">
+			AND uc.`areaid` = #{areaid,jdbcType=VARCHAR}
+		</if>
+		<if test="cityid != null">
+			AND uc.`cityid` = #{cityid,jdbcType=VARCHAR}
+		</if>
+			<if test="provinceid != null">
+			AND uc.`provinceid` = #{provinceid,jdbcType=VARCHAR}
+		</if>
+		<if test="name != null">
+			AND u.`name` like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="mobile != null">
+			AND u.mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="startRow != null and endRow != null">
+			limit
+			#{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="selectCountByParam" resultType="java.lang.Integer"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		SELECT count(u.id) as id
+		FROM t_app_user u LEFT JOIN
+		t_app_user_company
+		uc ON u.id = uc.uid  WHERE uc.status != 2
+		<if test="areaid != null">
+			AND uc.`areaid` = #{areaid,jdbcType=VARCHAR}
+		</if>
+		<if test="cityid != null">
+			AND uc.`cityid` = #{cityid,jdbcType=VARCHAR}
+		</if>
+			<if test="provinceid != null">
+			AND uc.`provinceid` = #{provinceid,jdbcType=VARCHAR}
+		</if>
+		<if test="name != null">
+			AND u.`name` like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="mobile != null">
+			AND u.mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+	</select>
+	
+	<select id="selectAllCustomer" resultMap="resultMap"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		SELECT
+		u.id ,u.`name`,u.account,u.mobile,u.short_num,u.job,u.is_leader,uc.`status`,u.sex,uc.id as tid
+		FROM t_app_user u
+		LEFT
+		JOIN
+		t_app_user_company uc ON u.id = uc.uid
+		WHERE
+		uc.`status` != 2 
+		and uc.cid is NULL 
+		and uc.provinceid is NULL
+		and uc.areaid is NULL
+		and uc.cityid is NULL
+		
+				<if test="name != null">
+			AND u.`name` like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="mobile != null">
+			AND u.mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="startRow != null and endRow != null">
+			limit
+			#{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+		</if>
+	</select>
+	<select id="selectCountCustomer" resultType="java.lang.Integer"
+		parameterType="cmcc.mobile.yiqi.vo.AppUserVo">
+		SELECT count(u.id) as id
+		FROM t_app_user u LEFT JOIN
+		t_app_user_company
+		uc ON u.id = uc.uid  WHERE uc.status != 2
+		and uc.cid is NULL 
+		and uc.provinceid is NULL
+		and uc.areaid is NULL
+		and uc.cityid is NULL
+				<if test="name != null">
+			AND u.`name` like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+	<if test="mobile != null">
+			AND u.mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+	</select>
+	
+	
+		<select id="selectHeardUrl" resultType="java.lang.String" parameterType="java.lang.Long">
+		select head_url from t_app_user
+		where id = #{userId,jdbcType=BIGINT}
+	</select>
+	
+	
+	<select id="selectByMobileAndName" resultMap="BaseResultMap" parameterType="map">
+		select * from t_app_user
+		where name = #{name} and mobile= #{mobile}
+	</select>
+	
+</mapper>

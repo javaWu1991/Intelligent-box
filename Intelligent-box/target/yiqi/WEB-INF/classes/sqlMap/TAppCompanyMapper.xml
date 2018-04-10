@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppCompanyMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppCompany">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="create_time" property="create_time" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="areaId" property="areaId" jdbcType="BIGINT" />
+		<result column="adress" property="adress" jdbcType="VARCHAR" />
+		<result column="scale" property="scale" jdbcType="VARCHAR" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="logo" property="logo" jdbcType="VARCHAR" />
+		<result column="contacts" property="contacts" jdbcType="VARCHAR" />
+		<result column="contactsMobile" property="contactsMobile"
+			jdbcType="VARCHAR" />
+		<result column="isHide" property="isHide" jdbcType="INTEGER" />
+		<result column="longitude" property="longitude" jdbcType="DOUBLE" />
+		<result column="latitude" property="latitude" jdbcType="DOUBLE" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="provinceId" property="provinceId" jdbcType="INTEGER" />
+		<result column="cityId" property="cityId" jdbcType="INTEGER" />
+		<result column="provinceName" property="provinceName" jdbcType="VARCHAR" />
+		<result column="cityName" property="cityName" jdbcType="VARCHAR" />
+		<result column="areaName" property="areaName" jdbcType="VARCHAR" />
+		<result column="managerId" property="managerId" jdbcType="BIGINT" />
+	</resultMap>
+
+	<resultMap id="companyListVo" type="cmcc.mobile.yiqi.vo.CompanyListVo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="create_time" property="create_time" jdbcType="BIGINT" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="areaId" property="areaId" jdbcType="BIGINT" />
+		<result column="adress" property="adress" jdbcType="VARCHAR" />
+		<result column="scale" property="scale" jdbcType="VARCHAR" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="logo" property="logo" jdbcType="VARCHAR" />
+		<result column="contacts" property="contacts" jdbcType="VARCHAR" />
+		<result column="contactsMobile" property="contactsMobile"
+			jdbcType="VARCHAR" />
+		<result column="isHide" property="isHide" jdbcType="INTEGER" />
+		<result column="longitude" property="longitude" jdbcType="DOUBLE" />
+		<result column="latitude" property="latitude" jdbcType="DOUBLE" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="provinceId" property="provinceId" jdbcType="INTEGER" />
+		<result column="cityId" property="cityId" jdbcType="INTEGER" />
+		<result column="provinceName" property="provinceName" jdbcType="VARCHAR" />
+		<result column="cityName" property="cityName" jdbcType="VARCHAR" />
+		<result column="areaName" property="areaName" jdbcType="VARCHAR" />
+		<result column="managerId" property="managerId" jdbcType="BIGINT" />
+	</resultMap>
+	<select id="selectByIdList" resultMap="companyListVo">
+		select * from t_app_company where id in
+		<foreach item="item" collection="item" separator="," open="("
+			close=")" index="">
+			#{item.cid}
+		</foreach>
+	</select>
+
+	<select id="selectUnDeleteCompany" resultMap="BaseResultMap">
+		select * from t_app_company where status != 3
+		<if test="name!=null">
+			and name like "%${name}%"
+		</if>
+		<if test="areaId!=null">
+			and areaId in (${areaId})
+		</if>
+		<if test="managerId!=null">
+			and managerId = #{managerId}
+		</if>
+	</select>
+
+
+	<select id="selectByPrimaryKeys" resultMap="BaseResultMap"
+		parameterType="java.util.List">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_company
+		where id in
+		<foreach collection="list" item="id" index="index" open="("
+			close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+		and status = 1
+	</select>
+
+
+	<sql id="Base_Column_List">
+		id, name, create_time, status, areaId, adress, scale, code, logo,
+		contacts, contactsMobile,
+		isHide, longitude, latitude, creator, provinceId, cityId, provinceName,
+		cityName,
+		areaName, managerId
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_company
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from t_app_company
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id"
+		parameterType="cmcc.mobile.yiqi.entity.TAppCompany">
+		insert into t_app_company (id, name, create_time,
+		status, areaId, adress,
+		scale, code, logo,
+		contacts, contactsMobile, isHide,
+		longitude, latitude, creator,
+		provinceId, cityId, provinceName,
+		cityName, areaName, managerId
+		)
+		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
+		#{create_time,jdbcType=BIGINT},
+		#{status,jdbcType=INTEGER}, #{areaId,jdbcType=BIGINT}, #{adress,jdbcType=VARCHAR},
+		#{scale,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR},
+		#{logo,jdbcType=VARCHAR},
+		#{contacts,jdbcType=VARCHAR}, #{contactsMobile,jdbcType=VARCHAR}, #{isHide,jdbcType=INTEGER},
+		#{longitude,jdbcType=DOUBLE}, #{latitude,jdbcType=DOUBLE},
+		#{creator,jdbcType=VARCHAR},
+		#{provinceId,jdbcType=INTEGER}, #{cityId,jdbcType=INTEGER}, #{provinceName,jdbcType=VARCHAR},
+		#{cityName,jdbcType=VARCHAR}, #{areaName,jdbcType=VARCHAR},
+		#{managerId,jdbcType=BIGINT}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppCompany"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into t_app_company
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="create_time != null">
+				create_time,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="areaId != null">
+				areaId,
+			</if>
+			<if test="adress != null">
+				adress,
+			</if>
+			<if test="scale != null">
+				scale,
+			</if>
+			<if test="code != null">
+				code,
+			</if>
+			<if test="logo != null">
+				logo,
+			</if>
+			<if test="contacts != null">
+				contacts,
+			</if>
+			<if test="contactsMobile != null">
+				contactsMobile,
+			</if>
+			<if test="isHide != null">
+				isHide,
+			</if>
+			<if test="longitude != null">
+				longitude,
+			</if>
+			<if test="latitude != null">
+				latitude,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="provinceId != null">
+				provinceId,
+			</if>
+			<if test="cityId != null">
+				cityId,
+			</if>
+			<if test="provinceName != null">
+				provinceName,
+			</if>
+			<if test="cityName != null">
+				cityName,
+			</if>
+			<if test="areaName != null">
+				areaName,
+			</if>
+			<if test="managerId != null">
+				managerId,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="create_time != null">
+				#{create_time,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="areaId != null">
+				#{areaId,jdbcType=BIGINT},
+			</if>
+			<if test="adress != null">
+				#{adress,jdbcType=VARCHAR},
+			</if>
+			<if test="scale != null">
+				#{scale,jdbcType=VARCHAR},
+			</if>
+			<if test="code != null">
+				#{code,jdbcType=VARCHAR},
+			</if>
+			<if test="logo != null">
+				#{logo,jdbcType=VARCHAR},
+			</if>
+			<if test="contacts != null">
+				#{contacts,jdbcType=VARCHAR},
+			</if>
+			<if test="contactsMobile != null">
+				#{contactsMobile,jdbcType=VARCHAR},
+			</if>
+			<if test="isHide != null">
+				#{isHide,jdbcType=INTEGER},
+			</if>
+			<if test="longitude != null">
+				#{longitude,jdbcType=DOUBLE},
+			</if>
+			<if test="latitude != null">
+				#{latitude,jdbcType=DOUBLE},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceId != null">
+				#{provinceId,jdbcType=INTEGER},
+			</if>
+			<if test="cityId != null">
+				#{cityId,jdbcType=INTEGER},
+			</if>
+			<if test="provinceName != null">
+				#{provinceName,jdbcType=VARCHAR},
+			</if>
+			<if test="cityName != null">
+				#{cityName,jdbcType=VARCHAR},
+			</if>
+			<if test="areaName != null">
+				#{areaName,jdbcType=VARCHAR},
+			</if>
+			<if test="managerId != null">
+				#{managerId,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppCompany">
+		update t_app_company
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="areaId != null">
+				areaId = #{areaId,jdbcType=BIGINT},
+			</if>
+			<if test="adress != null">
+				adress = #{adress,jdbcType=VARCHAR},
+			</if>
+			<if test="scale != null">
+				scale = #{scale,jdbcType=VARCHAR},
+			</if>
+			<if test="code != null">
+				code = #{code,jdbcType=VARCHAR},
+			</if>
+			<if test="logo != null">
+				logo = #{logo,jdbcType=VARCHAR},
+			</if>
+			<if test="contacts != null">
+				contacts = #{contacts,jdbcType=VARCHAR},
+			</if>
+			<if test="contactsMobile != null">
+				contactsMobile = #{contactsMobile,jdbcType=VARCHAR},
+			</if>
+			<if test="isHide != null">
+				isHide = #{isHide,jdbcType=INTEGER},
+			</if>
+			<if test="longitude != null">
+				longitude = #{longitude,jdbcType=DOUBLE},
+			</if>
+			<if test="latitude != null">
+				latitude = #{latitude,jdbcType=DOUBLE},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceId != null">
+				provinceId = #{provinceId,jdbcType=INTEGER},
+			</if>
+			<if test="cityId != null">
+				cityId = #{cityId,jdbcType=INTEGER},
+			</if>
+			<if test="provinceName != null">
+				provinceName = #{provinceName,jdbcType=VARCHAR},
+			</if>
+			<if test="cityName != null">
+				cityName = #{cityName,jdbcType=VARCHAR},
+			</if>
+			<if test="areaName != null">
+				areaName = #{areaName,jdbcType=VARCHAR},
+			</if>
+			<if test="managerId != null">
+				managerId = #{managerId,jdbcType=BIGINT},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppCompany">
+		update t_app_company
+		set name = #{name,jdbcType=VARCHAR},
+		create_time = #{create_time,jdbcType=BIGINT},
+		status = #{status,jdbcType=INTEGER},
+		areaId = #{areaId,jdbcType=BIGINT},
+		adress = #{adress,jdbcType=VARCHAR},
+		scale = #{scale,jdbcType=VARCHAR},
+		code = #{code,jdbcType=VARCHAR},
+		logo = #{logo,jdbcType=VARCHAR},
+		contacts = #{contacts,jdbcType=VARCHAR},
+		contactsMobile = #{contactsMobile,jdbcType=VARCHAR},
+		isHide = #{isHide,jdbcType=INTEGER},
+		longitude = #{longitude,jdbcType=DOUBLE},
+		latitude = #{latitude,jdbcType=DOUBLE},
+		creator = #{creator,jdbcType=VARCHAR},
+		provinceId = #{provinceId,jdbcType=INTEGER},
+		cityId = #{cityId,jdbcType=INTEGER},
+		provinceName = #{provinceName,jdbcType=VARCHAR},
+		cityName = #{cityName,jdbcType=VARCHAR},
+		areaName = #{areaName,jdbcType=VARCHAR},
+		managerId = #{managerId,jdbcType=BIGINT}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

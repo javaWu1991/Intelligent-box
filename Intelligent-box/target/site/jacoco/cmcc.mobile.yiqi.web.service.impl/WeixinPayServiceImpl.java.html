@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WeixinPayServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">WeixinPayServiceImpl.java</span></div><h1>WeixinPayServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
+import cmcc.mobile.yiqi.utils.ClientCustomSSL;
+import cmcc.mobile.yiqi.utils.CommonUtil;
+import cmcc.mobile.yiqi.utils.ConfigUtil;
+import cmcc.mobile.yiqi.utils.Constants;
+import cmcc.mobile.yiqi.utils.HttpUtil;
+import cmcc.mobile.yiqi.utils.PayCommonUtil;
+import cmcc.mobile.yiqi.utils.RandomNumUtil;
+import cmcc.mobile.yiqi.utils.XMLUtil;
+import cmcc.mobile.yiqi.vo.Product;
+import com.alipay.demo.trade.utils.ZxingUtils;
+import cmcc.mobile.yiqi.web.service.IWeixinPayService;
+import weixin.popular.api.SnsAPI;
+@Service
+<span class="nc" id="L28">public class WeixinPayServiceImpl implements IWeixinPayService {</span>
+<span class="nc" id="L29">	private static final Logger logger = LoggerFactory.getLogger(WeixinPayServiceImpl.class);</span>
+	
+	private static final String notify_url = &quot;&quot;;
+
+	private static final String server_url = &quot;&quot;;
+	@Autowired
+	private IntelligentBoxMapper intelligentBoxMapper ;
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	@Override
+	public String weixinPay2(Product product) {
+<span class="nc" id="L39">		logger.info(&quot;订单号：{}生成微信支付码&quot;,product.getOutTradeNo());</span>
+<span class="nc" id="L40">		String  message = Constants.SUCCESS;</span>
+		try {
+<span class="nc" id="L42">			String imgPath= Constants.QRCODE_PATH+Constants.SF_FILE_SEPARATOR+product.getOutTradeNo()+&quot;.png&quot;;</span>
+			// 账号信息
+<span class="nc" id="L44">			String key = ConfigUtil.API_KEY; // key</span>
+<span class="nc" id="L45">			String trade_type = &quot;NATIVE&quot;;// 交易类型 原生扫码支付</span>
+<span class="nc" id="L46">			SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L47">			ConfigUtil.commonParams(packageParams);</span>
+<span class="nc" id="L48">			packageParams.put(&quot;product_id&quot;, product.getProductId());// 商品ID</span>
+<span class="nc" id="L49">			packageParams.put(&quot;body&quot;, product.getBody());// 商品描述</span>
+<span class="nc" id="L50">			packageParams.put(&quot;out_trade_no&quot;, product.getOutTradeNo());// 商户订单号</span>
+<span class="nc" id="L51">			String totalFee = product.getTotalFee();</span>
+<span class="nc" id="L52">			totalFee =  CommonUtil.subZeroAndDot(totalFee);</span>
+<span class="nc" id="L53">			packageParams.put(&quot;total_fee&quot;, totalFee);// 总金额</span>
+<span class="nc" id="L54">			packageParams.put(&quot;spbill_create_ip&quot;, product.getSpbillCreateIp());// 发起人IP地址</span>
+<span class="nc" id="L55">			packageParams.put(&quot;notify_url&quot;, notify_url);// 回调地址</span>
+<span class="nc" id="L56">			packageParams.put(&quot;trade_type&quot;, trade_type);// 交易类型</span>
+<span class="nc" id="L57">			String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, key);</span>
+<span class="nc" id="L58">			packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+
+<span class="nc" id="L60">			String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L61">			String resXml = HttpUtil.postData(ConfigUtil.UNIFIED_ORDER_URL, requestXML);</span>
+<span class="nc" id="L62">			Map map = XMLUtil.doXMLParse(resXml);</span>
+<span class="nc" id="L63">			String returnCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">			if(&quot;SUCCESS&quot;.equals(returnCode)){</span>
+<span class="nc" id="L65">				String resultCode = (String) map.get(&quot;result_code&quot;);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">				if(&quot;SUCCESS&quot;.equals(resultCode)){</span>
+<span class="nc" id="L67">					logger.info(&quot;订单号：{}生成微信支付码成功&quot;,product.getOutTradeNo());</span>
+<span class="nc" id="L68">					String urlCode = (String) map.get(&quot;code_url&quot;);</span>
+<span class="nc" id="L69">					ConfigUtil.shorturl(urlCode);//转换为短链接</span>
+<span class="nc" id="L70">					ZxingUtils.getQRCodeImge(urlCode, 256, imgPath);// 生成二维码</span>
+<span class="nc" id="L71">				}else{</span>
+<span class="nc" id="L72">					String errCodeDes = (String) map.get(&quot;err_code_des&quot;);</span>
+<span class="nc" id="L73">					logger.info(&quot;订单号：{}生成微信支付码(系统)失败:{}&quot;,product.getOutTradeNo(),errCodeDes);</span>
+<span class="nc" id="L74">					message = Constants.FAIL;</span>
+				}
+<span class="nc" id="L76">			}else{</span>
+<span class="nc" id="L77">				String returnMsg = (String) map.get(&quot;return_msg&quot;);</span>
+<span class="nc" id="L78">				logger.info(&quot;(订单号：{}生成微信支付码(通信)失败:{}&quot;,product.getOutTradeNo(),returnMsg);</span>
+<span class="nc" id="L79">				message = Constants.FAIL;</span>
+			}
+<span class="nc" id="L81">		} catch (Exception e) {</span>
+<span class="nc" id="L82">			logger.error(&quot;订单号：{}生成微信支付码失败(系统异常))&quot;,product.getOutTradeNo(),e);</span>
+<span class="nc" id="L83">			message = Constants.FAIL;</span>
+<span class="nc" id="L84">		}</span>
+<span class="nc" id="L85">		return message;</span>
+	}
+	@Override
+	public void weixinPay1(Product product) {
+		//商户支付回调URL设置指引：进入公众平台--&gt;微信支付--&gt;开发配置--&gt;扫码支付--&gt;修改 加入回调URL
+		//注意参数初始化 这只是个Demo
+<span class="nc" id="L91">		SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+		//封装通用参数
+<span class="nc" id="L93">		ConfigUtil.commonParams(packageParams);</span>
+<span class="nc" id="L94">		packageParams.put(&quot;product_id&quot;, product.getProductId());//真实商品ID</span>
+<span class="nc" id="L95">		packageParams.put(&quot;time_stamp&quot;, PayCommonUtil.getCurrTime());</span>
+		//生成签名
+<span class="nc" id="L97">		String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, ConfigUtil.API_KEY);</span>
+		//组装二维码信息(注意全角和半角：的区别 狗日的腾讯)
+<span class="nc" id="L99">    	StringBuffer qrCode = new StringBuffer();</span>
+<span class="nc" id="L100">    	qrCode.append(&quot;weixin://wxpay/bizpayurl?&quot;);</span>
+<span class="nc" id="L101">    	qrCode.append(&quot;appid=&quot;+ConfigUtil.APP_ID);</span>
+<span class="nc" id="L102">    	qrCode.append(&quot;&amp;mch_id=&quot;+ConfigUtil.MCH_ID);</span>
+<span class="nc" id="L103">    	qrCode.append(&quot;&amp;nonce_str=&quot;+packageParams.get(&quot;nonce_str&quot;));</span>
+<span class="nc" id="L104">    	qrCode.append(&quot;&amp;product_id=&quot;+product.getProductId());</span>
+<span class="nc" id="L105">    	qrCode.append(&quot;&amp;time_stamp=&quot;+packageParams.get(&quot;time_stamp&quot;));</span>
+<span class="nc" id="L106">    	qrCode.append(&quot;&amp;sign=&quot;+sign);</span>
+<span class="nc" id="L107">    	String imgPath= Constants.QRCODE_PATH+Constants.SF_FILE_SEPARATOR+product.getProductId()+&quot;.png&quot;;</span>
+    	//生成二维码
+<span class="nc" id="L109">        ZxingUtils.getQRCodeImge(qrCode.toString(), 256, imgPath);</span>
+<span class="nc" id="L110">	}</span>
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	@Override
+	public String weixinRefund(Product product) {
+<span class="nc" id="L114">		logger.info(&quot;订单号：{}微信退款&quot;,product.getOutTradeNo());</span>
+<span class="nc" id="L115">		String  message = Constants.SUCCESS;</span>
+		try {
+			// 账号信息
+<span class="nc" id="L118">			String mch_id = ConfigUtil.MCH_ID; // 商业号</span>
+<span class="nc" id="L119">			String key = ConfigUtil.API_KEY; // key</span>
+			
+<span class="nc" id="L121">			SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L122">			ConfigUtil.commonParams(packageParams);</span>
+<span class="nc" id="L123">			packageParams.put(&quot;out_trade_no&quot;, product.getOutTradeNo());// 商户订单号</span>
+<span class="nc" id="L124">			packageParams.put(&quot;out_refund_no&quot;, product.getOutTradeNo());//商户退款单号</span>
+<span class="nc" id="L125">			String totalFee = product.getTotalFee();</span>
+<span class="nc" id="L126">			totalFee =  CommonUtil.subZeroAndDot(totalFee);</span>
+<span class="nc" id="L127">			packageParams.put(&quot;total_fee&quot;, totalFee);// 总金额</span>
+<span class="nc" id="L128">			packageParams.put(&quot;refund_fee&quot;, totalFee);//退款金额</span>
+<span class="nc" id="L129">			packageParams.put(&quot;op_user_id&quot;, mch_id);//操作员帐号, 默认为商户号</span>
+<span class="nc" id="L130">			String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, key);</span>
+<span class="nc" id="L131">			packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+<span class="nc" id="L132">			String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L133">			String weixinPost = ClientCustomSSL.doRefund(ConfigUtil.REFUND_URL, requestXML).toString(); </span>
+<span class="nc" id="L134">			Map map = XMLUtil.doXMLParse(weixinPost);</span>
+<span class="nc" id="L135">			String returnCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">			if(&quot;SUCCESS&quot;.equals(returnCode)){</span>
+<span class="nc" id="L137">				String resultCode = (String) map.get(&quot;result_code&quot;);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">				if(&quot;SUCCESS&quot;.equals(resultCode)){</span>
+<span class="nc" id="L139">					logger.info(&quot;订单号：{}微信退款成功并删除二维码&quot;,product.getOutTradeNo());</span>
+				}else{
+<span class="nc" id="L141">					String errCodeDes  = (String) map.get(&quot;err_code_des&quot;);</span>
+<span class="nc" id="L142">					logger.info(&quot;订单号：{}微信退款失败:{}&quot;,product.getOutTradeNo(),errCodeDes);</span>
+<span class="nc" id="L143">					message = Constants.FAIL;</span>
+				}
+<span class="nc" id="L145">			}else{</span>
+<span class="nc" id="L146">				String returnMsg = (String) map.get(&quot;return_msg&quot;);</span>
+<span class="nc" id="L147">				logger.info(&quot;订单号：{}微信退款失败:{}&quot;,product.getOutTradeNo(),returnMsg);</span>
+<span class="nc" id="L148">				message = Constants.FAIL;</span>
+			}
+<span class="nc" id="L150">		} catch (Exception e) {</span>
+<span class="nc" id="L151">			logger.error(&quot;订单号：{}微信支付失败(系统异常)&quot;,product.getOutTradeNo(), e);</span>
+<span class="nc" id="L152">			message = Constants.FAIL;</span>
+<span class="nc" id="L153">		}</span>
+<span class="nc" id="L154">		return message;</span>
+	}
+
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	@Override
+	public String weixinCloseorder(Product product) {
+<span class="nc" id="L160">		logger.info(&quot;订单号：{}微信关闭订单&quot;,product.getOutTradeNo());</span>
+<span class="nc" id="L161">		String  message = Constants.SUCCESS;</span>
+		try {
+<span class="nc" id="L163">			String key = ConfigUtil.API_KEY; // key</span>
+<span class="nc" id="L164">			SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L165">			ConfigUtil.commonParams(packageParams);</span>
+<span class="nc" id="L166">			packageParams.put(&quot;out_trade_no&quot;, product.getOutTradeNo());// 商户订单号</span>
+<span class="nc" id="L167">			String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, key);</span>
+<span class="nc" id="L168">			packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+<span class="nc" id="L169">			String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L170">			String resXml = HttpUtil.postData(ConfigUtil.CLOSE_ORDER_URL, requestXML);</span>
+<span class="nc" id="L171">			Map map = XMLUtil.doXMLParse(resXml);</span>
+<span class="nc" id="L172">			String returnCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			if(&quot;SUCCESS&quot;.equals(returnCode)){</span>
+<span class="nc" id="L174">				String resultCode =  (String) map.get(&quot;result_code&quot;);</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				if(&quot;SUCCESS&quot;.equals(resultCode)){</span>
+<span class="nc" id="L176">					logger.info(&quot;订单号：{}微信关闭订单成功&quot;,product.getOutTradeNo());</span>
+				}else{
+<span class="nc" id="L178">					String errCode =  (String) map.get(&quot;err_code&quot;);</span>
+<span class="nc" id="L179">					String errCodeDes =  (String) map.get(&quot;err_code_des&quot;);</span>
+<span class="nc bnc" id="L180" title="All 4 branches missed.">					if(&quot;ORDERNOTEXIST&quot;.equals(errCode)||&quot;ORDERCLOSED&quot;.equals(errCode)){//订单不存在或者已经关闭</span>
+<span class="nc" id="L181">						logger.info(&quot;订单号：{}微信关闭订单:{}&quot;,product.getOutTradeNo(),errCodeDes);</span>
+					}else{
+<span class="nc" id="L183">						logger.info(&quot;订单号：{}微信关闭订单失败:{}&quot;,product.getOutTradeNo(),errCodeDes);</span>
+<span class="nc" id="L184">						message = Constants.FAIL;</span>
+					}
+				}
+<span class="nc" id="L187">			}else{</span>
+<span class="nc" id="L188">				String returnMsg = (String) map.get(&quot;return_msg&quot;);</span>
+<span class="nc" id="L189">				logger.info(&quot;订单号：{}微信关闭订单失败:{}&quot;,product.getOutTradeNo(),returnMsg);</span>
+<span class="nc" id="L190">				message = Constants.FAIL;</span>
+			}
+<span class="nc" id="L192">		} catch (Exception e) {</span>
+<span class="nc" id="L193">			logger.error(&quot;订单号：{}微信关闭订单失败(系统异常)&quot;, product.getOutTradeNo(),e);</span>
+<span class="nc" id="L194">			message = Constants.FAIL;</span>
+<span class="nc" id="L195">		}</span>
+<span class="nc" id="L196">		return message;</span>
+	}
+	/**
+	 * 商户可以通过该接口下载历史交易清单。比如掉单、系统错误等导致商户侧和微信侧数据不一致，通过对账单核对后可校正支付状态。
+		注意：
+		1、微信侧未成功下单的交易不会出现在对账单中。支付成功后撤销的交易会出现在对账单中，跟原支付单订单号一致，bill_type为REVOKED；
+		2、微信在次日9点启动生成前一天的对账单，建议商户10点后再获取；
+		3、对账单中涉及金额的字段单位为“元”。
+		
+		4、对账单接口只能下载三个月以内的账单。
+	 */
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	@Override
+	public void saveBill() {
+		try {
+<span class="nc" id="L211">			String key = ConfigUtil.API_KEY; // key</span>
+			//获取两天以前的账单
+			//String billDate = DateUtil.getBeforeDayDate(&quot;2&quot;);
+<span class="nc" id="L214">			SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L215">			ConfigUtil.commonParams(packageParams);//公用部分</span>
+<span class="nc" id="L216">			packageParams.put(&quot;bill_type&quot;, &quot;ALL&quot;);//ALL，返回当日所有订单信息，默认值SUCCESS，返回当日成功支付的订单REFUND，返回当日退款订单</span>
+			//packageParams.put(&quot;tar_type&quot;, &quot;GZIP&quot;);//压缩账单
+<span class="nc" id="L218">			packageParams.put(&quot;bill_date&quot;, &quot;20161206&quot;);//账单日期</span>
+<span class="nc" id="L219">			String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, key);</span>
+<span class="nc" id="L220">			packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+<span class="nc" id="L221">			String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L222">			String resXml = HttpUtil.postData(ConfigUtil.DOWNLOAD_BILL_URL, requestXML);</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            if(resXml.startsWith(&quot;&lt;xml&gt;&quot;)){</span>
+<span class="nc" id="L224">            	Map map = XMLUtil.doXMLParse(resXml);</span>
+<span class="nc" id="L225">    			String returnMsg = (String) map.get(&quot;return_msg&quot;);</span>
+<span class="nc" id="L226">    			logger.info(&quot;微信查询订单失败:{}&quot;,returnMsg);</span>
+			}else{
+				 //入库
+			}
+<span class="nc" id="L230">		} catch (Exception e) {</span>
+<span class="nc" id="L231">			logger.error(&quot;微信查询订单异常&quot;, e);</span>
+<span class="nc" id="L232">		}</span>
+		
+<span class="nc" id="L234">	}</span>
+	@Override
+	public String weixinPayMobile(Product product) {
+<span class="nc" id="L237">		String totalFee = product.getTotalFee();</span>
+		//redirect_uri 需要在微信支付端添加认证网址
+<span class="nc" id="L239">		totalFee =  CommonUtil.subZeroAndDot(totalFee);</span>
+<span class="nc" id="L240">		String redirect_uri = server_url+&quot;weixinMobile/dopay?outTradeNo=&quot;+product.getOutTradeNo()+&quot;&amp;totalFee=&quot;+totalFee;</span>
+		//也可以通过state传递参数 redirect_uri 后面加参数未经过验证
+<span class="nc" id="L242">		return SnsAPI.connectOauth2Authorize(ConfigUtil.APP_ID, redirect_uri, true,null);</span>
+	}
+	@SuppressWarnings(&quot;rawtypes&quot;)
+	@Override
+	public String weixinPayH5(Product product) {
+<span class="nc" id="L247">		logger.info(&quot;订单号：{}发起H5支付&quot;,product.getOutTradeNo());</span>
+<span class="nc" id="L248">		String  mweb_url = &quot;&quot;;</span>
+		try {
+			// 账号信息
+<span class="nc" id="L251">			String key = ConfigUtil.API_KEY; // key</span>
+<span class="nc" id="L252">			String trade_type = &quot;MWEB&quot;;//交易类型 H5 支付 </span>
+<span class="nc" id="L253">			SortedMap&lt;Object, Object&gt; packageParams = new TreeMap&lt;Object, Object&gt;();</span>
+<span class="nc" id="L254">			packageParams.put(&quot;appid&quot;, product.getAppId()) ;</span>
+<span class="nc" id="L255">			packageParams.put(&quot;device_info&quot;, &quot;WEB&quot;) ;</span>
+<span class="nc" id="L256">			packageParams.put(&quot;mch_id&quot;, product.getMchId()) ;</span>
+<span class="nc" id="L257">			packageParams.put(&quot;nonce_str&quot;, RandomNumUtil.getStringRandom());</span>
+<span class="nc" id="L258">			packageParams.put(&quot;product_id&quot;, product.getProductId());// 商品ID</span>
+<span class="nc" id="L259">			packageParams.put(&quot;body&quot;, &quot;小爱君商城-&quot;+product.getProductName());// 商品描述</span>
+<span class="nc" id="L260">			packageParams.put(&quot;out_trade_no&quot;, product.getOutTradeNo());// 商户订单号</span>
+<span class="nc" id="L261">			String totalFee = product.getTotalFee();</span>
+<span class="nc" id="L262">			totalFee =  CommonUtil.subZeroAndDot(totalFee);</span>
+<span class="nc" id="L263">			packageParams.put(&quot;total_fee&quot;, totalFee);// 总金额</span>
+			//H5支付要求商户在统一下单接口中上传用户真实ip地址 spbill_create_ip
+<span class="nc" id="L265">			packageParams.put(&quot;spbill_create_ip&quot;, product.getSpbillCreateIp());// 发起人IP地址</span>
+<span class="nc" id="L266">			packageParams.put(&quot;notify_url&quot;, notify_url);// 回调地址</span>
+<span class="nc" id="L267">			packageParams.put(&quot;trade_type&quot;, trade_type);// 交易类型</span>
+			//H5支付专用 
+<span class="nc" id="L269">			JSONObject value = new JSONObject();</span>
+<span class="nc" id="L270">			value.put(&quot;type&quot;, &quot;WAP&quot;);</span>
+<span class="nc" id="L271">			value.put(&quot;wap_url&quot;, &quot;https://blog.52itstyle.com&quot;);////WAP网站URL地址</span>
+<span class="nc" id="L272">			value.put(&quot;wap_name&quot;, &quot;小爱君商城&quot;);//WAP 网站名</span>
+<span class="nc" id="L273">			JSONObject scene_info = new JSONObject();</span>
+<span class="nc" id="L274">			scene_info.put(&quot;h5_info&quot;, value);</span>
+<span class="nc" id="L275">			packageParams.put(&quot;scene_info&quot;, scene_info.toString());</span>
+			
+<span class="nc" id="L277">			String sign = PayCommonUtil.createSign(&quot;UTF-8&quot;, packageParams, key);</span>
+<span class="nc" id="L278">			packageParams.put(&quot;sign&quot;, sign);// 签名</span>
+
+<span class="nc" id="L280">			String requestXML = PayCommonUtil.getRequestXml(packageParams);</span>
+<span class="nc" id="L281">			String resXml = HttpUtil.postData(ConfigUtil.UNIFIED_ORDER_URL, requestXML);</span>
+<span class="nc" id="L282">			Map map = XMLUtil.doXMLParse(resXml);</span>
+<span class="nc" id="L283">			String returnCode = (String) map.get(&quot;return_code&quot;);</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">			if(&quot;SUCCESS&quot;.equals(returnCode)){</span>
+<span class="nc" id="L285">				String resultCode = (String) map.get(&quot;result_code&quot;);</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">				if(&quot;SUCCESS&quot;.equals(resultCode)){</span>
+<span class="nc" id="L287">					logger.info(&quot;订单号：{}发起H5支付成功&quot;,product.getOutTradeNo());</span>
+<span class="nc" id="L288">					mweb_url = (String) map.get(&quot;mweb_url&quot;);</span>
+<span class="nc" id="L289">					product.setStatus(1);</span>
+				}else{
+<span class="nc" id="L291">					String errCodeDes = (String) map.get(&quot;err_code_des&quot;);</span>
+<span class="nc" id="L292">					logger.info(&quot;订单号：{}发起H5支付(系统)失败:{}&quot;,product.getOutTradeNo(),errCodeDes);</span>
+<span class="nc" id="L293">					product.setStatus(0);</span>
+				}
+<span class="nc" id="L295">			}else{</span>
+<span class="nc" id="L296">				String returnMsg = (String) map.get(&quot;return_msg&quot;);</span>
+<span class="nc" id="L297">				logger.info(&quot;(订单号：{}发起H5支付(通信)失败:{}&quot;,product.getOutTradeNo(),returnMsg);</span>
+			}
+<span class="nc" id="L299">			product.setReturnCode(returnCode);</span>
+<span class="nc" id="L300">		} catch (Exception e) {</span>
+<span class="nc" id="L301">			logger.error(&quot;订单号：{}发起H5支付失败(系统异常))&quot;,product.getOutTradeNo(),e);</span>
+<span class="nc" id="L302">		}		</span>
+<span class="nc" id="L303">		intelligentBoxMapper.insertOrder(product);</span>
+<span class="nc" id="L304">		return mweb_url;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

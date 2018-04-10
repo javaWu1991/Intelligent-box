@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppAreaMapper" >
+  <resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppArea" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parent_id" jdbcType="INTEGER" />
+   <!-- <association property="parent" javaType="cmcc.mobile.yiqi.entity.TAppArea" column="parent_id" select="selectByPrimaryKey"/> -->
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, level, name, parent_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_app_area
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_app_area
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppArea" >
+    insert into t_app_area (level, name, 
+      parent_id)
+    values (#{level,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{parent_id,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppArea" >
+    insert into t_app_area
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="parent_id != null" >
+        parent_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="parent_id != null" >
+        #{parent_id,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppArea" >
+    update t_app_area
+    <set >
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="parent_id != null" >
+        parent_id = #{parent_id,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppArea" >
+    update t_app_area
+    set level = #{level,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      parent_id = #{parent_id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!-- 省 -->
+    <select id="selectarea" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    *
+    from t_app_area
+    where level = #{level,jdbcType=INTEGER}  and status !=0
+  </select>
+  <!-- 根据传递的ID来查询市/区/县 -->
+      <select id="selectParent" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    *
+    from t_app_area
+    where parent_id = #{id,jdbcType=INTEGER} and status !=0
+  </select> 
+  <!-- 删除区域 -->
+    <update id="deletecity" parameterType="cmcc.mobile.yiqi.entity.TAppArea" >
+    update t_app_area
+    set status = 0      
+    where id = #{did,jdbcType=INTEGER}
+  </update>
+  <!-- 修改区域 -->
+ <update id="editarea" parameterType="cmcc.mobile.yiqi.entity.TAppArea" >
+    update t_app_area
+    set name = #{name,jdbcType=VARCHAR},
+    parent_id = #{parent_id,jdbcType=INTEGER}  
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!-- 根据传递的ID来查询市/区/县 -->
+      <select id="selectAreaCount" parameterType="cmcc.mobile.yiqi.entity.TAppArea" resultType="java.lang.Integer" >
+    select count(*) from t_app_area
+    where name = #{name,jdbcType=INTEGER} and status!=0
+  </select> 
+</mapper>

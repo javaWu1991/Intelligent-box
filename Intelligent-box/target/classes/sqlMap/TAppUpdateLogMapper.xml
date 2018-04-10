@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppUpdateLogMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppUpdateLog">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="file_path" property="filePath" jdbcType="VARCHAR" />
+		<result column="app_version" property="appVersion" jdbcType="INTEGER" />
+		<result column="app_show_version" property="appShowVersion"
+			jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="updater_name" property="updaterName" jdbcType="VARCHAR" />
+		<result column="is_all_update" property="isAllUpdate" jdbcType="INTEGER" />
+		<result column="update_des" property="updateDes" jdbcType="LONGVARCHAR" />
+		<result column="update_user" property="updateUser" jdbcType="LONGVARCHAR" />
+		<result column="is_gray_update" property="isGrayUpdate" jdbcType="INTEGER" />
+		<result column="app_type" property="appType" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, file_path, app_version, app_show_version, create_time,
+		updater_name,
+		is_all_update,update_des, update_user,is_gray_update,app_type
+	</sql>
+	<select id="selectNewVersionByVersion" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_update_log where app_type = #{type,jdbcType = INTEGER}
+		order by
+		app_version desc limit 0,1
+	</select>
+	
+	<select id="selectByMap" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_update_log
+		where 1 = 1
+		<if test="type != null">
+			and app_type = #{type,jdbcType = INTEGER}
+		</if>
+		<if test="version != null">
+			and app_version = #{version,jdbcType = INTEGER}
+		</if>
+		order by create_time desc limit #{startRow},#{endRow}
+	</select>
+	<select id="selectCountByMap" resultType="java.lang.Integer"
+		parameterType="java.util.Map">
+		select count(id)
+		from t_app_update_log
+		where 1 = 1
+		<if test="type != null">
+			and app_type = #{type,jdbcType = INTEGER}
+		</if>
+		<if test="version != null">
+			and app_version = #{version,jdbcType = INTEGER}
+		</if>
+		<!-- order by create_time desc limit #{startRow},#{endRow} -->
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_update_log
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		t_app_update_log
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppUpdateLog">
+		insert into t_app_update_log
+		(id, file_path, app_version,
+		app_show_version, create_time,
+		updater_name,
+		is_all_update, update_des, update_user
+		)
+		values
+		(#{id,jdbcType=BIGINT}, #{filePath,jdbcType=VARCHAR},
+		#{appVersion,jdbcType=INTEGER},
+		#{appShowVersion,jdbcType=VARCHAR},
+		#{createTime,jdbcType=BIGINT}, #{updaterName,jdbcType=VARCHAR},
+		#{isAllUpdate,jdbcType=INTEGER}, #{updateDes,jdbcType=LONGVARCHAR},
+		#{updateUser,jdbcType=LONGVARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppUpdateLog">
+		insert into t_app_update_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="filePath != null">
+				file_path,
+			</if>
+			<if test="appVersion != null">
+				app_version,
+			</if>
+			<if test="appShowVersion != null">
+				app_show_version,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updaterName != null">
+				updater_name,
+			</if>
+			<if test="isAllUpdate != null">
+				is_all_update,
+			</if>
+			<if test="updateDes != null">
+				update_des,
+			</if>
+			<if test="updateUser != null">
+				update_user,
+			</if>
+			<if test="isGrayUpdate != null">
+				is_gray_update,
+			</if>
+			<if test="appType != null">
+				app_type,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="filePath != null">
+				#{filePath,jdbcType=VARCHAR},
+			</if>
+			<if test="appVersion != null">
+				#{appVersion,jdbcType=INTEGER},
+			</if>
+			<if test="appShowVersion != null">
+				#{appShowVersion,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="updaterName != null">
+				#{updaterName,jdbcType=VARCHAR},
+			</if>
+			<if test="isAllUpdate != null">
+				#{isAllUpdate,jdbcType=INTEGER},
+			</if>
+			<if test="updateDes != null">
+				#{updateDes,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="updateUser != null">
+				#{updateUser,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="isGrayUpdate != null">
+				#{isGrayUpdate,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="appType != null">
+				#{appType,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppUpdateLog">
+		update t_app_update_log
+		<set>
+			<if test="filePath != null">
+				file_path = #{filePath,jdbcType=VARCHAR},
+			</if>
+			<if test="appVersion != null">
+				app_version = #{appVersion,jdbcType=INTEGER},
+			</if>
+			<if test="appShowVersion != null">
+				app_show_version = #{appShowVersion,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="updaterName != null">
+				updater_name = #{updaterName,jdbcType=VARCHAR},
+			</if>
+			<if test="isAllUpdate != null">
+				is_all_update = #{isAllUpdate,jdbcType=INTEGER},
+			</if>
+			<if test="updateDes != null">
+				update_des = #{updateDes,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="updateUser != null">
+				update_user = #{updateUser,jdbcType=LONGVARCHAR},
+			</if>	
+			<if test="isGrayUpdate != null">
+				is_gray_update = #{isGrayUpdate,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="appType != null">
+				app_type = #{appType,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKeyWithBLOBs" parameterType="cmcc.mobile.yiqi.entity.TAppUpdateLog">
+		update
+		t_app_update_log
+		set file_path = #{filePath,jdbcType=VARCHAR},
+		app_version = #{appVersion,jdbcType=INTEGER},
+		app_show_version =
+		#{appShowVersion,jdbcType=VARCHAR},
+		create_time =
+		#{createTime,jdbcType=BIGINT},
+		updater_name =
+		#{updaterName,jdbcType=VARCHAR},
+		is_all_update =
+		#{isAllUpdate,jdbcType=INTEGER},
+		update_des =
+		#{updateDes,jdbcType=LONGVARCHAR},
+		update_user =
+		#{updateUser,jdbcType=LONGVARCHAR}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppUpdateLog">
+		update
+		t_app_update_log
+		set file_path = #{filePath,jdbcType=VARCHAR},
+		app_version = #{appVersion,jdbcType=INTEGER},
+		app_show_version =
+		#{appShowVersion,jdbcType=VARCHAR},
+		create_time =
+		#{createTime,jdbcType=BIGINT},
+		updater_name =
+		#{updaterName,jdbcType=VARCHAR},
+		is_all_update =
+		#{isAllUpdate,jdbcType=INTEGER}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

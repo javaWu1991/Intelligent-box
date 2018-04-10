@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AreaController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.controller</a> &gt; <span class="el_source">AreaController.java</span></div><h1>AreaController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.controller;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import cmcc.mobile.yiqi.base.BaseController;
+import cmcc.mobile.yiqi.entity.TAppArea;
+import cmcc.mobile.yiqi.entity.dao.TAppAreaMapper;
+import cmcc.mobile.yiqi.utils.JsonResult;
+
+/**
+ * 
+ * @author wubj
+ *
+ */
+@Controller
+@RequestMapping(&quot;/web/city&quot;)
+<span class="nc" id="L24">public class AreaController extends BaseController {</span>
+	@Autowired
+	TAppAreaMapper tAppAreaMapper;
+	
+	/**
+	 * 新增省市区
+	 */
+	@RequestMapping(&quot;/addcity&quot;)
+	@ResponseBody
+	public JsonResult addcity(String name, int parent_id, int level) {
+<span class="nc bnc" id="L34" title="All 4 branches missed.">		if (StringUtils.isNotEmpty(name) &amp;&amp; StringUtils.isNotEmpty(Integer.toString(level))) {</span>
+<span class="nc" id="L35">			TAppArea appArea = new TAppArea();</span>
+<span class="nc" id="L36">			appArea.setLevel(level);</span>
+<span class="nc" id="L37">			appArea.setName(name);</span>
+<span class="nc" id="L38">			appArea.setParent_id(parent_id);</span>
+<span class="nc" id="L39">			int count = tAppAreaMapper.selectAreaCount(appArea) ;</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">			if(count!=0){</span>
+<span class="nc" id="L41">				return new JsonResult(false, &quot;该区域已经存在&quot;, null);</span>
+			}
+<span class="nc" id="L43">			tAppAreaMapper.insertSelective(appArea);</span>
+<span class="nc" id="L44">		} else {</span>
+<span class="nc" id="L45">			return new JsonResult(false, &quot;参数错误&quot;, null);</span>
+		}
+<span class="nc" id="L47">		return new JsonResult(true, &quot;新增成功&quot;, null);</span>
+	}
+
+	/**
+	 * 修改省市区
+	 */
+	@RequestMapping(&quot;/editcity&quot;)
+	@ResponseBody
+	public JsonResult editcity(TAppArea appArea) {
+<span class="nc bnc" id="L56" title="All 4 branches missed.">		if ( null != appArea.getId() &amp;&amp; StringUtils.isNotEmpty(appArea.getName())) {</span>
+<span class="nc" id="L57">			tAppAreaMapper.updateByPrimaryKeySelective(appArea);</span>
+		} else {
+<span class="nc" id="L59">			return new JsonResult(false, &quot;参数错误&quot;, null);</span>
+		}
+
+<span class="nc" id="L62">		return new JsonResult(true, &quot;修改成功&quot;, null);</span>
+	}
+
+	/**
+	 * 删除省市区
+	 */
+	@RequestMapping(&quot;/deletecity&quot;)
+	@ResponseBody
+	public JsonResult deletecity(Long id) {
+<span class="nc" id="L71">		Long did = id ;</span>
+<span class="nc" id="L72">		tAppAreaMapper.deletecity(did) ;</span>
+<span class="nc" id="L73">		return new JsonResult(true, &quot;删除成功&quot;, null);</span>
+	}
+
+	/**
+	 * 省市区三级联动
+	 */
+	@RequestMapping(&quot;/arealist&quot;)
+	@ResponseBody
+	public JsonResult arealist(Integer id) {
+<span class="nc bnc" id="L82" title="All 4 branches missed.">		if (null != id &amp;&amp; StringUtils.isNotEmpty(id.toString())) {</span>
+<span class="nc" id="L83">			List&lt;TAppArea&gt; tAppArea = tAppAreaMapper.selectParent(id);</span>
+<span class="nc" id="L84">			return new JsonResult(true, &quot;查询成功&quot;, tAppArea);</span>
+		} else {
+<span class="nc" id="L86">			return new JsonResult(false, &quot;参数错误&quot;, null);</span>
+		}
+
+	}
+
+	/**
+	 * 省市区list
+	 */
+	@RequestMapping(&quot;/areaview&quot;)
+	@ResponseBody
+	public JsonResult areaview(Integer level) {
+		// 获取省
+<span class="nc" id="L98">		List&lt;TAppArea&gt; list = tAppAreaMapper.selectarea(level);</span>
+
+<span class="nc" id="L100">		return new JsonResult(true, &quot;查询成功&quot;, list);</span>
+
+	}
+
+	/**
+	 * 省市区页面
+	 */
+	@RequestMapping(&quot;/area&quot;)
+	public ModelAndView area(Integer level) {
+<span class="nc" id="L109">		ModelAndView view = new ModelAndView(&quot;common/area&quot;);</span>
+		// 省
+<span class="nc" id="L111">		List&lt;TAppArea&gt; list = tAppAreaMapper.selectarea(level);</span>
+<span class="nc" id="L112">		view.addObject(&quot;apparea&quot;, list);</span>
+
+<span class="nc" id="L114">		return view;</span>
+	}
+
+
+	/**
+	 * 区域管理员页面
+	 */
+	@RequestMapping(&quot;/areaAdmin&quot;)
+	public ModelAndView areaadmin(String cid) {
+<span class="nc" id="L123">		ModelAndView view = new ModelAndView(&quot;system/areaAdmin&quot;);</span>
+<span class="nc" id="L124">		return view;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

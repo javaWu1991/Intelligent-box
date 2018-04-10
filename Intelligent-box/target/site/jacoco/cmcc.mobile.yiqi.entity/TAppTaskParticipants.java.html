@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TAppTaskParticipants.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.entity</a> &gt; <span class="el_source">TAppTaskParticipants.java</span></div><h1>TAppTaskParticipants.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.entity;
+
+public class TAppTaskParticipants {
+    private Long id;
+    
+    private Long uid;
+
+	private Long taskid;
+
+    private String participants;
+
+    private Integer readtype;
+
+    private String message;
+
+    private Integer ownertype;
+    
+	private Integer finishType;
+	
+	private String fileurl;
+	
+    private Integer canceltype;
+    
+<span class="nc" id="L24">    public TAppTaskParticipants(){}</span>
+    
+    public Long getId() {
+<span class="nc" id="L27">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="nc" id="L31">        this.id = id;</span>
+<span class="nc" id="L32">    }</span>
+    
+    public Long getUid() {
+<span class="nc" id="L35">		return uid;</span>
+	}
+
+	public void setUid(Long uid) {
+<span class="nc" id="L39">		this.uid = uid;</span>
+<span class="nc" id="L40">	}</span>
+    
+    public Long getTaskid() {
+<span class="nc" id="L43">        return taskid;</span>
+    }
+
+    public void setTaskid(Long taskid) {
+<span class="nc" id="L47">        this.taskid = taskid;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getParticipants() {
+<span class="nc" id="L51">        return participants;</span>
+    }
+
+    public void setParticipants(String participants) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        this.participants = participants == null ? null : participants.trim();</span>
+<span class="nc" id="L56">    }</span>
+
+    public Integer getReadtype() {
+<span class="nc" id="L59">        return readtype;</span>
+    }
+
+    public void setReadtype(Integer readtype) {
+<span class="nc" id="L63">        this.readtype = readtype;</span>
+<span class="nc" id="L64">    }</span>
+
+    public String getMessage() {
+<span class="nc" id="L67">        return message;</span>
+    }
+
+    public void setMessage(String message) {
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        this.message = message == null ? null : message.trim();</span>
+<span class="nc" id="L72">    }</span>
+
+    public Integer getOwnerType() {
+<span class="nc" id="L75">        return ownertype;</span>
+    }
+
+    public void setOwnerType(Integer ownerType) {
+<span class="nc" id="L79">        this.ownertype = ownerType;</span>
+<span class="nc" id="L80">    }</span>
+	public Integer getFinishType() {
+<span class="nc" id="L82">		return finishType;</span>
+	}
+
+	public void setFinishType(Integer finishType) {
+<span class="nc" id="L86">		this.finishType = finishType;</span>
+<span class="nc" id="L87">	}</span>
+
+	public String getFileurl() {
+<span class="nc" id="L90">		return fileurl;</span>
+	}
+
+	public void setFileurl(String fileurl) {
+<span class="nc" id="L94">		this.fileurl = fileurl;</span>
+<span class="nc" id="L95">	}</span>
+
+	public Integer getCanceltype() {
+<span class="nc" id="L98">		return canceltype;</span>
+	}
+
+	public void setCanceltype(Integer canceltype) {
+<span class="nc" id="L102">		this.canceltype = canceltype;</span>
+<span class="nc" id="L103">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

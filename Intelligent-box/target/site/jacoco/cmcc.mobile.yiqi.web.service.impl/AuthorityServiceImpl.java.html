@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AuthorityServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">AuthorityServiceImpl.java</span></div><h1>AuthorityServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cmcc.mobile.yiqi.entity.SysResource;
+import cmcc.mobile.yiqi.entity.SysRole;
+import cmcc.mobile.yiqi.entity.SysUseRole;
+import cmcc.mobile.yiqi.entity.dao.SysResourceMapper;
+import cmcc.mobile.yiqi.entity.dao.SysRoleMapper;
+import cmcc.mobile.yiqi.entity.dao.SysUseRoleMapper;
+import cmcc.mobile.yiqi.utils.ShiroUtil;
+import cmcc.mobile.yiqi.web.service.IAuthorityService;
+
+@Service
+<span class="fc" id="L20">public class AuthorityServiceImpl implements IAuthorityService {</span>
+
+	@Autowired
+	SysUseRoleMapper sysUseRoleMapper;
+
+	@Autowired
+	SysRoleMapper sysRoleMapper;
+
+	@Autowired
+	SysResourceMapper sysResourceMapper;
+
+	@Override
+	public Set&lt;String&gt; getRoleIdentify(Integer uid, Integer cid) {
+<span class="nc" id="L33">		List&lt;SysRole&gt; sysroles = sysRoleMapper.byUidCid(uid, cid);</span>
+<span class="nc" id="L34">		Set&lt;String&gt; roles = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		for (SysRole sysRole : sysroles) {</span>
+<span class="nc" id="L36">			roles.add(sysRole.getRole());</span>
+<span class="nc" id="L37">		}</span>
+<span class="nc" id="L38">		return roles;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; getRoleIdentify(Integer rid) {
+<span class="nc" id="L43">		SysRole role = sysRoleMapper.selectByPrimaryKey(Long.parseLong(rid.toString()));</span>
+<span class="nc" id="L44">		Set&lt;String&gt; roles = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L45">		roles.add(role.getRole());</span>
+<span class="nc" id="L46">		return roles;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; getPermission(Integer uid, Integer cid) {
+<span class="nc" id="L51">		List&lt;SysRole&gt; sysroles = sysRoleMapper.byUidCid(uid, cid);</span>
+<span class="nc" id="L52">		String resourcesId = &quot;&quot;;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		for (SysRole sysRole : sysroles) {</span>
+<span class="nc" id="L54">			resourcesId += sysRole.getResource_ids() + &quot;,&quot;;</span>
+<span class="nc" id="L55">		}</span>
+<span class="nc" id="L56">		Set&lt;String&gt; resourcesSet = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (resourcesId.indexOf(&quot;,&quot;) != -1) {</span>
+<span class="nc" id="L58">			resourcesId = resourcesId.substring(0, resourcesId.length() - 1);</span>
+<span class="nc" id="L59">			List&lt;SysResource&gt; resources = sysResourceMapper.byIds(resourcesId);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">			for (SysResource sysResource : resources) {</span>
+<span class="nc" id="L61">				resourcesSet.add(sysResource.getPermission());</span>
+<span class="nc" id="L62">			}</span>
+		}
+<span class="nc" id="L64">		return resourcesSet;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; getPermission(Integer rid) {
+<span class="nc" id="L69">		SysRole role = sysRoleMapper.selectByPrimaryKey(Long.parseLong(rid.toString()));</span>
+<span class="nc" id="L70">		Set&lt;String&gt; resourcesSet = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L71">		String resourcesId = role.getResource_ids();</span>
+//		if (resourcesId.lastIndexOf(&quot;,&quot;) != -1) {
+//			resourcesId = resourcesId.substring(0, resourcesId.length() - 1);
+//		}
+<span class="nc" id="L75">		List&lt;SysResource&gt; resources = sysResourceMapper.byIds(resourcesId);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		for (SysResource sysResource : resources) {</span>
+<span class="nc" id="L77">			resourcesSet.add(sysResource.getPermission());</span>
+<span class="nc" id="L78">		}</span>
+<span class="nc" id="L79">		return resourcesSet;</span>
+	}
+
+	@Override
+	public List&lt;SysResource&gt; getAllResource() {
+<span class="nc" id="L84">		return sysResourceMapper.queryAll();</span>
+	}
+
+	@Override
+	public List&lt;SysRole&gt; getAllRole() {
+<span class="nc" id="L89">		return sysRoleMapper.quetyAll();</span>
+
+	}
+
+	@Override
+	public void addRole(SysRole sysRole) {
+<span class="nc" id="L95">		sysRoleMapper.insertSelective(sysRole);</span>
+<span class="nc" id="L96">		ShiroUtil.clearAllCache();</span>
+<span class="nc" id="L97">	}</span>
+
+	@Override
+	public void updateRole(SysRole sysRole) {
+<span class="nc" id="L101">		sysRoleMapper.updateByPrimaryKeySelective(sysRole);</span>
+<span class="nc" id="L102">		ShiroUtil.clearAllCache();</span>
+<span class="nc" id="L103">	}</span>
+
+	@Override
+	public void deleteRole(Long id) {
+<span class="nc" id="L107">		sysRoleMapper.deleteByPrimaryKey(id);</span>
+<span class="nc" id="L108">		ShiroUtil.clearAllCache();</span>
+<span class="nc" id="L109">	}</span>
+
+	@Override
+	public void addUserRole(SysUseRole sysUseRole) {
+<span class="nc" id="L113">		sysUseRoleMapper.insertForUpdate(sysUseRole);</span>
+<span class="nc" id="L114">	}</span>
+
+	@Override
+	public void updateUserRole(String roleId, Integer cid, Integer uid) {
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		if (cid == null) {</span>
+<span class="nc" id="L119">			cid = 0;</span>
+		}
+<span class="nc" id="L121">		sysUseRoleMapper.deleteByUidCid(uid, cid);</span>
+<span class="nc" id="L122">		String[] roleIds = roleId.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		for (String string : roleIds) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">			if (string.length() &gt; 0) {</span>
+<span class="nc" id="L125">				addUserRole(new SysUseRole(uid, cid, Integer.valueOf(string)));</span>
+			}
+		}
+<span class="nc" id="L128">	}</span>
+
+	@Override
+	public void deleteUserRole(Integer id) {
+<span class="nc" id="L132">		sysUseRoleMapper.deleteByPrimaryKey(id);</span>
+<span class="nc" id="L133">	}</span>
+
+	@Override
+	public void deleteUserRoleByUidCidRid(String roleId, Integer cid, Integer uid) {
+<span class="nc" id="L137">		sysUseRoleMapper.deleteUserRoleByUidCidRid(roleId, cid, uid);</span>
+<span class="nc" id="L138">	}</span>
+
+	
+	@Override
+	public List&lt;SysUseRole&gt; getUserRoleByUidCid(Integer uid, Integer cid) {
+<span class="nc" id="L143">		return sysUseRoleMapper.byUidCid(uid, cid);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

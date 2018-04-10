@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UpdateSpecialProvider.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.entity.tkMapper.impl</a> &gt; <span class="el_source">UpdateSpecialProvider.java</span></div><h1>UpdateSpecialProvider.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014-2016 abel533@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package cmcc.mobile.yiqi.entity.tkMapper.impl;
+
+import org.apache.ibatis.mapping.MappedStatement;
+import tk.mybatis.mapper.entity.EntityColumn;
+import tk.mybatis.mapper.entity.EntityTable;
+import tk.mybatis.mapper.mapperhelper.EntityHelper;
+import tk.mybatis.mapper.mapperhelper.MapperHelper;
+import tk.mybatis.mapper.mapperhelper.MapperTemplate;
+import tk.mybatis.mapper.mapperhelper.SqlHelper;
+
+import java.util.Set;
+
+/**
+ * SpecialProvider实现类，特殊方法实现类
+ *
+ * @author zzw
+ */
+public class UpdateSpecialProvider extends MapperTemplate {
+
+    public UpdateSpecialProvider(Class&lt;?&gt; mapperClass, MapperHelper mapperHelper) {
+<span class="fc" id="L45">        super(mapperClass, mapperHelper);</span>
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * 批量插入
+     *
+     * @param ms
+     */
+    public String insertListOnDuplicateUpdate(MappedStatement ms) {
+<span class="nc" id="L54">        final Class&lt;?&gt; entityClass = getEntityClass(ms);</span>
+        //开始拼sql
+<span class="nc" id="L56">        StringBuilder sql = new StringBuilder();</span>
+<span class="nc" id="L57">        sql.append(SqlHelper.insertIntoTable(entityClass, tableName(entityClass)));</span>
+<span class="nc" id="L58">        sql.append(SqlHelper.insertColumns(entityClass, true, false, false));</span>
+<span class="nc" id="L59">        sql.append(&quot; VALUES &quot;);</span>
+<span class="nc" id="L60">        sql.append(&quot;&lt;foreach collection=\&quot;list\&quot; item=\&quot;record\&quot; separator=\&quot;,\&quot; &gt;&quot;);</span>
+<span class="nc" id="L61">        sql.append(&quot;&lt;trim prefix=\&quot;(\&quot; suffix=\&quot;)\&quot; suffixOverrides=\&quot;,\&quot;&gt;&quot;);</span>
+        //获取全部列
+<span class="nc" id="L63">        Set&lt;EntityColumn&gt; columnList = EntityHelper.getColumns(entityClass);</span>
+        //当某个列有主键策略时，不需要考虑他的属性是否为空，因为如果为空，一定会根据主键策略给他生成一个值
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (EntityColumn column : columnList) {</span>
+<span class="nc bnc" id="L66" title="All 4 branches missed.">            if (!column.isId() &amp;&amp; column.isInsertable()) {</span>
+<span class="nc" id="L67">                sql.append(column.getColumnHolder(&quot;record&quot;) + &quot;,&quot;);</span>
+            }
+<span class="nc" id="L69">        }</span>
+<span class="nc" id="L70">        sql.append(&quot;&lt;/trim&gt;&quot;);</span>
+<span class="nc" id="L71">        sql.append(&quot;&lt;/foreach&gt;&quot;);</span>
+<span class="nc" id="L72">        sql.append(&quot;  &quot;);</span>
+<span class="nc" id="L73">        sql.append(&quot;ON DUPLICATE KEY UPDATE  &quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (EntityColumn column : columnList) {</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">            if (!column.isId() &amp;&amp; column.isInsertable()) {</span>
+<span class="nc" id="L76">                sql.append(column.getColumn());</span>
+<span class="nc" id="L77">                sql.append(&quot; = &quot;);</span>
+<span class="nc" id="L78">                sql.append(&quot;VALUES(&quot;);</span>
+<span class="nc" id="L79">                sql.append(column.getColumn());</span>
+<span class="nc" id="L80">                sql.append(&quot;),&quot;);</span>
+            }
+<span class="nc" id="L82">        }</span>
+<span class="nc" id="L83">        sql.setLength(sql.length()-1);</span>
+<span class="nc" id="L84">        return sql.toString();</span>
+    }
+
+    /**
+     * 插入，主键id，自增
+     *
+     * @param ms
+     */
+    public String insertUseGeneratedKeys(MappedStatement ms) {
+<span class="nc" id="L93">        final Class&lt;?&gt; entityClass = getEntityClass(ms);</span>
+        //开始拼sql
+<span class="nc" id="L95">        StringBuilder sql = new StringBuilder();</span>
+<span class="nc" id="L96">        sql.append(SqlHelper.insertIntoTable(entityClass, tableName(entityClass)));</span>
+<span class="nc" id="L97">        sql.append(SqlHelper.insertColumns(entityClass, true, false, false));</span>
+<span class="nc" id="L98">        sql.append(SqlHelper.insertValuesColumns(entityClass, true, false, false));</span>
+<span class="nc" id="L99">        return sql.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TAppCompany.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.entity</a> &gt; <span class="el_source">TAppCompany.java</span></div><h1>TAppCompany.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.entity;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import cmcc.mobile.yiqi.vo.AppOrganizationVo;
+
+<span class="nc" id="L9">public class TAppCompany implements Serializable {</span>
+	/**
+	* 
+	*/
+	private static final long serialVersionUID = -7516972828996885646L;
+	// 失效
+<span class="nc" id="L15">	public final static Integer LAPSE = 0;</span>
+	// 有效
+<span class="nc" id="L17">	public final static Integer VALID = 1;</span>
+	// 待审核
+<span class="nc" id="L19">	public final static Integer UNDETERMINED = 2;</span>
+	// 已删除
+<span class="nc" id="L21">	public final static Integer DELETED = 3;</span>
+
+<span class="nc" id="L23">	public final static Integer NOHIDE = 0;</span>
+
+<span class="nc" id="L25">	public final static Integer HIDE = 1;</span>
+
+	private Long id;
+
+	private String name;
+
+	private Long create_time;
+
+	private Integer status;
+
+	private Long areaId;
+
+	private String adress;
+
+	private String scale;
+
+	private String code;
+
+	private String logo;
+
+	private String contacts;
+
+	private String contactsMobile;
+
+	private Integer isHide;
+
+	private Double longitude;
+
+	private Double latitude;
+
+	private String creator;
+
+	private Integer provinceId;
+
+	private Integer cityId;
+
+	private String provinceName;
+
+	private String cityName;
+
+	private String areaName;
+
+	private Long managerId;
+
+	private String orgId;
+
+	private String orgName;
+
+	private String emails;
+
+	private String shortNum;
+	
+	private Long roleId;
+	
+	private String appId ;
+	
+	private String mchId ;
+	
+	
+
+	public String getAppId() {
+<span class="nc" id="L86">		return appId;</span>
+	}
+
+	public void setAppId(String appId) {
+<span class="nc" id="L90">		this.appId = appId;</span>
+<span class="nc" id="L91">	}</span>
+
+	public String getMchId() {
+<span class="nc" id="L94">		return mchId;</span>
+	}
+
+	public void setMchId(String mchId) {
+<span class="nc" id="L98">		this.mchId = mchId;</span>
+<span class="nc" id="L99">	}</span>
+
+	public Long getRoleId() {
+<span class="nc" id="L102">		return roleId;</span>
+	}
+
+	public void setRoleId(Long roleId) {
+<span class="nc" id="L106">		this.roleId = roleId;</span>
+<span class="nc" id="L107">	}</span>
+
+	public String getShortNum() {
+<span class="nc" id="L110">		return shortNum;</span>
+	}
+
+	public void setShortNum(String shortNum) {
+<span class="nc" id="L114">		this.shortNum = shortNum;</span>
+<span class="nc" id="L115">	}</span>
+
+	public String getEmails() {
+<span class="nc" id="L118">		return emails;</span>
+	}
+
+	public void setEmails(String emails) {
+<span class="nc" id="L122">		this.emails = emails;</span>
+<span class="nc" id="L123">	}</span>
+
+<span class="nc" id="L125">	private List&lt;TAppPosition&gt; positions = new ArrayList&lt;&gt;();// 公司职位列表</span>
+
+<span class="nc" id="L127">	private List&lt;AppOrganizationVo&gt; organizations = new ArrayList&lt;&gt;();</span>
+
+	public String getOrgId() {
+<span class="nc" id="L130">		return orgId;</span>
+	}
+
+	public void setOrgId(String orgId) {
+<span class="nc" id="L134">		this.orgId = orgId;</span>
+<span class="nc" id="L135">	}</span>
+
+	public String getOrgName() {
+<span class="nc" id="L138">		return orgName;</span>
+	}
+
+	public void setOrgName(String orgName) {
+<span class="nc" id="L142">		this.orgName = orgName;</span>
+<span class="nc" id="L143">	}</span>
+
+	public List&lt;TAppPosition&gt; getPositions() {
+<span class="nc" id="L146">		return positions;</span>
+	}
+
+	public void setPositions(List&lt;TAppPosition&gt; positions) {
+<span class="nc" id="L150">		this.positions = positions;</span>
+<span class="nc" id="L151">	}</span>
+
+	public List&lt;AppOrganizationVo&gt; getOrganizations() {
+<span class="nc" id="L154">		return organizations;</span>
+	}
+
+	public void setOrganizations(List&lt;AppOrganizationVo&gt; organizations) {
+<span class="nc" id="L158">		this.organizations = organizations;</span>
+<span class="nc" id="L159">	}</span>
+
+	public Long getId() {
+<span class="nc" id="L162">		return id;</span>
+	}
+
+	public void setId(Long id) {
+<span class="nc" id="L166">		this.id = id;</span>
+<span class="nc" id="L167">	}</span>
+
+	public String getName() {
+<span class="nc" id="L170">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">		this.name = name == null ? null : name.trim();</span>
+<span class="nc" id="L175">	}</span>
+
+	public Long getCreate_time() {
+<span class="nc" id="L178">		return create_time;</span>
+	}
+
+	public void setCreate_time(Long create_time) {
+<span class="nc" id="L182">		this.create_time = create_time;</span>
+<span class="nc" id="L183">	}</span>
+
+	public Integer getStatus() {
+<span class="nc" id="L186">		return status;</span>
+	}
+
+	public void setStatus(Integer status) {
+<span class="nc" id="L190">		this.status = status;</span>
+<span class="nc" id="L191">	}</span>
+
+	public Long getAreaId() {
+<span class="nc" id="L194">		return areaId;</span>
+	}
+
+	public void setAreaId(Long areaId) {
+<span class="nc" id="L198">		this.areaId = areaId;</span>
+<span class="nc" id="L199">	}</span>
+
+	public String getAdress() {
+<span class="nc" id="L202">		return adress;</span>
+	}
+
+	public void setAdress(String adress) {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">		this.adress = adress == null ? null : adress.trim();</span>
+<span class="nc" id="L207">	}</span>
+
+	public String getScale() {
+<span class="nc" id="L210">		return scale;</span>
+	}
+
+	public void setScale(String scale) {
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		this.scale = scale == null ? null : scale.trim();</span>
+<span class="nc" id="L215">	}</span>
+
+	public String getCode() {
+<span class="nc" id="L218">		return code;</span>
+	}
+
+	public void setCode(String code) {
+<span class="nc bnc" id="L222" title="All 2 branches missed.">		this.code = code == null ? null : code.trim();</span>
+<span class="nc" id="L223">	}</span>
+
+	public String getLogo() {
+<span class="nc" id="L226">		return logo;</span>
+	}
+
+	public void setLogo(String logo) {
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		this.logo = logo == null ? null : logo.trim();</span>
+<span class="nc" id="L231">	}</span>
+
+	public String getContacts() {
+<span class="nc" id="L234">		return contacts;</span>
+	}
+
+	public void setContacts(String contacts) {
+<span class="nc bnc" id="L238" title="All 2 branches missed.">		this.contacts = contacts == null ? null : contacts.trim();</span>
+<span class="nc" id="L239">	}</span>
+
+	public String getContactsMobile() {
+<span class="nc" id="L242">		return contactsMobile;</span>
+	}
+
+	public void setContactsMobile(String contactsMobile) {
+<span class="nc bnc" id="L246" title="All 2 branches missed.">		this.contactsMobile = contactsMobile == null ? null : contactsMobile.trim();</span>
+<span class="nc" id="L247">	}</span>
+
+	public Integer getIsHide() {
+<span class="nc" id="L250">		return isHide;</span>
+	}
+
+	public void setIsHide(Integer isHide) {
+<span class="nc" id="L254">		this.isHide = isHide;</span>
+<span class="nc" id="L255">	}</span>
+
+	public Double getLongitude() {
+<span class="nc" id="L258">		return longitude;</span>
+	}
+
+	public void setLongitude(Double longitude) {
+<span class="nc" id="L262">		this.longitude = longitude;</span>
+<span class="nc" id="L263">	}</span>
+
+	public Double getLatitude() {
+<span class="nc" id="L266">		return latitude;</span>
+	}
+
+	public void setLatitude(Double latitude) {
+<span class="nc" id="L270">		this.latitude = latitude;</span>
+<span class="nc" id="L271">	}</span>
+
+	public String getCreator() {
+<span class="nc" id="L274">		return creator;</span>
+	}
+
+	public void setCreator(String creator) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		this.creator = creator == null ? null : creator.trim();</span>
+<span class="nc" id="L279">	}</span>
+
+	public Integer getProvinceId() {
+<span class="nc" id="L282">		return provinceId;</span>
+	}
+
+	public void setProvinceId(Integer provinceId) {
+<span class="nc" id="L286">		this.provinceId = provinceId;</span>
+<span class="nc" id="L287">	}</span>
+
+	public Integer getCityId() {
+<span class="nc" id="L290">		return cityId;</span>
+	}
+
+	public void setCityId(Integer cityId) {
+<span class="nc" id="L294">		this.cityId = cityId;</span>
+<span class="nc" id="L295">	}</span>
+
+	public String getProvinceName() {
+<span class="nc" id="L298">		return provinceName;</span>
+	}
+
+	public void setProvinceName(String provinceName) {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">		this.provinceName = provinceName == null ? null : provinceName.trim();</span>
+<span class="nc" id="L303">	}</span>
+
+	public String getCityName() {
+<span class="nc" id="L306">		return cityName;</span>
+	}
+
+	public void setCityName(String cityName) {
+<span class="nc bnc" id="L310" title="All 2 branches missed.">		this.cityName = cityName == null ? null : cityName.trim();</span>
+<span class="nc" id="L311">	}</span>
+
+	public String getAreaName() {
+<span class="nc" id="L314">		return areaName;</span>
+	}
+
+	public void setAreaName(String areaName) {
+<span class="nc bnc" id="L318" title="All 2 branches missed.">		this.areaName = areaName == null ? null : areaName.trim();</span>
+<span class="nc" id="L319">	}</span>
+
+	public Long getManagerId() {
+<span class="nc" id="L322">		return managerId;</span>
+	}
+
+	public void setManagerId(Long managerId) {
+<span class="nc" id="L326">		this.managerId = managerId;</span>
+<span class="nc" id="L327">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

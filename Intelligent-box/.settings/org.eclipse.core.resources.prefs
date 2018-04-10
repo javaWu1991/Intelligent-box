@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/resources/dev/Sms.properties=UTF-8
+encoding//src/main/resources/product/Sms.properties=UTF-8
+encoding//src/main/resources/product/info.properties=UTF-8
+encoding//src/main/resources/product/message.properties=UTF-8
+encoding//src/main/resources/product/mysql.properties=UTF-8
+encoding//src/main/resources/test/Sms.properties=UTF-8
+encoding//src/main/resources/test/info.properties=UTF-8
+encoding//src/main/resources/test/message.properties=UTF-8
+encoding//src/main/resources/test/mysql.properties=UTF-8
+encoding//src/test/java=UTF-8

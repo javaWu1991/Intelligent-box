@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EnterpriseServiceMenuController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.controller</a> &gt; <span class="el_source">EnterpriseServiceMenuController.java</span></div><h1>EnterpriseServiceMenuController.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cmcc.mobile.yiqi.entity.TAppEnterpriseServiceNumber;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.web.service.IAppEnterpriseServiceNumberService;
+
+@Controller
+@RequestMapping(&quot;fmenu&quot;)
+<span class="nc" id="L18">public class EnterpriseServiceMenuController {</span>
+
+	@Autowired
+	private IAppEnterpriseServiceNumberService servicemessage;
+	
+	
+	/**
+	 * 根据父菜单的ID查询结果，并返回
+	 * @param fMenu
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/select/{fMenu:\\d+}/{sid:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody            
+	public JsonResult getfMenu( @PathVariable Long fMenu,@PathVariable Long sid){
+		
+<span class="nc" id="L33">		List&lt;TAppEnterpriseServiceNumber&gt; servicemenu=servicemessage.selectByFMenuKey(fMenu, sid);</span>
+
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if(servicemenu!=null){</span>
+<span class="nc" id="L36">			return new JsonResult(true, &quot;查询成功&quot;, servicemenu);</span>
+		}else
+<span class="nc" id="L38">			return new JsonResult(true, &quot;error&quot;, null);</span>
+		
+	}
+	
+	/*
+	 * 根据菜单所处的等级进行查询
+	 * 
+	 */
+	
+	@RequestMapping(value = &quot;/find/{level:\\d+}/{sid:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody            
+	public JsonResult getLevel( @PathVariable Long level, @PathVariable Long sid){
+		
+<span class="nc" id="L51">		List&lt;TAppEnterpriseServiceNumber&gt; servicemenu=servicemessage.selectByInnLevelKey(level, sid);</span>
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		if(servicemenu!=null){</span>
+<span class="nc" id="L54">			return new JsonResult(true, &quot;查询成功&quot;, servicemenu);</span>
+		}else
+<span class="nc" id="L56">			return new JsonResult(true, &quot;error&quot;, null);		</span>
+	}
+	
+	/**
+	 * 插入数据，post的方法
+	 * @param record
+	 * @return
+	 */
+	@RequestMapping(value = &quot;/insert&quot;, method = RequestMethod.POST)
+	@ResponseBody            
+	public JsonResult insertMenu(TAppEnterpriseServiceNumber record){
+<span class="nc" id="L67">		int serviceinsert=0;</span>
+<span class="nc" id="L68">	     serviceinsert=servicemessage.insert(record);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">          if(serviceinsert!=0){</span>
+<span class="nc" id="L70">			return new JsonResult(true, &quot;插入成功&quot;, serviceinsert);</span>
+          }else{
+        	  
+<span class="nc" id="L73">  			return new JsonResult(true, &quot;插入数据错误&quot;, serviceinsert);</span>
+
+          }
+		
+	}
+	/*
+	 * 更新数据
+	 */
+	@RequestMapping(value = &quot;/update&quot;, method = RequestMethod.POST)
+	@ResponseBody            
+	public JsonResult updateMenu(TAppEnterpriseServiceNumber record){
+<span class="nc" id="L84">		int  serviceupdate=0;</span>
+<span class="nc" id="L85">	  serviceupdate=servicemessage.updateByPrimaryKey(record);</span>
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		if(serviceupdate!=0){</span>
+<span class="nc" id="L88">			return new JsonResult(true, &quot;更新成功&quot;, serviceupdate);</span>
+		}else{
+<span class="nc" id="L90">			return new JsonResult(true, &quot;更新数据错误&quot;, serviceupdate);</span>
+
+		}
+		
+	}
+	/*
+	 * 删除数据，根据菜单的id进行删除
+	 */
+	@RequestMapping(value = &quot;/delete/{id:\\d+}&quot;, method = RequestMethod.GET)
+	@ResponseBody            
+	public JsonResult deleteMenu(@PathVariable Long id){
+		
+<span class="nc" id="L102">	   int  deleteNumber=servicemessage.deleteBylevelKey(id);</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">	   if(deleteNumber==1){</span>
+<span class="nc" id="L105">			return new JsonResult(true, &quot;删除成功&quot;, deleteNumber);</span>
+		}else{
+<span class="nc" id="L107">			return new JsonResult(true, &quot;删除数据失败&quot;, deleteNumber);</span>
+
+		}
+	}
+	
+	/*
+	 * 删除数据，根据菜单的id进行删除POST方法
+	 */
+	@RequestMapping(value = &quot;/delete&quot;, method = RequestMethod.POST)
+	@ResponseBody            
+	public JsonResult deleteMenus( Long id){
+		
+<span class="nc" id="L119">	   int  deleteNumber=servicemessage.deleteBylevelKey(id);</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">	   if(deleteNumber==1){</span>
+<span class="nc" id="L122">			return new JsonResult(true, &quot;删除成功&quot;, deleteNumber);</span>
+		}else{
+<span class="nc" id="L124">			return new JsonResult(true, &quot;删除数据失败&quot;, deleteNumber);</span>
+
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

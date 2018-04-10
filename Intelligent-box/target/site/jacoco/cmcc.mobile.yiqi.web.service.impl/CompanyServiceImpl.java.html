@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CompanyServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">CompanyServiceImpl.java</span></div><h1>CompanyServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.entity.SysUseRole;
+import cmcc.mobile.yiqi.entity.TAppArea;
+import cmcc.mobile.yiqi.entity.TAppCompany;
+import cmcc.mobile.yiqi.entity.TAppPosition;
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.TAppUserCompany;
+import cmcc.mobile.yiqi.entity.dao.TAppAreaMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppCompanyMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppPositionMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserCompanyMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserMapper;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.PageHelper;
+import cmcc.mobile.yiqi.utils.RandomUtil;
+import cmcc.mobile.yiqi.vo.AppOrganizationVo;
+import cmcc.mobile.yiqi.vo.PageVo;
+import cmcc.mobile.yiqi.web.service.IAppOrganizationService;
+import cmcc.mobile.yiqi.web.service.IAppUserServices;
+import cmcc.mobile.yiqi.web.service.IAuthorityService;
+import cmcc.mobile.yiqi.web.service.ICompanyService;
+
+/**
+ * 
+ * @author zzw 有关公司的各种操作
+ */
+
+@Service(&quot;companyService&quot;)
+<span class="nc" id="L41">public class CompanyServiceImpl implements ICompanyService {</span>
+
+	@Autowired
+	private TAppCompanyMapper tAppCompanyMapper;
+	@Autowired
+	private TAppUserCompanyMapper tAppUserCompanyMapper;
+	@Autowired
+	private TAppUserMapper tAppUserMapper;
+	@Autowired
+	private IAppUserServices appUserServices;
+
+	@Autowired
+	private TAppPositionMapper positionMapper;
+
+	@Autowired
+	private IAppOrganizationService organizationService;
+
+	@Autowired
+	private IAuthorityService authorityService;
+
+	@Autowired
+	private TAppAreaMapper tAppAreaMapper;
+
+	/**
+	 * 增加公司 公司表增加记录 关联表增加记录
+	 * 
+	 * @param companyCode
+	 *            TODO
+	 */
+	@Override
+	public void addCompany(String account, TAppCompany company, String tpassword, String tname) {
+
+<span class="nc" id="L73">		company.setCreate_time(new Date().getTime());</span>
+<span class="nc" id="L74">		company.setStatus(TAppCompany.VALID);</span>
+<span class="nc" id="L75">		company.setCode(RandomUtil.createRandomCharData(6));</span>
+<span class="nc" id="L76">		company.setCreator(account);</span>
+<span class="nc" id="L77">		company.setIsHide(0);// 设置企业默认高管模式为不生效</span>
+<span class="nc" id="L78">		tAppCompanyMapper.insert(company);</span>
+<span class="nc" id="L79">		TAppUserCompany tAppUserCompany = new TAppUserCompany();</span>
+<span class="nc" id="L80">		tAppUserCompany.setCid(company.getId());</span>
+		// tAppUserCompany.setUid(userId);
+<span class="nc" id="L82">		tAppUserCompany.setAccount(account);</span>
+<span class="nc" id="L83">		tAppUserCompany.setStatus(TAppUserCompany.VALID);</span>
+<span class="nc" id="L84">		tAppUserCompany.setType(TAppUserCompany.COMMON_ADMIN);</span>
+<span class="nc" id="L85">		tAppUserCompanyMapper.insert(tAppUserCompany);</span>
+<span class="nc bnc" id="L86" title="All 6 branches missed.">		if (tpassword != null &amp;&amp; tname != null &amp;&amp; account != null) {</span>
+<span class="nc" id="L87">			appUserServices.apiRegister(tname, account, tpassword, null, true);</span>
+<span class="nc" id="L88">			TAppUser user = tAppUserMapper.selectByAccount(account);</span>
+<span class="nc" id="L89">			authorityService.addUserRole(new SysUseRole(Integer.valueOf(user.getId().toString()), Integer.valueOf(company.getId().toString()),</span>
+					SysUseRole.COMPANY_MANAGER));
+			//
+<span class="nc" id="L92">			user.setStatus(Constants.USER_CAN_USE);</span>
+<span class="nc" id="L93">			user.setPassword(null);</span>
+<span class="nc" id="L94">			tAppUserMapper.updateByPrimaryKeySelective(user);</span>
+		}
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		if (tname != null) {</span>
+<span class="nc" id="L97">			TAppUser tAppUser = tAppUserMapper.selectByAccount(account);</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">			if (StringUtils.isNotEmpty(tAppUser.getName()) &amp;&amp; tAppUser.getName().equals(account)) {</span>
+<span class="nc" id="L99">				tAppUser.setName(tname);</span>
+			}
+<span class="nc" id="L101">			tAppUser.setStatus(Constants.USER_CAN_USE);</span>
+<span class="nc" id="L102">			tAppUser.setPassword(null);</span>
+<span class="nc" id="L103">			tAppUserMapper.updateByPrimaryKeySelective(tAppUser);</span>
+<span class="nc" id="L104">			authorityService.addUserRole(new SysUseRole(Integer.valueOf(tAppUser.getId().toString()), Integer.valueOf(company.getId().toString()),</span>
+					SysUseRole.COMPANY_MANAGER));
+		}
+<span class="nc" id="L107">	}</span>
+
+	/**
+	 * 删除公司 根据userid获取该userid可管理的所有公司，若需要删除的公司在该列表内则删除
+	 */
+	public void deleteCompany(Long userId, Long companyId) {
+<span class="nc" id="L113">		TAppUser tAppUser = tAppUserMapper.selectByPrimaryKey(userId);</span>
+<span class="nc" id="L114">		List&lt;TAppUserCompany&gt; tAppUserCompanies = tAppUserCompanyMapper.selectByAccountAndType(tAppUser.getAccount(), null, null, null);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		for (TAppUserCompany tAppUserCompany : tAppUserCompanies) {</span>
+<span class="nc bnc" id="L116" title="All 6 branches missed.">			if (tAppUserCompany.getType().equals(TAppUserCompany.SUPER_ADMIN) || tAppUserCompany.getCid().equals(companyId)</span>
+					|| tAppUserCompany.getType().equals(TAppUserCompany.SUPER_ADMIN)) {
+<span class="nc" id="L118">				TAppCompany tAppCompany = new TAppCompany();</span>
+<span class="nc" id="L119">				tAppCompany.setId(companyId);</span>
+<span class="nc" id="L120">				tAppCompany.setStatus(TAppCompany.DELETED);</span>
+<span class="nc" id="L121">				updateCompany(userId, tAppCompany);</span>
+				// tAppCompanyMapper.deleteByPrimaryKey(companyId);
+				// tAppUserCompanyMapper.deleteByCid(companyId);
+<span class="nc bnc" id="L124" title="All 4 branches missed.">				if (tAppUserCompany.getCid() != null &amp;&amp; tAppUserCompany.getCid() &gt; 0) {</span>
+<span class="nc" id="L125">					tAppUserCompany.setStatus(TAppUserCompany.DELETED);</span>
+<span class="nc" id="L126">					tAppUserCompanyMapper.updateByPrimaryKeySelective(tAppUserCompany);</span>
+				}
+				break;
+			}
+<span class="nc" id="L130">		}</span>
+<span class="nc" id="L131">	}</span>
+
+	/**
+	 * 更新公司信息 只需传需要更新字段
+	 */
+	public boolean updateCompany(Long userId, TAppCompany tAppCompany) {
+		// 如果要判断数据权限，要考虑超级管理员，还要考虑区域管理员，比较麻烦，先放一放
+		// boolean status = false;
+		// TAppUser tAppUser = tAppUserMapper.selectByPrimaryKey(userId);
+		// List&lt;TAppUserCompany&gt; tAppUserCompanies =
+		// tAppUserCompanyMapper.selectByAccountAndType(tAppUser.getAccount(),
+		// null, null, null);
+		// for (TAppUserCompany tAppUserCompany : tAppUserCompanies) {
+		// if (tAppUserCompany.getCid() == null ||
+		// tAppUserCompany.getCid().equals(tAppCompany.getId())) {
+		// int i = tAppCompanyMapper.updateByPrimaryKeySelective(tAppCompany);
+		// status = i == 1 ? true : false;
+		// break;
+		// }
+		// }
+		// return status;
+
+<span class="nc" id="L153">		boolean status = false;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		if (!isAllow(userId, tAppCompany.getId())) {</span>
+<span class="nc" id="L155">			return status;</span>
+		}
+<span class="nc" id="L157">		TAppUser tAppUser = tAppUserMapper.selectByPrimaryKey(userId);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if (null != tAppUser) {</span>
+<span class="nc" id="L159">			int i = tAppCompanyMapper.updateByPrimaryKeySelective(tAppCompany);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">			status = i == 1 ? true : false;</span>
+		}
+<span class="nc" id="L162">		return status;</span>
+	}
+
+	/**
+	 * 查询user可管理的公司
+	 */
+	@Override
+	public List&lt;TAppCompany&gt; getCompany(Long userId, String name, Object areaId, PageVo pagevo) {
+<span class="nc" id="L170">		String areaIds = &quot;&quot;;</span>
+<span class="nc" id="L171">		List&lt;TAppArea&gt; areas = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		if (areaId != null) {</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			for (String string : areaId.toString().split(&quot;,&quot;)) {</span>
+<span class="nc" id="L174">				areas.addAll(tAppAreaMapper.byDeepId(Integer.valueOf(string), 5));</span>
+			}
+<span class="nc bnc" id="L176" title="All 2 branches missed.">			for (TAppArea tAppArea : areas) {</span>
+<span class="nc" id="L177">				areaIds = areaIds + tAppArea.getId() + &quot;,&quot;;</span>
+<span class="nc" id="L178">			}</span>
+<span class="nc" id="L179">			areaIds = areaIds.substring(0, areaIds.length() - 1);</span>
+		}
+<span class="nc" id="L181">		PageHelper.startPage(pagevo);</span>
+<span class="nc" id="L182">		Subject subject = SecurityUtils.getSubject();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		if (subject.hasRole(SysUseRole.ADMIN_MANAGER_ROLE)) {</span>
+<span class="nc" id="L184">			return tAppCompanyMapper.selectUnDeleteCompany(null, null, name);</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">		} else if (subject.hasRole(SysUseRole.AREA_MANAGER_ROLE)) {</span>
+<span class="nc" id="L186">			return tAppCompanyMapper.selectUnDeleteCompany(null, areaIds, name);</span>
+		} 
+<span class="nc" id="L188">			TAppUser appUser = appUserServices.selectByPrimaryKey(userId);</span>
+<span class="nc" id="L189">			return tAppCompanyMapper.selectUnDeleteCompany(Long.valueOf(appUser.getAccount()), null, name);</span>
+	}
+
+	/**
+	 * 根据名称查询公司
+	 * 
+	 * @param pageSize
+	 * @param pageNo
+	 * @param type
+	 */
+	public List&lt;TAppUserCompany&gt; getCompanyByUid(Long userId, String name, PageVo pageVo) {
+<span class="nc" id="L200">		TAppUser tAppUser = tAppUserMapper.selectByPrimaryKey(userId);</span>
+<span class="nc" id="L201">		pageVo.setTotalCountAndPageTotal(tAppUserCompanyMapper.selectCountByName(tAppUser.getAccount(), name));</span>
+<span class="nc" id="L202">		List&lt;TAppUserCompany&gt; tAppUserCompanies = tAppUserCompanyMapper.selectByName(tAppUser.getAccount(), name, pageVo.getStartRow(),</span>
+				pageVo.getEndRow());
+<span class="nc" id="L204">		return tAppUserCompanies;</span>
+	}
+
+	@Override
+	public JsonResult getByCode(String code) {
+<span class="nc" id="L209">		TAppCompany company = tAppCompanyMapper.byCode(code);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">		if (null != company) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">			if (company.getStatus() == Constants.COMPANY_WAIT_VALIDATE) {</span>
+<span class="nc" id="L212">				return new JsonResult(false, &quot;企业审核中！&quot;, null);</span>
+			}
+<span class="nc bnc" id="L214" title="All 2 branches missed.">			if (company.getStatus() == Constants.COMPANY_DELETED) {</span>
+<span class="nc" id="L215">				return new JsonResult(false, &quot;企业已删除！&quot;, null);</span>
+			}
+<span class="nc bnc" id="L217" title="All 2 branches missed.">			if (company.getStatus() == Constants.COMPANY_CANT_USE) {</span>
+<span class="nc" id="L218">				return new JsonResult(false, &quot;企业已禁用！&quot;, null);</span>
+			}
+<span class="nc" id="L220">			List&lt;TAppPosition&gt; list = positionMapper.selectAllByCid(Integer.parseInt(company.getId().toString()));</span>
+<span class="nc" id="L221">			List&lt;AppOrganizationVo&gt; organizations = organizationService.selectAllOrganization(company.getId());</span>
+<span class="nc" id="L222">			company.setOrganizations(organizations);</span>
+<span class="nc" id="L223">			company.setPositions(list);</span>
+<span class="nc" id="L224">			return new JsonResult(true, &quot;&quot;, company);</span>
+		}
+<span class="nc" id="L226">		return new JsonResult(false, &quot;企业编码不存在！&quot;, null);</span>
+	}
+
+	@Override
+	public List&lt;TAppCompany&gt; selectCompanyByAreaId(Integer areaId) {
+
+<span class="nc" id="L232">		List&lt;TAppArea&gt; areas = tAppAreaMapper.byDeepId(areaId, 5);</span>
+<span class="nc" id="L233">		String areaIds = &quot;&quot;;</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		for (TAppArea tAppArea : areas) {</span>
+<span class="nc" id="L235">			areaIds = areaIds + tAppArea.getId() + &quot;,&quot;;</span>
+<span class="nc" id="L236">		}</span>
+<span class="nc" id="L237">		areaIds = areaIds.substring(0, areaIds.length() - 1);</span>
+<span class="nc" id="L238">		return tAppCompanyMapper.getCompanyByAreaIds(areaIds);</span>
+	}
+
+	/**
+	 * 查询公司里的所有user
+	 */
+	public List&lt;TAppUser&gt; getUserByCid(Long cid) {
+<span class="nc" id="L245">		return tAppUserCompanyMapper.selectByCid(cid, null);</span>
+	}
+
+	public TAppCompany selectByPrimaryKey(Long id) {
+<span class="nc" id="L249">		return tAppCompanyMapper.selectByPrimaryKey(id);</span>
+	}
+
+	private boolean isAllow(Long uid, Long cid) {
+<span class="nc" id="L253">		TAppUser tAppUser = tAppUserMapper.selectByPrimaryKey(uid);</span>
+<span class="nc" id="L254">		Subject subject = SecurityUtils.getSubject();</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">		if (subject.hasRole(SysUseRole.ADMIN_MANAGER_ROLE)) {</span>
+<span class="nc" id="L256">			return true;</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">		} else if (subject.hasRole(SysUseRole.AREA_MANAGER_ROLE)) {</span>
+<span class="nc" id="L258">			List&lt;TAppCompany&gt; tAppCompanies = tAppCompanyMapper.selectUnDeleteCompany(null,</span>
+					tAppUserCompanyMapper.getAreaId(tAppUser.getAccount()).toString(), null);
+<span class="nc bnc" id="L260" title="All 2 branches missed.">			for (TAppCompany tAppCompany : tAppCompanies) {</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">				if (tAppCompany.getId().equals(cid)) {</span>
+<span class="nc" id="L262">					return true;</span>
+				}
+<span class="nc" id="L264">			}</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">		} else if (subject.hasRole(SysUseRole.CUSTOMER_MANAGER_ROLE)) {</span>
+<span class="nc" id="L266">			TAppCompany tAppCompany = tAppCompanyMapper.byAccount(tAppUser.getAccount());</span>
+<span class="nc" id="L267">			return tAppCompany.getId().equals(cid);</span>
+		}
+<span class="nc" id="L269">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

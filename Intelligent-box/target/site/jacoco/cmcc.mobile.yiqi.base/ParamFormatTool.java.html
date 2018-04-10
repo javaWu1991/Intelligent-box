@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ParamFormatTool.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.base</a> &gt; <span class="el_source">ParamFormatTool.java</span></div><h1>ParamFormatTool.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.base;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+/**
+ * @Describe:参数格式判断工具
+ */
+<span class="nc" id="L8">public class ParamFormatTool {</span>
+
+	/**
+	 * 判断手机号码的格式是否正确
+	 */
+	public static boolean isFormatPhoneNo(String phoneNo) {
+<span class="nc bnc" id="L14" title="All 6 branches missed.">		if (phoneNo != null &amp;&amp; phoneNo.startsWith(&quot;1&quot;) &amp;&amp; phoneNo.length() == 11) {</span>
+<span class="nc" id="L15">			Pattern pattern = Pattern.compile(&quot;^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$&quot;);</span>
+<span class="nc" id="L16">			Matcher matcher = pattern.matcher(phoneNo);</span>
+<span class="nc" id="L17">			return matcher.matches();</span>
+		} else {
+<span class="nc" id="L19">			return false;</span>
+		}
+	}
+
+	/**
+	 * 判断用户姓名的格式是否正确
+	 */
+	public static boolean isFormatUserName(String userName) {
+<span class="nc bnc" id="L27" title="All 4 branches missed.">		if (userName != null &amp;&amp; userName.length() != 0) {</span>
+<span class="nc" id="L28">			return true;</span>
+		} else {
+<span class="nc" id="L30">			return false;</span>
+		}
+	}
+
+	/**
+	 * 判断用户身份证的格式是否正确
+	 */
+	public static boolean isFormatIdCard(String idCard) {
+<span class="nc bnc" id="L38" title="All 6 branches missed.">		if (idCard != null &amp;&amp; (idCard.length() == 18 || idCard.length() == 15)) {</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">			if (idCard.length()==15){</span>
+<span class="nc" id="L40">				Pattern pattern = Pattern.compile(&quot;[\\d]{15}&quot;);</span>
+<span class="nc" id="L41">				Matcher matcher = pattern.matcher(idCard);</span>
+<span class="nc" id="L42">				return matcher.matches();</span>
+			}else{
+<span class="nc" id="L44">				Pattern pattern = Pattern.compile(&quot;[\\d]{17}[\\d|X]&quot;);</span>
+<span class="nc" id="L45">				Matcher matcher = pattern.matcher(idCard);</span>
+<span class="nc" id="L46">				return matcher.matches();</span>
+			}
+		} else {
+<span class="nc" id="L49">			return false;</span>
+		}
+	}
+
+	/**
+	 * 判断地址的格式是否正确
+	 */
+	public static boolean isFormatAddress(String address) {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (address == null) {</span>
+<span class="nc" id="L58">			return false;</span>
+		} else {
+			//[\\w|[\\u4E00-\\u9FA5]]*?省[\\w|[\u4E00-\u9FA5]]*?市[\\w|[\u4E00-\u9FA5]]*?[县|区][\\w|[\u4E00-\u9FA5]]*?路[\\w|[\u4E00-\u9FA5]]*
+<span class="nc" id="L61">			Pattern p = Pattern.compile(&quot;[\\w|[\u4E00-\u9FA5]]*?市[\\w|[\u4E00-\u9FA5]]*?[县|区][\\w|[\u4E00-\u9FA5]]*&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="nc" id="L62">			Matcher m = p.matcher(address);</span>
+<span class="nc" id="L63">			return m.find();</span>
+		}
+	}
+	
+	/**
+	 * 判断姓名列表的格式是否正确
+	 */
+	public static boolean isFormatNameList(List&lt;String&gt; nameList) {
+<span class="nc bnc" id="L71" title="All 4 branches missed.">		if (nameList == null||nameList.size()==0) {</span>
+<span class="nc" id="L72">			return false;</span>
+		} else {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			for(String name : nameList){</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">				if(name==null||name.equals(&quot;&quot;)){</span>
+<span class="nc" id="L76">					return false;</span>
+				}
+<span class="nc" id="L78">			}</span>
+<span class="nc" id="L79">			return true;</span>
+		}
+	}
+	
+	/**
+	 * 判断地址坐标的格式是否正确
+	 * 验证规则比较简单，有待优化
+	 */
+	public static boolean isFormatAddrCoordinate(String coordinate) {
+<span class="nc" id="L88">		Pattern pattern = Pattern.compile(&quot;[\\d]+[.][\\d]{1,6}[,][\\d]+[.][\\d]{1,6}&quot;);</span>
+<span class="nc" id="L89">		Matcher matcher = pattern.matcher(coordinate);</span>
+<span class="nc" id="L90">		return matcher.matches();</span>
+	}
+	
+	/**
+	 * 判断日期格式是否为yyyyMMdd
+	 * @param args
+	 */
+	public static boolean isYYYYMMDD(String date){
+<span class="nc" id="L98">		Pattern pattern = Pattern.compile(&quot;[\\d]{4}([0][1-9]|[1][0-2])([0][1-9]|[1-2][\\d]|[3][0-1])&quot;);</span>
+<span class="nc" id="L99">		Matcher matcher = pattern.matcher(date);</span>
+<span class="nc" id="L100">		return matcher.matches();</span>
+	}
+	
+	/**
+	 * 判断日期格式是否为yyyy-MM-dd HH:mm:ss
+	 * @param args
+	 */
+	public static boolean isYYYY_MM_DD_HH_MM_SS(String date){
+<span class="nc" id="L108">		Pattern pattern = Pattern.compile(&quot;[\\d]{4}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][\\d]|[3][0-1]) (([0-1][0-9])|2[0-3]):[0-5][0-9]:[0-5][0-9]&quot;);</span>
+<span class="nc" id="L109">		Matcher matcher = pattern.matcher(date);</span>
+<span class="nc" id="L110">		return matcher.matches();</span>
+	}
+	
+	/**
+	 * 判断日期格式是否为yyyy-MM-dd
+	 * @param args
+	 */
+	public static boolean isYYYY_MM_DD(String date){
+<span class="nc" id="L118">		Pattern pattern = Pattern.compile(&quot;[\\d]{4}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][\\d]|[3][0-1])&quot;);</span>
+<span class="nc" id="L119">		Matcher matcher = pattern.matcher(date);</span>
+<span class="nc" id="L120">		return matcher.matches();</span>
+	}
+	
+	/**
+	 * 判断日期格式是否为yyyy-MM
+	 * @param args
+	 */
+	public static boolean isYYYY_MM(String date){
+<span class="nc" id="L128">		Pattern pattern = Pattern.compile(&quot;[\\d]{4}-([0][1-9]|[1][0-2])&quot;);</span>
+<span class="nc" id="L129">		Matcher matcher = pattern.matcher(date);</span>
+<span class="nc" id="L130">		return matcher.matches();</span>
+	}
+	
+	/**
+	 * 判断日期格式是否为yyyy
+	 * @param args
+	 */
+	public static boolean isYYYY(String date){
+<span class="nc" id="L138">		Pattern pattern = Pattern.compile(&quot;[\\d]{4}&quot;);</span>
+<span class="nc" id="L139">		Matcher matcher = pattern.matcher(date);</span>
+<span class="nc" id="L140">		return matcher.matches();</span>
+	}
+	
+	/**
+	 * 判断日期格式是否为yyyyMMddhhmmss,
+	 * 并非完全准确，比如2月20号，输出为true
+	 * @param args
+	 */
+	public static boolean isYYYYMMDDHHMISS(String date){
+<span class="nc" id="L149">		Pattern pattern = Pattern.compile(&quot;[\\d]{4}([0][1-9]|[1][0-2])([0][1-9]|[1-2][\\d]|[3][0-1])([0-1][\\d]|[2][0-3])([0-5][\\d])([0-5][\\d])&quot;);</span>
+<span class="nc" id="L150">		Matcher matcher = pattern.matcher(date);</span>
+<span class="nc" id="L151">		return matcher.matches();</span>
+	}
+
+	public static void main(String args[]) {
+		//System.out.println(isFormatAddress(&quot;浙江省杭州市西湖区环城北路杭州大酒店&quot;));
+/*		List&lt;String&gt; nameList = new ArrayList&lt;String&gt;();
+		nameList.add(&quot;jack&quot;);
+		System.out.println(nameList.size());
+		System.out.println(isFormatNameList(nameList));*/
+		//Scanner sc = new Scanner(System.in);
+		//String input = sc.next();
+		//System.out.println(isYYYYMMDD(input));
+<span class="nc" id="L163">		String input = &quot;2015-12-31 00:12:26&quot;;</span>
+<span class="nc" id="L164">		System.out.println(isYYYY_MM_DD_HH_MM_SS(input));</span>
+		
+<span class="nc" id="L166">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

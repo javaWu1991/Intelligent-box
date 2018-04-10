@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AreaServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">AreaServiceImpl.java</span></div><h1>AreaServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.TAppUserCompany;
+import cmcc.mobile.yiqi.entity.TAppUserOrg;
+import cmcc.mobile.yiqi.entity.dao.TAppAreaMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserCompanyMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserOrgMapper;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.vo.AppUserVo;
+import cmcc.mobile.yiqi.web.service.IAuthorityService;
+import cmcc.mobile.yiqi.web.service.TAppAreaService;
+
+@Service
+<span class="nc" id="L26">public class AreaServiceImpl implements TAppAreaService {</span>
+
+	@Autowired
+	TAppAreaMapper areaMapper;
+	@Autowired
+	private TAppUserMapper appUserMapper;
+	@Autowired
+	private TAppUserOrgMapper appUserOrgMapper;
+
+	@Autowired
+	private TAppUserCompanyMapper appUserCompanyMapper;
+
+	@Autowired
+	private IAuthorityService authorityService;
+
+	// 修改区域管理员
+	@Override
+	public JsonResult updateCompany(AppUserVo recond) {
+
+<span class="nc" id="L45">		TAppUser user = new TAppUser();</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">		if (null == recond.getId() &amp;&amp; null == recond.getTid()) {</span>
+<span class="nc" id="L47">			return new JsonResult(false, &quot;参数错误！ID不可为空&quot;, null);</span>
+		}
+<span class="nc" id="L49">		BeanUtils.copyProperties(recond, user);</span>
+<span class="nc" id="L50">		user.setUpdateTime(System.currentTimeMillis());</span>
+		// user.setPassword(recond.getPassword()) ;
+<span class="nc" id="L52">		user.setId(Long.valueOf(recond.getUid()));</span>
+<span class="nc" id="L53">		user.setMobile(recond.getMobile());</span>
+<span class="nc" id="L54">		user.setName(recond.getName());</span>
+<span class="nc" id="L55">		user.setSex(recond.getSex());</span>
+<span class="nc" id="L56">		appUserMapper.updateByPrimaryKeySelective(user);</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">		if (null == recond.getCid() &amp;&amp; null == recond.getAreaid()) {</span>
+<span class="nc" id="L58">			return new JsonResult(true, &quot;人员信息修改成功！&quot;, null);</span>
+		}
+//		TAppUserCompany userCompany = new TAppUserCompany();
+//		userCompany.setAreaid(0 == recond.getAreaid() ? 0 == recond.getCityid() ? recond.getProvinceid() : recond.getCityid() : recond.getAreaid());
+//		userCompany.setProvinceid(recond.getProvinceid());
+//		userCompany.setCityid(recond.getCityid());
+//		userCompany.setAreaname(recond.getAreaname());
+//		userCompany.setProvincename(recond.getProvincename());
+//		userCompany.setCityname(recond.getCityname());
+//		Long id = Long.valueOf(recond.getTid());
+//		userCompany.setId(id);
+//		appUserCompanyMapper.updateByAreaAdmin(userCompany);
+<span class="nc" id="L70">		return new JsonResult(true, &quot;人员信息修改成功！&quot;, null);</span>
+
+	}
+
+	@Override
+	public JsonResult deleteArea(String tid, String uid,String rid) {
+<span class="nc" id="L76">		appUserCompanyMapper.deleteByPrimaryKey(Long.parseLong(tid));</span>
+<span class="nc" id="L77">		authorityService.deleteUserRoleByUidCidRid(rid, Integer.parseInt(&quot;0&quot;), Integer.parseInt(uid));</span>
+<span class="nc" id="L78">		return new JsonResult(true, &quot;删除成功&quot;, null);</span>
+	}
+
+	@Override
+	public JsonResult updateAreaStatus(String tid, int status) {
+<span class="nc" id="L83">		TAppUserCompany company = new TAppUserCompany();</span>
+<span class="nc" id="L84">		company.setStatus(status);</span>
+<span class="nc" id="L85">		company.setId(Long.valueOf(tid));</span>
+<span class="nc" id="L86">		int result = appUserCompanyMapper.updateByPrimaryKeySelective(company);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		if (result == 1) {</span>
+<span class="nc" id="L88">			return new JsonResult(true, &quot;操作成功&quot;, null);</span>
+		} else {
+<span class="nc" id="L90">			return new JsonResult(false, &quot;操作失败&quot;, null);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

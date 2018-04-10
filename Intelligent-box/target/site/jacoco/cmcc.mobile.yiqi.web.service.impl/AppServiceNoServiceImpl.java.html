@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AppServiceNoServiceImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.web.service.impl</a> &gt; <span class="el_source">AppServiceNoServiceImpl.java</span></div><h1>AppServiceNoServiceImpl.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.web.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.gexin.rp.sdk.base.payload.APNPayload;
+import com.gexin.rp.sdk.template.TransmissionTemplate;
+
+import cmcc.mobile.yiqi.entity.TAppCompany;
+import cmcc.mobile.yiqi.entity.TAppServiceNo;
+import cmcc.mobile.yiqi.entity.TAppServicePush;
+import cmcc.mobile.yiqi.entity.TAppOrganization;
+import cmcc.mobile.yiqi.entity.TAppUser;
+import cmcc.mobile.yiqi.entity.TAppUserClient;
+
+import cmcc.mobile.yiqi.entity.dao.TAppOrganizationMapper;
+
+import cmcc.mobile.yiqi.entity.dao.TAppServiceNoMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppServicePushMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserClientMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppUserMapper;
+import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.Push2AppUtil;
+
+import cmcc.mobile.yiqi.vo.AppOrganizationVo;
+import cmcc.mobile.yiqi.vo.AppServiceNoVo;
+import cmcc.mobile.yiqi.vo.PageVo;
+import cmcc.mobile.yiqi.web.service.IAppOrganizationService;
+
+import cmcc.mobile.yiqi.web.service.TAppServiceNoService;
+
+/**
+ * 
+ * @author xwp
+ *
+ */
+@Service
+<span class="fc" id="L49">public class AppServiceNoServiceImpl implements TAppServiceNoService {</span>
+
+	@Autowired
+	private TAppServiceNoMapper message;
+
+	@Autowired
+	private TAppOrganizationMapper appOrganizationMapper;
+
+	@Autowired
+	private TAppServicePushMapper appSendMessageMapper;
+
+	@Autowired
+	private TAppUserMapper appUserMapper;
+
+	@Autowired
+	private TAppUserClientMapper userClientMapper;
+
+	@Autowired
+	private IAppOrganizationService organizationService;
+
+	@Override
+	public String selectReceivers(Long id) {
+<span class="nc" id="L71">		List&lt;TAppServicePush&gt; list = appSendMessageMapper.selectReceivers(id);</span>
+<span class="nc" id="L72">		JSONArray array = new JSONArray();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">		for (TAppServicePush tAppSendMessage : list) {</span>
+<span class="nc" id="L74">			JSONObject json = new JSONObject();</span>
+<span class="nc" id="L75">			json.put(&quot;cid&quot;, tAppSendMessage.getCid());</span>
+<span class="nc" id="L76">			json.put(&quot;org_id&quot;, tAppSendMessage.getOrg_id());</span>
+<span class="nc" id="L77">			array.add(json);</span>
+<span class="nc" id="L78">		}</span>
+<span class="nc" id="L79">		return array.toString();</span>
+	}
+
+	@Override
+	public JsonResult checkMessageUpdate(AppServiceNoVo vo) {
+
+<span class="nc" id="L85">		Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L86">		map.put(&quot;appid&quot;, vo.getAppid());</span>
+		// map.put(&quot;orgid&quot;, vo.getOrgId());
+<span class="nc" id="L88">		map.put(&quot;createTime&quot;, vo.getCreateTime());</span>
+<span class="nc" id="L89">		map.put(&quot;startRow&quot;, 0);</span>
+<span class="nc" id="L90">		map.put(&quot;endRow&quot;, 1);</span>
+<span class="nc" id="L91">		long count = message.selectCountAllParams(map);</span>
+<span class="nc" id="L92">		List&lt;TAppServiceNo&gt; messages = message.selectAllParams(map);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		return new JsonResult(true, &quot;&quot; + count, CollectionUtils.isNotEmpty(messages) ? messages.get(0) : null);</span>
+	}
+
+	@Override
+	public JsonResult selectAllParams(AppServiceNoVo vo) {
+
+		// String[] ids = vo.getOrgs().split(&quot;,&quot;);
+		// List&lt;Long&gt; list = new ArrayList&lt;Long&gt;();
+		// for (String string : ids) {
+		// list.add(Long.parseLong(string));
+		// }
+<span class="nc" id="L104">		Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span>
+		// map.put(&quot;cid&quot;, vo.getCid());
+		// map.put(&quot;list&quot;, list);
+<span class="nc" id="L107">		map.put(&quot;appid&quot;, vo.getAppid());</span>
+<span class="nc" id="L108">		map.put(&quot;startRow&quot;, vo.getStartRow());</span>
+<span class="nc" id="L109">		map.put(&quot;endRow&quot;, vo.getEndRow());</span>
+
+<span class="nc" id="L111">		List&lt;TAppServiceNo&gt; list1 = message.selectAllParams(map);</span>
+		/*
+		 * if (CollectionUtils.isEmpty(list)) { System.out.println(list); }
+		 */
+<span class="nc" id="L115">		SimpleDateFormat format = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm&quot;);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		for (TAppServiceNo tAppMessage : list1) {</span>
+<span class="nc" id="L117">			tAppMessage.setTime(format.format(new Date(tAppMessage.getCreateTime())));</span>
+<span class="nc" id="L118">		}</span>
+<span class="nc" id="L119">		long count = message.selectCountAllParams(map);</span>
+
+<span class="nc" id="L121">		JsonResult result = new JsonResult(true, &quot;&quot;, list1);</span>
+<span class="nc" id="L122">		PageVo pageVo = new PageVo();</span>
+<span class="nc" id="L123">		pageVo.setPageNo(vo.getPageNo());</span>
+<span class="nc" id="L124">		pageVo.setPageSize(vo.getPageSize());</span>
+<span class="nc" id="L125">		pageVo.setTotalCountAndPageTotal((int) count);</span>
+
+<span class="nc" id="L127">		result.setPageVo(pageVo);</span>
+<span class="nc" id="L128">		return result;</span>
+	}
+
+	@Override
+	public int deleteByPrimaryKey(Long id) {
+<span class="nc" id="L133">		appSendMessageMapper.deleteByMessageId(id);</span>
+<span class="nc" id="L134">		return message.deleteByPrimaryKey(id);</span>
+	}
+
+	@Override
+	public int insert(TAppServiceNo record) {
+
+<span class="nc" id="L140">		return message.insert(record);</span>
+	}
+
+	@Override
+	public int save(AppServiceNoVo record, Boolean isJunit) {
+		// 保存服务号
+<span class="nc" id="L146">		TAppServiceNo mess = new TAppServiceNo();</span>
+<span class="nc" id="L147">		BeanUtils.copyProperties(record, mess);</span>
+<span class="nc" id="L148">		mess.setCreateTime(System.currentTimeMillis());</span>
+<span class="nc" id="L149">		int isOK = message.insertSelective(mess);</span>
+<span class="nc" id="L150">		long msg_id = mess.getId();</span>
+		// 保存发送公司或部门
+<span class="nc" id="L152">		List&lt;TAppServicePush&gt; list = JSONArray.parseArray(record.getReceivers(), TAppServicePush.class);</span>
+<span class="nc" id="L153">		Map&lt;String, TAppServicePush&gt; sendMessageMap = new HashMap&lt;String, TAppServicePush&gt;();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		for (TAppServicePush appSendMessage : list) {</span>
+<span class="nc" id="L155">			initSendMessage(sendMessageMap, appSendMessage);</span>
+
+<span class="nc" id="L157">		}</span>
+
+<span class="nc" id="L159">		Map&lt;Object, Object&gt; cidMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L160">		List&lt;Long&gt; cidList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		for (Map.Entry&lt;String, TAppServicePush&gt; entry : sendMessageMap.entrySet()) {</span>
+<span class="nc" id="L162">			TAppServicePush message = entry.getValue();</span>
+<span class="nc" id="L163">			message.setPush_id(msg_id);</span>
+<span class="nc" id="L164">			message.setCreatetime(new Date());</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">			if (!cidMap.containsKey(message.getCid())) {</span>
+<span class="nc" id="L166">				cidMap.put(message.getCid(), message.getCid());</span>
+<span class="nc" id="L167">				cidList.add(message.getCid());</span>
+				// cidMap.put(message.getOrg_id(), message.getOrg_id());
+				// cidList.add(message.getOrg_id());
+			}
+<span class="nc" id="L171">			appSendMessageMapper.insert(message);</span>
+<span class="nc" id="L172">		}</span>
+
+		/**
+		 * 去掉重复手机号
+		 */
+<span class="nc" id="L177">		Map&lt;String, String&gt; lUsers = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L178">		Map&lt;String, Object&gt; maps = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L179">		List&lt;String&gt; strings = new ArrayList&lt;String&gt;();</span>
+
+		// 发送对象为公司的话
+<span class="nc" id="L182">		maps.put(&quot;cids&quot;, cidList);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		if (mess.getCid() == 0) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">			for (Long cid : cidList) {</span>
+<span class="nc" id="L185">				List&lt;AppOrganizationVo&gt; organizations = organizationService.selectAllOrganization(cid);</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">				for (AppOrganizationVo appOrganizationVo : organizations) {</span>
+<span class="nc" id="L187">					List&lt;TAppUser&gt; users = appUserMapper.selectAllByOrgId(appOrganizationVo.getId());</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">					for (TAppUser tAppUser : users) {</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">						if (!lUsers.containsKey(tAppUser.getMobile())) {</span>
+<span class="nc" id="L190">							lUsers.put(tAppUser.getAccount(), tAppUser.getMobile());</span>
+<span class="nc" id="L191">							strings.add(tAppUser.getAccount().toString());</span>
+						}
+<span class="nc" id="L193">					}</span>
+<span class="nc" id="L194">				}</span>
+<span class="nc" id="L195">			}</span>
+		} else {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">			for (Map.Entry&lt;String, TAppServicePush&gt; entry : sendMessageMap.entrySet()) {</span>
+<span class="nc" id="L198">				TAppServicePush message = entry.getValue();</span>
+<span class="nc" id="L199">				List&lt;TAppUser&gt; users = appUserMapper.selectAllByOrgId(message.getOrg_id());</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">				for (TAppUser tAppUser : users) {</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">					if (!lUsers.containsKey(tAppUser.getMobile())) {</span>
+<span class="nc" id="L202">						lUsers.put(tAppUser.getAccount(), tAppUser.getMobile());</span>
+<span class="nc" id="L203">						strings.add(tAppUser.getAccount().toString());</span>
+					}
+<span class="nc" id="L205">				}</span>
+<span class="nc" id="L206">			}</span>
+		}
+		// 控制手机号
+<span class="nc bnc" id="L209" title="All 4 branches missed.">		if (CollectionUtils.isNotEmpty(strings) &amp;&amp; strings.size() &gt; 0) {</span>
+<span class="nc" id="L210">			maps.put(&quot;list&quot;, strings);</span>
+		}
+
+<span class="nc" id="L213">		List&lt;TAppUserClient&gt; AllClients = userClientMapper.selectByAccount(maps);</span>
+<span class="nc" id="L214">		List&lt;TAppUserClient&gt; Android = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L215">		List&lt;TAppUserClient&gt; IOS = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		if (CollectionUtils.isNotEmpty(AllClients)) {</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">			for (TAppUserClient tAppUserClient : AllClients) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">				if (tAppUserClient.getPhoneType() == 1) {</span>
+<span class="nc" id="L219">					Android.add(tAppUserClient);</span>
+				} else {
+<span class="nc" id="L221">					IOS.add(tAppUserClient);</span>
+				}
+<span class="nc" id="L223">			}</span>
+
+<span class="nc" id="L225">			Push2AppUtil util = new Push2AppUtil();</span>
+<span class="nc" id="L226">			TransmissionTemplate template = new TransmissionTemplate();</span>
+<span class="nc" id="L227">			template.setTransmissionType(2);</span>
+<span class="nc" id="L228">			JSONObject object = new JSONObject();</span>
+<span class="nc" id="L229">			object.put(&quot;type&quot;, 2);</span>
+<span class="nc" id="L230">			object.put(&quot;title&quot;, &quot;服务号推送&quot;);</span>
+<span class="nc" id="L231">			object.put(&quot;content&quot;, mess.getTitle());</span>
+<span class="nc" id="L232">			object.put(&quot;url&quot;, util.getServiceDetailUrl() + mess.getId());</span>
+<span class="nc" id="L233">			template.setTransmissionContent(object.toJSONString());</span>
+
+			/**
+			 * ios透传模板
+			 */
+
+<span class="nc" id="L239">			APNPayload.DictionaryAlertMsg alertMsg = new APNPayload.DictionaryAlertMsg();</span>
+<span class="nc" id="L240">			alertMsg.setTitle(&quot;服务号： &quot; + mess.getTitle());</span>
+			// 通知文本消息字符串
+<span class="nc" id="L242">			alertMsg.setBody(mess.getDetail());</span>
+			// 指定执行按钮所使用的Localizable.strings
+<span class="nc" id="L244">			alertMsg.setActionLocKey(&quot;滑动查看&quot;);</span>
+			try {
+				// util.AppPush(template);
+<span class="nc bnc" id="L247" title="All 2 branches missed.">				if (!isJunit) {</span>
+<span class="nc" id="L248">					util.AppPush(template, Android);</span>
+<span class="nc" id="L249">					util.IOSApnPush(alertMsg, IOS, object.toJSONString());</span>
+				}
+<span class="nc" id="L251">			} catch (Exception e) {</span>
+<span class="nc" id="L252">				e.printStackTrace();</span>
+<span class="nc" id="L253">			} finally {</span>
+
+<span class="nc" id="L255">			}</span>
+
+		}
+
+		/**
+		 * 发送短信提醒
+		 */
+
+		// String messageTemplate = &quot;管理员：&quot; + record.getUname() + &quot;发布了一条新公告《&quot; +
+		// mess.getTitle() + &quot;》，请打开个人助理APP查看详情！&quot;;
+		//
+		// SMTemp smTemp = SMTemp.CUSTOM_MESSAGE;
+		//
+		// String[] telNos = strings.toArray(new String[] {});
+		// smsSender.sendMassMessage(SmsUtils.SMS_TYPE_CUSTOM, telNos,
+		// smTemp.createMessage(String.valueOf(messageTemplate)),
+		// smTemp.getPriority(), smTemp.isRealTime(), null);
+		//
+<span class="nc" id="L273">		maps = null;</span>
+<span class="nc" id="L274">		lUsers = null;</span>
+<span class="nc" id="L275">		Android = null;</span>
+<span class="nc" id="L276">		IOS = null;</span>
+<span class="nc" id="L277">		strings = null;</span>
+<span class="nc" id="L278">		sendMessageMap = null;</span>
+<span class="nc" id="L279">		cidList = null;</span>
+<span class="nc" id="L280">		cidMap = null;</span>
+
+<span class="nc" id="L282">		return isOK;</span>
+	}
+
+	@Override
+	public int insertSelective(TAppServiceNo record) {
+
+<span class="nc" id="L288">		return 0;</span>
+	}
+
+	@Override
+	public TAppServiceNo selectByPrimaryKey(Long id) {
+<span class="nc" id="L293">		return message.selectByPrimaryKey(id);</span>
+	}
+
+	@Override
+	public int updateByPrimaryKeySelective(TAppServiceNo record) {
+
+<span class="nc" id="L299">		return message.updateByPrimaryKeySelective(record);</span>
+	}
+
+	@Override
+	public int updateByPrimaryKeyWithBLOBs(TAppServiceNo record) {
+
+<span class="nc" id="L305">		return message.updateByPrimaryKeyWithBLOBs(record);</span>
+	}
+
+	@Override
+	public int updateByPrimaryKey(AppServiceNoVo record) {
+<span class="nc" id="L310">		appSendMessageMapper.deleteByMessageId(record.getId());</span>
+
+<span class="nc" id="L312">		TAppServiceNo entity = new TAppServiceNo();</span>
+<span class="nc" id="L313">		BeanUtils.copyProperties(record, entity);</span>
+		/**
+		 * 保存发送对象
+		 */
+<span class="nc" id="L317">		List&lt;TAppServicePush&gt; list = JSONArray.parseArray(record.getReceivers(), TAppServicePush.class);</span>
+<span class="nc" id="L318">		Map&lt;String, TAppServicePush&gt; sendMessageMap = new HashMap&lt;String, TAppServicePush&gt;();</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">		for (TAppServicePush appSendMessage : list) {</span>
+<span class="nc" id="L320">			initSendMessage(sendMessageMap, appSendMessage);</span>
+<span class="nc" id="L321">		}</span>
+
+<span class="nc bnc" id="L323" title="All 2 branches missed.">		for (Map.Entry&lt;String, TAppServicePush&gt; entry : sendMessageMap.entrySet()) {</span>
+<span class="nc" id="L324">			TAppServicePush message = entry.getValue();</span>
+<span class="nc" id="L325">			message.setPush_id(entity.getId());</span>
+<span class="nc" id="L326">			message.setCreatetime(new Date());</span>
+<span class="nc" id="L327">			appSendMessageMapper.insert(message);</span>
+<span class="nc" id="L328">		}</span>
+
+<span class="nc" id="L330">		sendMessageMap = null;</span>
+<span class="nc" id="L331">		return message.updateByPrimaryKeySelective(entity);</span>
+	}
+
+	@Override
+	public JsonResult selectByHistroyNotice(String cid, PageVo vo, Boolean isSuper, Object isAdminLogin, List&lt;TAppCompany&gt; companies, String title,
+			String beginTime, String endTime, Long appid) {
+		/**
+		 * 如果以超级管理员身份登陆 admin 登陆，查询所有公告
+		 */
+<span class="nc" id="L340">		Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L341">		map.put(&quot;startRow&quot;, vo.getStartRow());</span>
+<span class="nc" id="L342">		map.put(&quot;endRow&quot;, vo.getEndRow());</span>
+<span class="nc" id="L343">		map.put(&quot;title&quot;, title);</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">		if (null != beginTime) {</span>
+<span class="nc" id="L345">			map.put(&quot;beginTime&quot;, Long.parseLong(beginTime));</span>
+		}
+<span class="nc bnc" id="L347" title="All 2 branches missed.">		if (null != endTime) {</span>
+<span class="nc" id="L348">			map.put(&quot;endTime&quot;, Long.parseLong(endTime));</span>
+		}
+
+<span class="nc bnc" id="L351" title="All 2 branches missed.">		if (appid != null) {</span>
+<span class="nc" id="L352">			map.put(&quot;appid&quot;, appid);</span>
+		}
+		// 超级管理员发布公告
+		// if (isSuper) {
+		// map.put(&quot;ids&quot;, null);
+		// map.put(&quot;cid&quot;, null);
+		// } else {
+		// // 公司管理员发布
+		// map.put(&quot;ids&quot;, &quot;1&quot;);
+		// map.put(&quot;cid&quot;, cid);
+		// }
+
+<span class="nc" id="L364">		List&lt;AppServiceNoVo&gt; list = message.selectByHistroyNotice(map);</span>
+<span class="nc" id="L365">		int count = message.selectCountByHistroyNotice(map);</span>
+<span class="nc" id="L366">		vo.setTotalCountAndPageTotal(count);</span>
+<span class="nc" id="L367">		map = null;</span>
+<span class="nc" id="L368">		return new JsonResult(true, &quot;&quot;, list, vo);</span>
+	}
+
+	@Override
+	public List&lt;TAppServiceNo&gt; findByOriginNotice(Long record) {
+
+<span class="nc" id="L374">		return message.findByOriginNotice(record);</span>
+	}
+
+	private Map&lt;String, TAppServicePush&gt; initSendMessage(Map&lt;String, TAppServicePush&gt; sendMessageMap, TAppServicePush appSendMessage) {
+<span class="nc bnc" id="L378" title="All 2 branches missed.">		if (appSendMessage.getOrg_id() == null) {</span>
+<span class="nc" id="L379">			sendMessageMap.put(appSendMessage.getCid() + &quot;|&quot;, appSendMessage);</span>
+		} else {
+<span class="nc bnc" id="L381" title="All 2 branches missed.">			if (!sendMessageMap.containsKey(appSendMessage.getCid() + &quot;|&quot;))</span>
+<span class="nc" id="L382">				initOrg(sendMessageMap, appSendMessage);</span>
+		}
+<span class="nc" id="L384">		return sendMessageMap;</span>
+	}
+
+	private void initOrg(Map&lt;String, TAppServicePush&gt; sendMessageMap, TAppServicePush appSendMessage) {
+		// key: cid+|+orgid
+<span class="nc" id="L389">		sendMessageMap.put(appSendMessage.getCid() + &quot;|&quot; + appSendMessage.getOrg_id(), appSendMessage);</span>
+<span class="nc" id="L390">		TAppOrganization appOrganization = new TAppOrganization();</span>
+<span class="nc" id="L391">		appOrganization.setCid(appSendMessage.getCid());</span>
+<span class="nc" id="L392">		appOrganization.setHigherId(appSendMessage.getOrg_id());</span>
+<span class="nc" id="L393">		List&lt;TAppOrganization&gt; orgs = appOrganizationMapper.selectOrgByCidAndHigherId(appOrganization);</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">		for (TAppOrganization organization : orgs) {</span>
+<span class="nc" id="L395">			TAppServicePush sendMessage = new TAppServicePush();</span>
+<span class="nc" id="L396">			sendMessage.setCid(appSendMessage.getCid());</span>
+<span class="nc" id="L397">			sendMessage.setCname(appSendMessage.getCname());</span>
+<span class="nc" id="L398">			sendMessage.setOrg_id(organization.getId());</span>
+<span class="nc" id="L399">			sendMessage.setDname(organization.getOrgName());</span>
+<span class="nc" id="L400">			sendMessageMap.put(organization.getCid() + &quot;|&quot; + organization.getId(), sendMessage);</span>
+<span class="nc" id="L401">			initOrg(sendMessageMap, sendMessage);</span>
+<span class="nc" id="L402">		}</span>
+<span class="nc" id="L403">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

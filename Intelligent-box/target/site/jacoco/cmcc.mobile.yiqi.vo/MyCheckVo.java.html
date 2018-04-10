@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MyCheckVo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.vo</a> &gt; <span class="el_source">MyCheckVo.java</span></div><h1>MyCheckVo.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.vo;
+
+<span class="nc" id="L3">public class MyCheckVo {</span>
+
+	private String title;
+	private String projectTitle;
+	private String reciver;
+	private String initiate;
+	private Long createTime;
+	private Long endTime;
+	// 0:未开始 1：进行中 2：已完成
+	Integer state;
+
+	boolean isMyStart;
+	
+	String nextAssigneeId; 
+
+	private Long checkId;
+
+	public String getNextAssigneeId() {
+<span class="nc" id="L21">		return nextAssigneeId;</span>
+	}
+
+	public void setNextAssigneeId(String nextAssigneeId) {
+<span class="nc" id="L25">		this.nextAssigneeId = nextAssigneeId;</span>
+<span class="nc" id="L26">	}</span>
+
+	public Long getCreateTime() {
+<span class="nc" id="L29">		return createTime;</span>
+	}
+
+	public void setCreateTime(Long createTime) {
+<span class="nc" id="L33">		this.createTime = createTime;</span>
+<span class="nc" id="L34">	}</span>
+
+	public String getInitiate() {
+<span class="nc" id="L37">		return initiate;</span>
+	}
+
+	public void setInitiate(String initiate) {
+<span class="nc" id="L41">		this.initiate = initiate;</span>
+<span class="nc" id="L42">	}</span>
+
+	public Long getCheckId() {
+<span class="nc" id="L45">		return checkId;</span>
+	}
+
+	public void setCheckId(Long checkId) {
+<span class="nc" id="L49">		this.checkId = checkId;</span>
+<span class="nc" id="L50">	}</span>
+
+	public boolean isMyStart() {
+<span class="nc" id="L53">		return isMyStart;</span>
+	}
+
+	public void setMyStart(boolean isMyStart) {
+<span class="nc" id="L57">		this.isMyStart = isMyStart;</span>
+<span class="nc" id="L58">	}</span>
+
+	public String getTitle() {
+<span class="nc" id="L61">		return title;</span>
+	}
+
+	public void setTitle(String title) {
+<span class="nc" id="L65">		this.title = title;</span>
+<span class="nc" id="L66">	}</span>
+
+	public String getReciver() {
+<span class="nc" id="L69">		return reciver;</span>
+	}
+
+	public void setReciver(String reciver) {
+<span class="nc" id="L73">		this.reciver = reciver;</span>
+<span class="nc" id="L74">	}</span>
+
+	public Long getEndTime() {
+<span class="nc" id="L77">		return endTime;</span>
+	}
+
+	public void setEndTime(Long endTime) {
+<span class="nc" id="L81">		this.endTime = endTime;</span>
+<span class="nc" id="L82">	}</span>
+
+	public Integer getState() {
+<span class="nc" id="L85">		return state;</span>
+	}
+
+	public void setState(Integer state) {
+<span class="nc" id="L89">		this.state = state;</span>
+<span class="nc" id="L90">	}</span>
+
+	public String getProjectTitle() {
+<span class="nc" id="L93">		return projectTitle;</span>
+	}
+
+	public void setProjectTitle(String projectTitle) {
+<span class="nc" id="L97">		this.projectTitle = projectTitle;</span>
+<span class="nc" id="L98">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

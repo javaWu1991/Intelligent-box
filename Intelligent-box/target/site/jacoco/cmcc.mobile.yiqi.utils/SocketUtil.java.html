@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SocketUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">SocketUtil.java</span></div><h1>SocketUtil.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.HashMap;
+
+<span class="nc" id="L9">public class SocketUtil {</span>
+	
+	 private final static int PORT = 888;
+<span class="nc" id="L12">	    public static HashMap&lt;String, Socket&gt; socketList = new HashMap&lt;&gt;();</span>
+	    public static String channelToken;  //socket 令牌
+	    private static BufferedReader bufferedReader;
+
+	    @SuppressWarnings(&quot;resource&quot;)
+		public static void main(String[] args) {
+	        try {
+<span class="nc" id="L19">	            ServerSocket server =  new ServerSocket(PORT);</span>
+<span class="nc" id="L20">	            System.out.println(&quot;server is listenning...&quot;);</span>
+	            while(true){//不断循环随时等待新的客户端接入服务器
+<span class="nc" id="L22">	                Socket clientSocket = server.accept();</span>
+<span class="nc" id="L23">	                bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));</span>
+<span class="nc" id="L24">	                channelToken = bufferedReader.readLine();</span>
+<span class="nc" id="L25">	                socketList.put(channelToken,clientSocket);   //保存会话ID和socket</span>
+	                //System.out.println(socketList.get(channelToken));
+	                //System.out.println(socketList);
+<span class="nc" id="L28">	                new ServerThread(clientSocket,socketList);</span>
+<span class="nc" id="L29">	            }</span>
+<span class="nc" id="L30">	        } catch (IOException e) {</span>
+<span class="nc" id="L31">	            e.printStackTrace();</span>
+	        }
+<span class="nc" id="L33">	    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

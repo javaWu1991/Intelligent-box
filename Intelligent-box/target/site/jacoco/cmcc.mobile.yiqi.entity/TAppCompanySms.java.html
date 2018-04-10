@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TAppCompanySms.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.entity</a> &gt; <span class="el_source">TAppCompanySms.java</span></div><h1>TAppCompanySms.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.entity;
+
+public class TAppCompanySms {
+<span class="fc" id="L4">	public static Integer MEETING_CREATE=0;</span>
+<span class="fc" id="L5">	public static Integer MEETING_UPDATE=1;</span>
+<span class="fc" id="L6">	public static Integer MEETING_QUICKSTART=2;</span>
+<span class="fc" id="L7">	public static Integer MEETING_START=3;</span>
+	
+    private Integer id;
+
+    private Integer mid;
+
+    private String sid;
+
+    private Integer type;
+
+    public Integer getId() {
+<span class="nc" id="L18">        return id;</span>
+    }
+
+    public void setId(Integer id) {
+<span class="nc" id="L22">        this.id = id;</span>
+<span class="nc" id="L23">    }</span>
+
+    public Integer getMid() {
+<span class="nc" id="L26">        return mid;</span>
+    }
+
+    public void setMid(Integer mid) {
+<span class="nc" id="L30">        this.mid = mid;</span>
+<span class="nc" id="L31">    }</span>
+
+    public String getSid() {
+<span class="nc" id="L34">        return sid;</span>
+    }
+
+    public void setSid(String sid) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        this.sid = sid == null ? null : sid.trim();</span>
+<span class="nc" id="L39">    }</span>
+
+    public Integer getType() {
+<span class="nc" id="L42">        return type;</span>
+    }
+
+    public void setType(Integer type) {
+<span class="nc" id="L46">        this.type = type;</span>
+<span class="nc" id="L47">    }</span>
+
+	public TAppCompanySms( Integer mid, String sid, Integer type) {
+<span class="nc" id="L50">		super();</span>
+<span class="nc" id="L51">		this.mid = mid;</span>
+<span class="nc" id="L52">		this.sid = sid;</span>
+<span class="nc" id="L53">		this.type = type;</span>
+<span class="nc" id="L54">	}</span>
+
+<span class="nc" id="L56">	public TAppCompanySms() {</span>
+<span class="nc" id="L57">	}</span>
+    
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

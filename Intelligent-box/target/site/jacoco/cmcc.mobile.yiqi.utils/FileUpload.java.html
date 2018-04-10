@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FileUpload.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">FileUpload.java</span></div><h1>FileUpload.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+<span class="nc" id="L16">public class FileUpload {</span>
+<span class="nc" id="L17">	public static String FILE_PATH = FileUpload.class.getResource(&quot;/&quot;).getFile();</span>
+	static {
+<span class="nc" id="L19">		FILE_PATH = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;));</span>
+<span class="nc" id="L20">		FILE_PATH = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;));</span>
+<span class="nc" id="L21">		FILE_PATH = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;));</span>
+	}
+<span class="nc" id="L23">	public static String OUT_FILE_PATH = FILE_PATH.substring(0, FILE_PATH.lastIndexOf(&quot;/&quot;));</span>
+
+	//图片上传
+	public static String uploadImg(MultipartFile file, String path,Boolean isCompress,Integer w,Integer h) throws IOException {
+<span class="nc" id="L27">		String Filepath = uploadFile(file, path);</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		if (isCompress) {</span>
+<span class="nc" id="L29">			 ImgCompress imgCom = new ImgCompress(OUT_FILE_PATH+Filepath);</span>
+<span class="nc" id="L30">			 imgCom.resizeFix(w, h);</span>
+		}
+<span class="nc" id="L32">		return Filepath;</span>
+	}
+	
+	public static String uploadImgByBase64(String base64, String fileName, String path, String realName,Boolean isCompress,Integer w,Integer h) throws IOException {
+<span class="nc" id="L36">		String Filepath = uploadByBase64(base64, fileName, path, realName);</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">		if (isCompress) {</span>
+<span class="nc" id="L38">			 ImgCompress imgCom = new ImgCompress(OUT_FILE_PATH+Filepath);</span>
+<span class="nc" id="L39">			 imgCom.resizeFix(w, h);</span>
+		}
+<span class="nc" id="L41">		return Filepath;</span>
+	}
+	
+	// 文件上传
+	public static String uploadFile(MultipartFile file, String path) throws IOException {
+		//FILE_PATH = OUT_FILE_PATH;
+<span class="nc" id="L47">		String realPath = &quot;/upload/&quot; + path + &quot;/&quot;;</span>
+<span class="nc" id="L48">		String discPath = OUT_FILE_PATH + realPath;</span>
+
+<span class="nc" id="L50">		String fileName = file.getOriginalFilename();</span>
+<span class="nc" id="L51">		String type = fileName.substring(fileName.lastIndexOf(&quot;.&quot;) + 1);</span>
+<span class="nc" id="L52">		fileName = RandomUtil.MD5(new Date().getTime() + file.getOriginalFilename()) + &quot;.&quot; + type;</span>
+<span class="nc" id="L53">		File tempFile = new File(discPath + fileName);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		if (!tempFile.exists()) {</span>
+<span class="nc" id="L55">			tempFile.mkdirs();</span>
+		}
+<span class="nc" id="L57">		String contextPath = realPath + fileName;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if (!tempFile.exists()) {</span>
+<span class="nc" id="L59">			tempFile.createNewFile();</span>
+		}
+<span class="nc" id="L61">		file.transferTo(tempFile);</span>
+<span class="nc" id="L62">		return contextPath;</span>
+	}
+
+	public static String uploadByBase64(String base64, String fileName, String path) throws IOException {
+
+<span class="nc" id="L67">		return uploadByBase64(base64, fileName, path, null);</span>
+
+	}
+
+	public static String uploadByBase64(String base64, String fileName, String path, String realName) throws IOException {
+
+<span class="nc" id="L73">		String realPath = &quot;/upload/&quot; + path + &quot;/&quot;;</span>
+<span class="nc" id="L74">		String discPath = OUT_FILE_PATH + realPath;</span>
+<span class="nc" id="L75">		File discPathFile = new File(discPath);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		if (!discPathFile.exists()) {</span>
+<span class="nc" id="L77">			discPathFile.mkdirs();</span>
+		}
+<span class="nc" id="L79">		String type = fileName.substring(fileName.lastIndexOf(&quot;.&quot;) + 1);</span>
+<span class="nc" id="L80">		String md5Name = RandomUtil.MD5(new Date().getTime() + fileName);</span>
+<span class="nc" id="L81">		String dateFileName = &quot;&quot;;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (!StringUtils.isEmpty(realName)) {</span>
+<span class="nc" id="L83">			dateFileName = realName + &quot;.&quot; + type;</span>
+		} else {
+<span class="nc" id="L85">			dateFileName = md5Name + &quot;.&quot; + type;</span>
+		}
+<span class="nc" id="L87">		File tempFile = new File(discPath + dateFileName);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		if (!tempFile.exists()) {</span>
+<span class="nc" id="L89">			tempFile.createNewFile();</span>
+		}
+<span class="nc" id="L91">		byte[] bytes = Base64.decodeBase64(base64);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		for (int i = 0; i &lt; bytes.length; ++i) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">			if (bytes[i] &lt; 0) {// 调整异常数据</span>
+<span class="nc" id="L94">				bytes[i] += 256;</span>
+			}
+		}
+<span class="nc" id="L97">		OutputStream out = new FileOutputStream(tempFile);</span>
+<span class="nc" id="L98">		out.write(bytes);</span>
+<span class="nc" id="L99">		out.flush();</span>
+<span class="nc" id="L100">		out.close();</span>
+<span class="nc" id="L101">		String contextPath = realPath + dateFileName;</span>
+<span class="nc" id="L102">		return contextPath;</span>
+	}
+	
+	public static void main(String[] args) throws IOException {
+<span class="nc" id="L106">		System.out.println(GetImageStr(&quot;d:/456.png&quot;));</span>
+//		File file = new File(&quot;d:/123&quot;);
+//		File[] array = file.listFiles();
+//		for (File userFile : array) {
+//			ImgCompress imgCom = new ImgCompress(userFile.getPath().toString());
+//			 imgCom.resizeFix(70, 70);
+//			System.out.println(userFile.getName() + &quot;~~~~~~~~~~~~~~~&quot; + userFile.isDirectory()+&quot;~~&quot;+userFile.getPath());
+//		}
+<span class="nc" id="L114">	}</span>
+	 public static String GetImageStr(String file)
+	    {//将图片文件转化为字节数组字符串，并对其进行Base64编码处理
+<span class="nc" id="L117">	        String imgFile = file;//待处理的图片</span>
+<span class="nc" id="L118">	        InputStream in = null;</span>
+<span class="nc" id="L119">	        byte[] data = null;</span>
+	        //读取图片字节数组
+	        try 
+	        {
+<span class="nc" id="L123">	            in = new FileInputStream(imgFile);        </span>
+<span class="nc" id="L124">	            data = new byte[in.available()];</span>
+<span class="nc" id="L125">	            in.read(data);</span>
+<span class="nc" id="L126">	            in.close();</span>
+	        } 
+<span class="nc" id="L128">	        catch (IOException e) </span>
+	        {
+<span class="nc" id="L130">	            e.printStackTrace();</span>
+<span class="nc" id="L131">	        }</span>
+	        //对字节数组Base64编码
+<span class="nc" id="L133">	        BASE64Encoder encoder = new BASE64Encoder();</span>
+<span class="nc" id="L134">	        return encoder.encode(data);//返回Base64编码过的字节数组字符串</span>
+	    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

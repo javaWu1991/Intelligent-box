@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ClientCustomSSL.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.utils</a> &gt; <span class="el_source">ClientCustomSSL.java</span></div><h1>ClientCustomSSL.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.utils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.springframework.util.ResourceUtils;
+/**
+ * 退款认证
+ * 创建者 科帮网
+ * 创建时间	2017年7月31日
+ *
+ */
+<span class="nc" id="L24">public class ClientCustomSSL {</span>
+	 public static String doRefund(String url,String data) throws Exception {  
+        /** 
+         * 注意PKCS12证书 是从微信商户平台-》账户设置-》 API安全 中下载的 
+         */  
+<span class="nc" id="L29">        KeyStore keyStore  = KeyStore.getInstance(&quot;PKCS12&quot;);  </span>
+<span class="nc" id="L30">        File certfile = ResourceUtils.getFile(&quot;classpath:cert&quot;+ Constants.SF_FILE_SEPARATOR + ConfigUtil.CERT_PATH);</span>
+<span class="nc" id="L31">        FileInputStream instream = new FileInputStream(certfile);</span>
+        try {  
+<span class="nc" id="L33">            keyStore.load(instream, ConfigUtil.MCH_ID.toCharArray());</span>
+        } finally {  
+<span class="nc" id="L35">            instream.close();  </span>
+<span class="nc" id="L36">        }  </span>
+<span class="nc" id="L37">        SSLContext sslcontext = SSLContexts.custom()  </span>
+                .loadKeyMaterial(keyStore, ConfigUtil.MCH_ID.toCharArray())
+                .build();  
+<span class="nc" id="L40">        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(  </span>
+                sslcontext,  
+                new String[] { &quot;TLSv1&quot; },  
+                null,  
+                SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);  
+<span class="nc" id="L45">        CloseableHttpClient httpclient = HttpClients.custom()  </span>
+                .setSSLSocketFactory(sslsf)  
+                .build();
+		try {
+<span class="nc" id="L49">			HttpPost httpost = new HttpPost(url);</span>
+<span class="nc" id="L50">			httpost.setEntity(new StringEntity(data, &quot;UTF-8&quot;));</span>
+<span class="nc" id="L51">			CloseableHttpResponse response = httpclient.execute(httpost);</span>
+			try {
+<span class="nc" id="L53">				HttpEntity entity = response.getEntity();</span>
+<span class="nc" id="L54">				String jsonStr = EntityUtils.toString(response.getEntity(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L55">				EntityUtils.consume(entity);</span>
+<span class="nc" id="L56">				return jsonStr;</span>
+			} finally {
+<span class="nc" id="L58">				response.close();</span>
+			}
+		} finally {
+<span class="nc" id="L61">			httpclient.close();</span>
+		}
+	}  
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

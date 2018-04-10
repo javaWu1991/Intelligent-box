@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+<g id="clock">
+	<path fill="#1D1D26" d="M16,1c8.271,0,15,6.729,15,15c0,8.271-6.729,15-15,15C7.729,31,1,24.271,1,16C1,7.729,7.729,1,16,1
+		 M13.221,20.595h1h8.467v-2h-7.467v-8.139v-0.57h-2v0.57v9.139V20.595 M16,0C7.167,0,0,7.167,0,16c0,8.84,7.167,16,16,16
+		c8.84,0,16-7.16,16-16C32,7.167,24.84,0,16,0L16,0z M14.221,19.595v-9.139v-0.57v0.57V19.595h8.467H14.221L14.221,19.595z"/>
+</g>
+</svg>

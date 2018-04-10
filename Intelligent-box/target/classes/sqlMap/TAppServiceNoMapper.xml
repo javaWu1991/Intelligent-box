@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppServiceNoMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppServiceNo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="type_id" property="typeId" jdbcType="BIGINT" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="uname" property="uname" jdbcType="VARCHAR" />
+		<result column="picurl" property="picurl" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="BIGINT" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="cid" property="cid" jdbcType="BIGINT" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="detail" property="detail" jdbcType="LONGVARCHAR" />
+		<result column="content" property="content" jdbcType="LONGVARCHAR" />
+		<result column="read_count" property="readCount" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="BaseResultMapVo" type="cmcc.mobile.yiqi.vo.AppServiceNoVo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="type_id" property="typeId" jdbcType="BIGINT" />
+		<result column="uid" property="uid" jdbcType="BIGINT" />
+		<result column="uname" property="uname" jdbcType="VARCHAR" />
+		<result column="picurl" property="picurl" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="BIGINT" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+		<result column="cid" property="cid" jdbcType="BIGINT" />
+		<result column="detail" property="detail" jdbcType="LONGVARCHAR" />
+		<result column="sort" property="sort" jdbcType="INTEGER" />
+		<result column="content" property="content" jdbcType="LONGVARCHAR" />
+		<result column="cname" property="cname" jdbcType="VARCHAR" />
+		<result column="dname" property="dname" jdbcType="VARCHAR" />
+		<result column="appid" property="appid" jdbcType="VARCHAR" />	
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, title, type_id, uid, uname, picurl, modify_time,
+		create_time, cid,
+		sort,detail, content, read_count,appid
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_serviceno_content
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		t_app_serviceno_content
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="cmcc.mobile.yiqi.entity.TAppServiceNo">
+		insert into
+		t_app_serviceno_content (id,
+		title, type_id,
+		uid, uname, picurl,
+		modify_time, create_time, cid,
+		sort,
+		detail, content
+		)
+		values
+		(#{id,jdbcType=BIGINT},
+		#{title,jdbcType=VARCHAR},
+		#{typeId,jdbcType=BIGINT},
+		#{uid,jdbcType=BIGINT},
+		#{uname,jdbcType=VARCHAR},
+		#{picurl,jdbcType=VARCHAR},
+		#{modifyTime,jdbcType=BIGINT},
+		#{createTime,jdbcType=BIGINT},
+		#{cid,jdbcType=BIGINT},
+		#{sort,jdbcType=INTEGER},
+		#{detail,jdbcType=LONGVARCHAR},
+		#{content,jdbcType=LONGVARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="cmcc.mobile.yiqi.entity.TAppServiceNo"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into t_app_serviceno_content
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="title != null">
+				title,
+			</if>
+			<if test="typeId != null">
+				type_id,
+			</if>
+			<if test="uid != null">
+				uid,
+			</if>
+			<if test="uname != null">
+				uname,
+			</if>
+			<if test="picurl != null">
+				picurl,
+			</if>
+			<if test="modifyTime != null">
+				modify_time,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="cid != null">
+				cid,
+			</if>
+			<if test="sort != null">
+				sort,
+			</if>
+			<if test="detail != null">
+				detail,
+			</if>
+			<if test="content != null">
+				content,
+			</if>
+			<if test="appid != null">
+				appid,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="title != null">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="typeId != null">
+				#{typeId,jdbcType=BIGINT},
+			</if>
+			<if test="uid != null">
+				#{uid,jdbcType=BIGINT},
+			</if>
+			<if test="uname != null">
+				#{uname,jdbcType=VARCHAR},
+			</if>
+			<if test="picurl != null">
+				#{picurl,jdbcType=VARCHAR},
+			</if>
+			<if test="modifyTime != null">
+				#{modifyTime,jdbcType=BIGINT},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="cid != null">
+				#{cid,jdbcType=BIGINT},
+			</if>
+			<if test="sort != null">
+				#{sort,jdbcType=INTEGER},
+			</if>
+			<if test="detail != null">
+				#{detail,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="appid != null">
+				#{appid,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppServiceNo">
+		update t_app_serviceno_content
+		<set>
+			<if test="title != null">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="typeId != null">
+				type_id = #{typeId,jdbcType=BIGINT},
+			</if>
+			<if test="uid != null">
+				uid = #{uid,jdbcType=BIGINT},
+			</if>
+			<if test="uname != null">
+				uname = #{uname,jdbcType=VARCHAR},
+			</if>
+			<if test="picurl != null">
+				picurl = #{picurl,jdbcType=VARCHAR},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=BIGINT},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=BIGINT},
+			</if>
+			<if test="cid != null">
+				cid = #{cid,jdbcType=BIGINT},
+			</if>
+			<if test="sort != null">
+				sort = #{sort,jdbcType=INTEGER},
+			</if>
+			<if test="detail != null">
+				detail = #{detail,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="content != null">
+				content = #{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="readCount != null">
+				read_count = #{readCount,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKeyWithBLOBs" parameterType="cmcc.mobile.yiqi.entity.TAppServiceNo">
+		update
+		t_app_serviceno_content
+		set title = #{title,jdbcType=VARCHAR},
+		type_id =
+		#{typeId,jdbcType=BIGINT},
+		uid = #{uid,jdbcType=BIGINT},
+		uname =
+		#{uname,jdbcType=VARCHAR},
+		picurl = #{picurl,jdbcType=VARCHAR},
+		modify_time = #{modifyTime,jdbcType=BIGINT},
+		create_time =
+		#{createTime,jdbcType=BIGINT},
+		cid = #{cid,jdbcType=BIGINT},
+		sort =
+		#{sort,jdbcType=INTEGER},
+		detail = #{detail,jdbcType=LONGVARCHAR},
+		content = #{content,jdbcType=LONGVARCHAR}
+		where id =
+		#{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppServiceNo">
+		update
+		t_app_serviceno_content
+		set title = #{title,jdbcType=VARCHAR},
+		type_id =
+		#{typeId,jdbcType=BIGINT},
+		uid = #{uid,jdbcType=BIGINT},
+		uname =
+		#{uname,jdbcType=VARCHAR},
+		picurl = #{picurl,jdbcType=VARCHAR},
+		modify_time = #{modifyTime,jdbcType=BIGINT},
+		create_time =
+		#{createTime,jdbcType=BIGINT},
+		cid = #{cid,jdbcType=BIGINT},
+		sort =
+		#{sort,jdbcType=INTEGER}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+
+	<select id="findByOriginNotice" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select *
+		from t_app_serviceno_content
+		where cid =
+		#{cid,jdbcType=BIGINT}
+	</select>
+
+	<select id="selectByHistroyNotice" resultMap="BaseResultMapVo"
+		parameterType="java.util.Map">
+		select distinct a.*
+		from t_app_serviceno_content a where 1=1
+		<if test="title != null">
+			AND a.title like
+			CONCAT('%',#{title,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="appid != null">
+			AND a.appid = #{appid,jdbcType=BIGINT}
+		</if>
+		<if test="beginTime != null and endTime != null">
+  			<![CDATA[AND a.create_time >= #{beginTime,jdbcType=BIGINT} AND a.create_time <= #{endTime,jdbcType=BIGINT}]]>
+		</if>
+		<if test="beginTime != null and endTime == null">
+  			<![CDATA[AND a.create_time >= #{beginTime,jdbcType=BIGINT}]]>
+		</if>
+		<if test="beginTime == null and endTime != null">
+  			<![CDATA[AND a.create_time <= #{endTime,jdbcType=BIGINT}]]>
+		</if>
+		order by a.sort asc,a.create_time desc
+		<if test="startRow != null and endRow != null">
+			limit
+			#{startRow,jdbcType=BIGINT},#{endRow,jdbcType=BIGINT}
+		</if>
+	</select>
+
+	<select id="selectCountByHistroyNotice" resultType="java.lang.Integer"
+		parameterType="java.util.Map">
+		select count(distinct a.id)
+		from t_app_serviceno_content a
+		where 1=1
+		<if test="title != null">
+			AND a.title like
+			CONCAT('%',#{title,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="beginTime != null and endTime != null">
+  			<![CDATA[AND a.create_time >= #{beginTime,jdbcType=BIGINT} AND a.create_time <= #{endTime,jdbcType=BIGINT}]]>
+		</if>
+		<if test="beginTime != null and endTime == null">
+  			<![CDATA[AND a.create_time >= #{beginTime,jdbcType=BIGINT}]]>
+		</if>
+		<if test="beginTime == null and endTime != null">
+  			<![CDATA[AND a.create_time <= #{endTime,jdbcType=BIGINT}]]>
+		</if>
+	</select>
+
+	<select id="selectAllParams" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select distinct
+		m.id,m.title,m.detail,m.content,m.picurl,m.create_time,m.uname
+		from
+		t_app_serviceno_content m
+		where 1 = 1
+		<if test="appid != null">
+			and m.appid=#{appid,jdbcType=BIGINT}
+		</if>
+		order by m.create_time desc
+		<if test="startRow != null and endRow != null">
+			limit #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="selectCountAllParams" resultType="java.lang.Long"
+		parameterType="java.util.Map">
+		select count(distinct m.id)
+		from t_app_serviceno_content m
+		where 1 = 1
+		<if test="appid != null">
+			and m.appid=#{appid,jdbcType=BIGINT}
+		</if>
+		<if test="createTime != null">
+			<![CDATA[and m.create_time >= #{createTime,jdbcType=BIGINT}]]>
+		</if>
+		order by create_time desc
+	</select>
+
+</mapper>

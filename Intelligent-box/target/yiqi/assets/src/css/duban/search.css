@@ -1,0 +1,88 @@
+﻿#search{
+	overflow-y: scroll;
+	background: #f0f0f0;
+}
+.header-bar{height:0.4rem;line-height: 0.4rem;background:#ffffff;text-align: center;font-size:0.18rem;color:#333333;border-bottom: 1px solid #e0e0e0;padding-right: 0.15rem;}
+
+.main{font-size:0.16rem;color: #8c8c8c;background: #f0f0f0;}
+.main>p{border-bottom: 1px solid #e0e0e0;padding-top: 0.12rem;padding-bottom: 0.12rem;background: #FFFFFF;padding-left:0.15rem;padding-right:3px;}
+input[type=button]{border-radius: 5px;outline: none;}
+.btn2{background: #FFFFFF;width: 19%;height:0.28rem;line-height: 0.28rem;border:1px solid #8c8c8c;margin-right:3px}
+.btn{background: #0E9CED;width: 19%;height:0.3rem;line-height: 0.3rem;color: #FFFFFF;border:none;margin-right:3px;}
+
+.btn3{margin-left:19%}
+.dbName{width: 78%;border-top:2px solid #C6C6C6;font-size:0.16rem;color:#333333;}
+.selected{font-size:0.16rem;color:#333333;}
+
+
+.footer{margin-top:1.7rem;background: #FFFFFF;height:0.6rem;line-height: 0.6rem;}
+.footer .reset{background: #FFFFFF;width:44%;height:0.4rem;line-height: 0.4rem;font-size:0.16rem;border:1px solid #53aadd;outline: none;color:#53aadd;margin-left: 0.15rem;border-radius: 4px;}
+.footer .sure{background: #53aadd;width:44%;height:0.4rem;line-height: 0.4rem;font-size:0.16rem;color: #FFFFFF;border:none;outline: none;margin-left: 0.08rem;border-radius: 4px;}
+
+
+#pipei{display: none;}
+.tab{font-size:0.16rem;}
+.tab_menu li{float:left;text-align: center;cursor: pointer;list-style: none;width:1.25rem;background:#ffffff;padding:0.2rem 0;color:#333333;padding-top: 0.27rem;}
+.tab_menu li.selecteds { color:#53aadd; border-bottom: 3px solid #53aadd;}
+.tab_box {
+	padding-left:0.15rem;
+	padding-right: 0.15rem;
+	background: #f0f0f0;
+	margin-top: 0.15rem;
+	}
+ .hide{display:none}
+ .dubanName{
+	width: 80%;
+	overflow: hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+.daiban{
+	border-radius: 4px;
+	margin-bottom: 0.15rem;
+	padding-left: 0.15rem;
+	padding-top: 0.15rem;
+	padding-bottom: 0.15rem;
+	color:#8c8c8c;
+}
+.daiban>p{
+	width: 80%;
+	font-size:0.14rem;
+}
+
+.oUl>li{
+	position: relative;
+}
+.shuzi{
+	position: absolute;
+	top:0.13rem;
+	background: #f3554e;
+	width: 0.2rem;
+	height:0.2rem;
+	line-height: 0.2rem;
+	color:#ffffff;
+	font-size:12px;
+	border-radius: 50%;
+	display: inline-block;
+}
+/*红点*/
+.Reddot{
+	display: inline-block;
+	width: 0.1rem;
+	height:0.1rem;
+	border-radius: 50%;
+	margin-right: 0.05rem;
+	background: #f3554e;
+}
+ /*滞后*/
+.zhihou{
+	width: 0.2rem;
+	height:0.1rem;
+	border-radius: 50%;
+	background: #fabc26;
+	color:#FFFFFF;
+	font-size:0.12rem;
+}
+ 
+ 
+ .footer1{height:0.35rem;line-height: 0.35rem;background:#f0f0f0;text-align: center;font-size:0.14rem;color:#8C8C8C;display: block;width: 100%;}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cmcc.mobile.yiqi.entity.dao.TAppPositionMapper">
+	<resultMap id="BaseResultMap" type="cmcc.mobile.yiqi.entity.TAppPosition">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="cid" property="cid" jdbcType="INTEGER" />
+		<result column="position_name" property="positionName"
+			jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="INTEGER" />
+
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, position_name,cid,level
+	</sql>
+	<select id="selectAllByCid" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_position where cid =#{cid,jdbcType=BIGINT} order by level
+	</select>
+	
+	<select id="selectByCidAndName" parameterType="cmcc.mobile.yiqi.entity.TAppPosition" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_app_position where cid =#{cid,jdbcType=BIGINT} and level = #{level,jdbcType=BIGINT}
+		and position_name = #{positionName,jdbcType=VARCHAR}
+	</select>
+
+	<insert id="addPosition" parameterType="cmcc.mobile.yiqi.entity.TAppPosition"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into t_app_position (id,
+		position_name, cid,
+		level, create_time, update_time)
+		values (null,
+		#{positionName,jdbcType=VARCHAR},
+		#{cid,jdbcType=BIGINT},
+		#{level,jdbcType=BIGINT}, now(), now())
+	</insert>
+
+	<update id="updatePosition" parameterType="cmcc.mobile.yiqi.entity.TAppPosition">
+		update t_app_position
+		<set>
+			<if test="positionName != null">
+				position_name = #{positionName,jdbcType=VARCHAR},
+			</if>
+			<if test="level != null">
+				level = #{level,jdbcType=BIGINT},
+			</if>
+			update_time=now()
+		</set>
+
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Integer">
+		delete from t_app_position
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+
+</mapper>
+	

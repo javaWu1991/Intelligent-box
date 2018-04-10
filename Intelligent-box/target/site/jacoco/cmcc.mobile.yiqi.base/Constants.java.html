@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Constants.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Intelligent-box Maven Webapp</a> &gt; <a href="index.source.html" class="el_package">cmcc.mobile.yiqi.base</a> &gt; <span class="el_source">Constants.java</span></div><h1>Constants.java</h1><pre class="source lang-java linenums">package cmcc.mobile.yiqi.base;
+
+<span class="nc" id="L3">public class Constants {</span>
+	public static final String PARAMETERS_NOT_FORMAT = &quot;请求参数格式不合法。&quot;;
+	public static final String PARAMETERS_DATE_WRONG = &quot;时间类型不合法。&quot;;
+	public static final String PARAMETERS_LACKING = &quot;请求参数不完整。&quot;;
+	public static final String SERVICE_HBASE_QUERY_FAILED = &quot;当前网络不好，请稍后再试。&quot;;
+	public static final String SC_NULL_DATA = &quot;目标数据缺失。&quot;;
+	public static final String PARAMETERS_NOT_EXIST = &quot;无效的用户编码&quot;;
+	public static final String SP_UID_LACK = &quot;请求参数不完整,用户ID缺失。&quot;;
+	public static final String SP_PAR_LACK = &quot;请求参数不完整,参与人缺失。&quot;;
+	public static final String SP_TIME_LACK = &quot;请求参数不完整,时间参数缺失。&quot;;
+	public static final String SP_PARUID_LACK = &quot;请求参数不完整,参与人ID缺失。&quot;;
+	public static final String SP_TASKTITLE_LACK = &quot;请求参数不完整,任务标题缺失。&quot;;
+
+	/**
+	 * 公司管理员
+	 */
+	public static final String COMPANY_MANAGER = &quot;companyManager&quot;;
+	/**
+	 * 区域经理
+	 */
+	public static final String AREA_MANAGER = &quot;areaManager&quot;;
+	/**
+	 * 客户经理
+	 */
+	public static final String CUSTOMER_MANAGER = &quot;customerManager&quot;;
+	/**
+	 * admin管理员
+	 */
+	public static final String ADMIN_MANAGER = &quot;admin&quot;;
+
+	/**
+	 * 公司管理员
+	 */
+<span class="nc" id="L36">	public static final Integer COMPANY_ADMIN = 1;</span>
+<span class="nc" id="L37">	public static final Integer AREA_ADMIN = 3;</span>
+<span class="nc" id="L38">	public static final Integer CUSTOMER_ADMIN = 2;</span>
+
+<span class="nc" id="L40">	public static final Integer USER_CAN_USE = 1;</span>
+<span class="nc" id="L41">	public static final Integer USER_NOT_REG_IM = -1; // 用户导入未注册小溪</span>
+<span class="nc" id="L42">	public static final Integer USER_NOT_PASS_VALIDATE = -3; // 审核未通过</span>
+<span class="nc" id="L43">	public static final Integer USER_NOT_VALIDATE = -2;// app注册待审核</span>
+<span class="nc" id="L44">	public static final Integer COMPANY_CANT_USE = 0; // 企业不可用</span>
+<span class="nc" id="L45">	public static final Integer COMPANY_WAIT_VALIDATE = 2;// 企业待审核</span>
+<span class="nc" id="L46">	public static final Integer COMPANY_DELETED = 3;// 已删除</span>
+
+	/**
+	 * 普通公告类型 1
+	 */
+<span class="nc" id="L51">	public static final Long COMMON_MESSAGE = 1L;</span>
+	/**
+	 * 滚动消息类型 2
+	 */
+<span class="nc" id="L55">	public static final Long SCOLL_MESSAGE = 2L;</span>
+
+	/**
+	 * 消息必达立即发送
+	 */
+<span class="nc" id="L60">	public static final Integer CREATE_TYPE_NOW = 1;</span>
+	/**
+	 * 消息必达定时发送
+	 */
+<span class="nc" id="L64">	public static final Integer CREATE_TYPE_WAIT = 2;</span>
+
+	/**
+	 * 消息必达应用推送
+	 */
+<span class="nc" id="L69">	public static final Integer PUSH_BY_APP = 1;</span>
+	/**
+	 * 消息必达短信推送
+	 */
+<span class="nc" id="L73">	public static final Integer PUSH_BY_SMS = 2;</span>
+	/**
+	 * 消息必达电话回拨推送
+	 */
+<span class="nc" id="L77">	public static final Integer PUSH_BY_TEL = 3;</span>
+
+	/**
+	 * 
+	 */
+<span class="nc" id="L82">	public static final Integer MESSAGE_STATUS_DELETE = 4;</span>
+
+	/**
+	 * 已接收
+	 */
+<span class="nc" id="L87">	public static final Integer RECEIVE_STATUS_1 = 1;</span>
+	/**
+	 * 已删除
+	 */
+<span class="nc" id="L91">	public static final Integer RECEIVE_STATUS_2 = 2;</span>
+	/**
+	 * 已确认
+	 */
+<span class="nc" id="L95">	public static final Integer RECEIVE_STATUS_3 = 3;</span>
+
+	/**
+	 * 未确认 1
+	 */
+<span class="nc" id="L100">	public static final Integer CONFIRM_STATUS_1 = 1;</span>
+
+	/**
+	 * 已确认 2
+	 */
+<span class="nc" id="L105">	public static final Integer CONFIRM_STATUS_2 = 2;</span>
+	
+	/**
+	 * 项目任务归档 1
+	 */
+<span class="nc" id="L110">	public static final Integer PROJECT_TASK_OVER = 1;</span>
+	
+	/**
+	 * 项目任务未完成 0
+	 */
+<span class="nc" id="L115">	public static final Integer PROJECT_TASK_WAIT_OVER = 0;</span>
+	
+	/**
+	 * 项目任务归档 1
+	 */
+<span class="nc" id="L120">	public static final Integer PROJECT_TASK_EMERGENCY = 1;</span>
+	
+	/**
+	 * 项目任务归档 1
+	 */
+<span class="nc" id="L125">	public static final Integer PROJECT_TASK_NOT_EMERGENCY = 2;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
