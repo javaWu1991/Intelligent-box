@@ -93,6 +93,7 @@
                             </script>
                         </tbody>
                     </table>
+                     <div class="toolbar-bottom"></div>
                 </div>
             </div>
         </div><!-- end page main -->
@@ -193,6 +194,10 @@ else
                             <label for="inputMchId">设备号</label>
                             <input type="text" class="form-control" id="inputMachineId" name="machineId" placeholder="设备号">
                         </div>
+  <div class="form-group">
+                            <label for="inputMchId">产品说明</label>
+                            <input type="text" class="form-control" id="inputRemark" name="remark" placeholder="产品说明">
+                        </div>
                            <div class="form-group">
                             <label for="inputContent" class="control-label">产品详情<i class="required">*</i></label>
                             <textarea id="editor" name="productDetail" type="text/plain"></textarea>
@@ -277,6 +282,10 @@ else
                         <div class="form-group">
                             <label for="inputMchId">设备号</label>
                             <input type="text" class="form-control" id="inputMachineId" name="machineId" value="{{model.machineId}}" placeholder="设备号">
+                        </div>
+  <div class="form-group">
+                            <label for="inputMchId">产品说明</label>
+                            <input type="text" class="form-control" id="inputRemark" name="remark" value="{{model.remark}}" placeholder="产品说明">
                         </div>
                            <div class="form-group">
                             <label for="inputContent" class="control-label">产品详情<i class="required">*</i></label>

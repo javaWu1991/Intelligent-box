@@ -606,7 +606,9 @@
 		and uc.provinceid is NULL
 		and uc.areaid is NULL
 		and uc.cityid is NULL
-		
+		<if test="cid !=null">
+		and c.id = #{cid}
+		</if>
 				<if test="name != null">
 			AND u.`name` like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
 		</if>

@@ -16,11 +16,17 @@
     <result column="corp_id" jdbcType="BIGINT" property="corpId" />
     <result column="machine_id" jdbcType="VARCHAR" property="machineId" />
      <result column="product_detail" jdbcType="VARCHAR" property="productDetail" />
+      <result column="remark" jdbcType="VARCHAR" property="remark" />
   </resultMap>
   <sql id="Base_Column_List">
     id, product_name, product_img, status, create_time, 
 original_price, favorable_price, corp_id,
-    update_time, discount, product_number,container_number,machine_id,product_detail
+    update_time, discount, product_number,container_number,machine_id,product_detail,remark
+  </sql>
+    <sql id="Base_List">
+    id, product_name, status, create_time, 
+original_price, favorable_price, corp_id,
+    update_time, discount, product_number,container_number,machine_id,product_detail,remark
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -77,6 +83,9 @@ original_price, favorable_price, corp_id,
          <if test="productDetail != null">
         product_detail,
       </if>
+            <if test="remark != null">
+        remark,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -120,6 +129,9 @@ original_price, favorable_price, corp_id,
       </if>
                <if test="productDetail != null">
         #{productDetail,jdbcType=VARCHAR},
+      </if>
+                <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -165,15 +177,18 @@ original_price, favorable_price, corp_id,
                 <if test="productDetail != null">
         product_detail = #{productDetail,jdbcType=BIGINT},
       </if>
+                  <if test="remark != null">
+        remark = #{remark,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   
-  <select id="selectByMachineId" parameterType="java.lang.String" resultMap="BaseResultMap">
-  select * from t_app_product where machine_id = #{machineId} and status !=4
+  <select id="selectByMachineId" parameterType="map" resultMap="BaseResultMap">
+  select <include refid="Base_List"/>,CONCAT(#{imgUrl},product_img)as product_img from t_app_product where machine_id = #{machineId} and status !=4
   </select>
   
-    <select id="selectByCorp" parameterType="cmcc.mobile.yiqi.entity.TAppProduct" resultMap="BaseResultMap">
+    <select id="selectByCorp" parameterType="map" resultMap="BaseResultMap">
   select * from t_app_product where corp_id = #{corpId} and status !=4
   <if test="productName !=null">
    and product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
@@ -181,6 +196,23 @@ original_price, favorable_price, corp_id,
   <if test="status !=null">
    and status = #{status} 
   </if>
+   order by create_time desc
+  <if test="startRow !=null and endRow !=null ">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+  </if>
+ 
+  </select>
+  
+  <select id="selectByCorpCount" parameterType="map" resultType="int">
+  select count(*) from t_app_product where corp_id = #{corpId} and status !=4
+  <if test="productName !=null">
+   and product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+  </if>
+  <if test="status !=null">
+   and status = #{status} 
+  </if>
+ 
   </select>
     <select id="selectByMachine" parameterType="java.lang.String" resultMap="BaseResultMap">
   select * from t_app_product where machine_id = #{machineId} and status =3 

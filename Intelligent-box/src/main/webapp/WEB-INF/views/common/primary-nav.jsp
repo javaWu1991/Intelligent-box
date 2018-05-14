@@ -3,7 +3,7 @@
 <div class="navbar-default navbar-static-side" role="navigation">
     <ul class="primary-nav metismenu">
         <shiro:hasPermission name="admin">
-        <li><a href="${contextPath}/web/company/list.htm"><i class="fa fa-cubes"></i> <span class="nav-label">酒店管理</span></a></li>
+        <li><a href="../../web/company/list.htm"><i class="fa fa-cubes"></i> <span class="nav-label">酒店管理</span></a></li>
         </shiro:hasPermission>
          <shiro:hasPermission name="company">
         <li><a href="javascript:void(0);"><i class="fa fa-user-secret"></i> <span class="nav-label">管理员管理</span> <span class="fa arrow"></span></a>
@@ -32,11 +32,11 @@
             </ul>
         </li>
         <shiro:hasPermission name="admin">
-        <li><a href="javascript:void(0);"><i class="fa fa-bar-chart"></i> <span class="nav-label">统计管理</span> <span class="fa arrow"></span></a>
+        <li><a href="javascript:void(0)"><i class="fa fa-bar-chart"></i> <span class="nav-label">统计管理</span> <span class="fa arrow"></span></a>
             <ul class="nav-second-level collapse">
-                <li><a href="${contextPath}/web/system/report.htm?view=realtime">实时分析</a></li>
-                <li><a href="${contextPath}/web/system/report.htm?view=area">地域分布</a></li>
-                <li><a href="${contextPath}/web/system/report.htm?view=goods">订单分析</a></li>
+                <li><a href="${contextPath}/web/boxWeb/report.htm?view=realtime">订单图表分析</a></li>
+                <li><a href="${contextPath}/web/boxWeb/order.htm?view=area">订单信息</a></li>
+                <li><a href="${contextPath}/web/boxWeb/report.htm?view=goods">设备信息</a></li>
             </ul>
         </li> 
         </shiro:hasPermission>      

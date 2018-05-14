@@ -36,7 +36,7 @@ function change(){
                 name:text
             },
             success: function(data) {   
-                alert("切换企业成功");
+            	alert("切换成功！");
             }
         });
 }
@@ -44,4 +44,5 @@ function change(){
 <script>
 var CID = '${sessionScope.companyId}';
 var COMPANY_NAME = '${sessionScope.companyName}';
+var admin = '${sessionScope.isAdminLogin}';
 </script>

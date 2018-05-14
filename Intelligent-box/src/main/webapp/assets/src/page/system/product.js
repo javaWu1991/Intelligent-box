@@ -539,6 +539,8 @@ define(function(require, exports, module) {
 		$('.primary-nav').metisMenu();
 		var query = new Backbone.Model({
 			cid : COMPANY_ID,
+			pageNo:1,
+			pageSize:20
 		});
 		_.extend(query, {
 			autoParam : function() {
@@ -555,7 +557,7 @@ define(function(require, exports, module) {
 			model : Notice
 		});
 		_.extend(list, {
-			url : CONTEXT_PATH + '/web/boxWeb/getProductList.do',
+			url :  CONTEXT_PATH + '/web/boxWeb/getProductList.do',
 			parse : function(resp) {
 				var parsed = _.extend({
 					success : false,
@@ -611,10 +613,15 @@ define(function(require, exports, module) {
 			}
 		});
 
-		pager.on('page', function(pageNo) {
-			query.set('pageNo', pageNo);
-			searchHandler(query.getData());
-		});
+	     pager.on('page', function(pageNo) {
+            var data = search.serialize();
+            _.extend(data, {
+                pageNo: pageNo,
+                cid:COMPANY_ID
+            });
+
+            searchHandler(data);
+        });
 
 		table.$el.after(pager.render().$el);
 

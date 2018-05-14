@@ -56,7 +56,7 @@ public class SocketOperate extends Thread{
 					JSONObject jsonObject = object.parseObject(strXML) ;
 					if(jsonObject.getInteger("port")==null){
 						jsonObject.put("port", socket.getPort()) ;
-						//intelligentBoxMapper.insertSocket(jsonObject);
+						intelligentBoxMapper.insertSocket(jsonObject);
 					}else{
 					for(Socket socket : list){
 						if(socket.getPort()==object.getIntValue("port")){

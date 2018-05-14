@@ -75,6 +75,7 @@
 		<if test="managerId!=null">
 			and c.account = #{managerId}
 		</if>
+		group by t.id
 	</select>
 
 

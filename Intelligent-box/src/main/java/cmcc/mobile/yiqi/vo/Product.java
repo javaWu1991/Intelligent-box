@@ -2,7 +2,7 @@ package cmcc.mobile.yiqi.vo;
 import java.io.Serializable;
 /**
  * 产品订单信息
- * 创建者 科帮网
+ * 创建者 吴奔江
  * 创建时间	2017年7月27日
  */
 //@Data                
@@ -10,6 +10,7 @@ import java.io.Serializable;
 //@AllArgsConstructor
 public class Product implements Serializable {
 	private static final long serialVersionUID = 1L;
+	private Long id ;
 	private String productId;// 商品ID
 	private String subject;//订单名称 
 	private String body;// 商品描述
@@ -49,6 +50,12 @@ public class Product implements Serializable {
 	}
 	
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public Long getCreateTime() {
 		return createTime;
 	}

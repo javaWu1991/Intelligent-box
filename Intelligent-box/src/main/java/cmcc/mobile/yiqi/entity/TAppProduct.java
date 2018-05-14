@@ -1,6 +1,8 @@
 package cmcc.mobile.yiqi.entity;
 
-public class TAppProduct {
+import cmcc.mobile.yiqi.vo.PageVo;
+
+public class TAppProduct extends PageVo{
     private Long id;
 
     private String productName;
@@ -29,8 +31,17 @@ public class TAppProduct {
     
     private String productDetail ;
     
-
+    private String remark ;
     
+    
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
 	public String getProductDetail() {
 		return productDetail;

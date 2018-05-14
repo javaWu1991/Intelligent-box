@@ -2,7 +2,6 @@ package cmcc.mobile.yiqi.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import cmcc.mobile.yiqi.base.BaseController;
 import cmcc.mobile.yiqi.entity.TAppProduct;
 import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.vo.PageVo;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
 
 /**
@@ -51,8 +51,8 @@ public class IntellIgentBoxController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping("/getProductList")
-	public JsonResult getProductList(long cid,String productName,Integer status){
-		return intelligentBoxService.getProductListByCorpId(cid,productName,status) ;
+	public JsonResult getProductList(Long cid,String productName,Integer status,PageVo pageVo){
+		return intelligentBoxService.getProductListByCorpId(cid,productName,status,pageVo) ;
 	}
 	/**
 	 * 更新产品图片
@@ -80,5 +80,76 @@ public class IntellIgentBoxController extends BaseController{
 	public ModelAndView areaadmin(String cid) {
 		ModelAndView view = new ModelAndView("system/product");
 		return view;
+	}
+	
+	/**
+	 * 订单信息页面
+	 */
+	@RequestMapping("/report")
+	public ModelAndView report() {
+		ModelAndView view = new ModelAndView("system/welcome");
+		return view;
+	}
+	/**
+	 * 获取全部订单信息
+	 */
+	@RequestMapping("/orderList")
+	@ResponseBody
+	public JsonResult orderList(HttpServletRequest request){
+		HttpSession session = request.getSession() ;
+		if(session.getAttribute("userId")==null){
+			return new JsonResult(false,"非法请求",null) ;
+		}
+		Long userId = Long.valueOf(session.getAttribute("userId").toString()) ;
+		return intelligentBoxService.getOrderList(userId) ;
+	}
+	/**
+	 * 按时间查询订单信息
+	 */
+	@RequestMapping("/orderListTime")
+	@ResponseBody
+	public JsonResult orderListTime(HttpServletRequest request){
+		HttpSession session = request.getSession() ;
+		if(session.getAttribute("userId")==null){
+			return new JsonResult(false,"非法请求",null) ;
+		}
+		Long userId = Long.valueOf(session.getAttribute("userId").toString()) ;
+		String type = request.getParameter("type").toString() ;
+		String time = request.getParameter("time").toString() ;
+		return intelligentBoxService.orderListTime(userId,type,time) ;
+	}
+	/**
+	 * 订单信息路由
+	 */
+	@RequestMapping("/order")
+	@ResponseBody
+	public ModelAndView order(){
+		ModelAndView view = new ModelAndView("system/order");
+		return view;
+	}
+	/**
+	 * 订单信息
+	 */
+	@RequestMapping("/orderDetail")
+	@ResponseBody
+	public JsonResult orderDetail(HttpServletRequest request,Integer status,String productName,Long startTime,Long endTime,PageVo pageVo,Long corpId){
+		HttpSession session = request.getSession() ;
+		if(session.getAttribute("userId")==null){
+			return new JsonResult(false,"非法请求",null) ;
+		}
+		Long userId = Long.valueOf(session.getAttribute("userId").toString()) ;
+		return intelligentBoxService.orderDetail(userId,status,productName,startTime,endTime,pageVo,corpId) ;
+	}
+	/**
+	 * 微信退款申请
+	 */
+	@RequestMapping("/refundAction")
+	@ResponseBody
+	public JsonResult refundAction(Long productId,String orderCode,String money){
+		if(productId==null){
+			return new JsonResult(false,"参数错误！",null) ;
+		}
+		return intelligentBoxService.refundAction(productId,orderCode,money);
+		
 	}
 }

@@ -130,7 +130,7 @@ function getOrder1(value){
                type:2
                },          
         success: function(data) {
-	 //各产品类目销量0.其他1.安全套2.情趣内衣3.跳蛋4.飞机杯5.精油6.湿巾7.喷剂
+     //各产品类目销量0.其他1.安全套2.情趣内衣3.跳蛋4.飞机杯5.精油6.湿巾7.喷剂
     var markup = [];
     var marknum = [];
     var checknode = data.model;
@@ -203,17 +203,17 @@ function getOrder1(value){
 }
 
 function getOrder2(value){
-	 $.ajax({
-	        type: "GET",
-	        url: CONTEXT_PATH + '/web/boxWeb/orderListTime.do',
-	        dataType: "json",
-	        context: this,
-	        data: {userId:'${sessionScope.userId}',
-	               time:value,
-	               type:3
-	               },          
-	        success: function(data) {
-	var marknum = [];
+     $.ajax({
+            type: "GET",
+            url: CONTEXT_PATH + '/web/boxWeb/orderListTime.do',
+            dataType: "json",
+            context: this,
+            data: {userId:'${sessionScope.userId}',
+                   time:value,
+                   type:3
+                   },          
+            success: function(data) {
+    var marknum = [];
     var marname = []
    // document.getElementById('main2').innerHTML = ""
     var myChart2 = echarts.init(document.getElementById('main2'));  
@@ -253,7 +253,7 @@ function getOrder2(value){
 }
 
 });
-	
+    
 }
 </script>
 </body>

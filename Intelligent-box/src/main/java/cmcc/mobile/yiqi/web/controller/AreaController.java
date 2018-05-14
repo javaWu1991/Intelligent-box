@@ -120,7 +120,7 @@ public class AreaController extends BaseController {
 	 */
 	@RequestMapping("/areaAdmin")
 	public ModelAndView areaadmin(String cid) {
-		ModelAndView view = new ModelAndView("system/areaAdmin");
+		ModelAndView view = new ModelAndView("system/chat-test");
 		return view;
 	}
 

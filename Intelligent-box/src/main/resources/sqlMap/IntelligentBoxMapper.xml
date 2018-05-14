@@ -28,8 +28,29 @@
      <result column="order_code" jdbcType="VARCHAR" property="order_code" />
       <result column="money" jdbcType="DOUBLE" property="money" />
     </resultMap>
+        <resultMap id="BaseObject" type="cmcc.mobile.yiqi.vo.ProductVo">
+        <result column="productName" property="productName" jdbcType="VARCHAR"/>
+        <result column="productNumber" property="productNumber" jdbcType="VARCHAR"/>
+        <result column="price" property="price" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="status" property="status" jdbcType="INTEGER"/>
+         <result column="containerNumber" property="containerNumber" jdbcType="VARCHAR"/>
+          <result column="machineId" property="machineId" jdbcType="VARCHAR"/>
+           <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+           <result column="productId" property="productId" jdbcType="BIGINT"/>
+    </resultMap>
+            <resultMap id="object" type="cmcc.mobile.yiqi.vo.RefundVo">
+        <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="app_id" property="appId" jdbcType="VARCHAR"/>
+        <result column="mch_id" property="mchId" jdbcType="VARCHAR"/>
+        <result column="refundMoney" property="refundMoney" jdbcType="INTEGER"/>
+    </resultMap>
     <sql id="Base_Column_List">
         id, create_time, img_url, type, text
+    </sql>
+        <sql id="Base_List">
+        id, create_time, type
     </sql>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
         select
@@ -111,9 +132,9 @@
         where id = #{id,jdbcType=BIGINT}
     </update>
 
-    <select id="selectAll" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    <select id="selectAll" resultMap="BaseResultMap" parameterType="java.lang.String">
         select
-        <include refid="Base_Column_List"/>
+        <include refid="Base_List"/>,CONCAT(#{imgUrl},img_url) as img_url
         from banner_img
     </select>
     
@@ -220,7 +241,7 @@
                 #{totalFee},
             </if>
              <if test="createTime != null">
-                #{create_time},
+                #{createTime},
             </if>
             <if test="status != null">
                 #{status},
@@ -244,4 +265,145 @@
     t_app_company c on t.corp_id = c.id where t.id = #{productId}
     </select>
     
+    <select id="getOrderList" resultMap="BaseObject" parameterType="map">
+    SELECT t.product_name as productName,count(o.product_id) as productNumber,SUM(o.money) as price ,t.type ,o.create_time as createTime FROM  
+    t_app_product t  LEFT JOIN 
+    t_order o on o.product_id = t.id
+    <if  test="userId !=1">
+    left join
+    t_app_user_company c on c.cid = t.corp_id
+    </if>
+    WHERE o.id is NOT NULL
+    <if test="corpId!=null">
+    and t.corp_id = #{corpId}
+    </if>
+    <if test="userId !=1">
+    and c.uid = #{userId}
+    </if>
+    <if test="time!=null">
+      <![CDATA[and date_sub(curdate(), INTERVAL #{time} DAY) <= DATE(FROM_UNIXTIME(o.create_time/1000))]]>
+    </if>
+    <if test="category!=null">
+    GROUP BY t.type,t.corp_id
+    </if>
+    <if test="category==null">
+    GROUP BY o.product_id,t.corp_id
+    </if>
+
+    
+</select>
+
+    <select id="getAllOrderList" resultMap="BaseObject" parameterType="map">
+    SELECT t.product_name as productName,count(o.product_id) as productNumber,SUM(o.money) as price ,t.type ,o.create_time as createTime ,FROM_UNIXTIME(o.create_time/1000, '%H') as hours FROM  
+    t_app_product t  LEFT JOIN 
+    t_order o on o.product_id = t.id
+    <if  test="userId !=1">
+    left join
+    t_app_user_company c on c.cid = t.corp_id
+    </if>
+    WHERE o.id is NOT NULL
+    <if test="corpId!=null">
+    and t.corp_id = #{corpId}
+    </if>
+     <if test="time!=null">
+      <![CDATA[and date_sub(curdate(), INTERVAL #{time} DAY) <= DATE(FROM_UNIXTIME(o.create_time/1000))]]>
+    </if>
+    <if test="userId !=1">
+    and c.uid = #{userId}
+    </if>
+    GROUP BY FROM_UNIXTIME(o.create_time/1000, '%H'),t.id
+    
+</select>
+
+    <select id="getOrderDetail" resultMap="BaseObject" parameterType="map">
+    SELECT t.product_name as productName,o.money as price ,t.type ,o.create_time as createTime,o.status,o.order_code as orderCode, t.machine_id as machineId,t.container_number as containerNumber,o.product_id as productId FROM  
+    t_app_product t  LEFT JOIN 
+    t_order o on o.product_id = t.id
+    WHERE o.id is NOT NULL
+    <if test="corpId!=null">
+    and t.corp_id = #{corpId}
+    </if>
+    <if test="userId !=1">
+    and c.uid = #{userId}
+    </if>
+    <if test="status!=null">
+    and o.status = #{status}
+    </if>
+    <if test="productName !=null">
+    and t.product_name like "%${productName}%"
+    </if>
+    <if test="startTime !=null and endTime !=null">
+    <![CDATA[#{startTime}<=o.create_time<=#{endTime}]]>
+    </if>
+        <if test="startRow != null and endRow != null">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+        </if>
+
+
+    
+</select>
+
+<select id="selectByRefund" resultMap="object" parameterType="java.lang.Long">
+select c.* from t_app_product t left join t_app_company c on t.corpId = c.id where t.id = #{productId} 
+</select>
+
+<insert id="insetRefund" parameterType="cmcc.mobile.yiqi.entity.TRefund">
+     insert into t_refund
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+              <if test="orderCode != null">
+                order_code,
+            </if>
+              <if test="refundCode != null">
+                refund_code,
+            </if>
+            <if test="createTime !=null">
+            create_time
+            </if>
+            <if test="status !=null">
+            status
+            </if>
+            <if test="userId !=null">
+            user_id
+            </if>
+            </trim>
+             <trim prefix="values (" suffix=")" suffixOverrides=",">
+                  <if test="id != null">
+                #{id},
+            </if>
+             <if test="orderCode != null">
+                #{orderCode},
+            </if>
+              <if test="refundCode != null">
+                #{refundCode},
+            </if>
+            <if test="createTime !=null">
+            #{createTime},
+            </if>
+            <if test="status !=null">
+            #{status},
+            </if>
+            <if test="userId !=null">
+            #{userId}
+            </if>
+             </trim>
+</insert>
+<update id="updateOrder" parameterType="java.lang.String">
+update t_order set status = 2 where order_code = #{orderCode}
+</update>
+
+<select id="selectByCode" parameterType="java.lang.String" resultMap="BaseObject">
+select t.* from t_app_product t left join t_order o on t.id=o.product_id where o.order_code = #{orderCode}
+</select>
+
+<update id="updateOrderByCode" parameterType="cmcc.mobile.yiqi.vo.Product">
+update t_order set status = #{status},
+create_time = #{createTime} 
+where order_code = #{outTradeNo}
+</update>
+
+<insert id="insertSocket" parameterType="map"></insert>
 </mapper>

@@ -12,7 +12,7 @@ public class Constants {
 	public static final String SP_TIME_LACK = "请求参数不完整,时间参数缺失。";
 	public static final String SP_PARUID_LACK = "请求参数不完整,参与人ID缺失。";
 	public static final String SP_TASKTITLE_LACK = "请求参数不完整,任务标题缺失。";
-
+	public static final Integer LIST_TIME[] = {1,3,5,7,9,11,13,15,17,19,21,23} ;
 	/**
 	 * 公司管理员
 	 */

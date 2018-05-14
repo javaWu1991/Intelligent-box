@@ -79,6 +79,11 @@
         </div><!-- end page main -->
     </div><!-- end page content -->
 </div>
+<script>
+var CID = '${company.id}';
+var COMPANY_CODE = '${company.code}';
+var COMPANY_NAME = '${company.name}';
+</script>
 <script>seajs.use('page/system/customManager', function(page){ page.run(); });</script>
 <script type="text/template" id="tmpl-customManagerCreateModal">
 <div class="modal-dialog">

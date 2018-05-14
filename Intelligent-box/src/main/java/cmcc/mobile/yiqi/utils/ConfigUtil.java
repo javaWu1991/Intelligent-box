@@ -1,11 +1,14 @@
 package cmcc.mobile.yiqi.utils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-
+import org.apache.log4j.Logger;
 /**
  * 相关配置参数 
  * 创建者 吴奔江 
@@ -13,36 +16,90 @@ import org.apache.commons.configuration.PropertiesConfiguration;
  */
 public class ConfigUtil {
 	private static Configuration configs;
-	public  static String APP_ID;// 服务号的应用ID
-	public  static String APP_SECRET;// 服务号的应用密钥
-	public  static String TOKEN;// 服务号的配置token
-	public  static String MCH_ID;// 商户号
-	public  static final String API_KEY = "xiaoaojun";// API密钥
-	public  static String SIGN_TYPE;// 签名加密方式
-	public  static String CERT_PATH ;//微信支付证书
+	public  static final String API_KEY = "xaj19910531xaj19910531xaj1991053";// API密钥
+	public  static final String APP_ID = "";
+    public  static final String MCH_ID = "";
+    public  static final String APP_SECRET = "";
+    public  static final String CERT_PATH = "" ;
+	public  static String imgUrl ;//图片域名地址
+	protected Logger LOG = Logger.getLogger(getClass());
 
-	public static synchronized void init(String filePath) {
-		if (configs != null) {
-			return;
-		}
-		try {
-			configs = new PropertiesConfiguration(filePath);
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-		}
+    private Properties config = new Properties();
 
-		if (configs == null) {
-			throw new IllegalStateException("can`t find file by path:"
-					+ filePath);
-		}
-		APP_ID = configs.getString("APP_ID");
-		APP_SECRET = configs.getString("APP_SECRET");
-		TOKEN = configs.getString("TOKEN");
-		MCH_ID = configs.getString("MCH_ID");
-		SIGN_TYPE = configs.getString("SIGN_TYPE");
-		CERT_PATH = configs.getString("CERT_PATH");
-	}
+    static {
+        try {
+            ConfigUtil config = ConfigUtil.load("info.properties");
 
+            imgUrl = config.get("imgUrl") ;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private ConfigUtil(String configFile) {
+        try {
+            InputStream is = getConfigFileStream(configFile);
+            if (is != null) {
+                config.load(new InputStreamReader(is));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private InputStream getConfigFileStream(String configFile) {
+        InputStream is = null;
+        try {
+            File file = new File(configFile);
+            if (file.exists()) {
+                is = new FileInputStream(file);
+            } else {
+                //                file = new File(ConfigUtil.class.getResource("/").getPath() + configFile);
+                file = new File(Thread.currentThread().getContextClassLoader()
+                        .getResource("info.properties").getFile());
+                if (file.exists()) {
+                    is = new FileInputStream(file);
+                } else {
+                    is = ConfigUtil.class.getResourceAsStream(configFile);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return is;
+    }
+            
+    public static ConfigUtil load(String configFile) {
+        return new ConfigUtil(configFile);
+    }
+
+    public String get(String key) {
+        return config.getProperty(key);
+    }
+
+    public int getInt(String key) {
+        String value = get(key);
+        if (value == null) {
+            return 0;
+        }
+        return Integer.parseInt(value);
+    }
+
+    public boolean getBool(String key) {
+        String value = get(key);
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
+    }
+    
+    public long getLong(String key){
+    	String value = get(key);
+        if (value == null) {
+            return -1L;
+        }
+        return Long.parseLong(value);
+    }
 	/**
 	 * 微信基础接口地址
 	 */
@@ -80,34 +137,29 @@ public class ConfigUtil {
     
 	/**
 	 * 基础参数
-	 * @Author  科帮网
+	 * @Author  吴奔江
 	 * @param packageParams  void
 	 * @Date	2017年7月31日
 	 * 更新日志
-	 * 2017年7月31日  科帮网 首次创建
+	 * 2017年7月31日  吴奔江 首次创建
 	 *
 	 */
 	public static void commonParams(SortedMap<Object, Object> packageParams) {
-		// 账号信息
-		String appid = ConfigUtil.APP_ID; // appid
-		String mch_id = ConfigUtil.MCH_ID; // 商业号
 		// 生成随机字符串
 		String currTime = PayCommonUtil.getCurrTime();
 		String strTime = currTime.substring(8, currTime.length());
 		String strRandom = PayCommonUtil.buildRandom(4) + "";
 		String nonce_str = strTime + strRandom;
-		packageParams.put("appid", appid);// 公众账号ID
-		packageParams.put("mch_id", mch_id);// 商户号
 		packageParams.put("nonce_str", nonce_str);// 随机字符串
 	}
 
 	/**
 	 * 该接口主要用于扫码原生支付模式一中的二维码链接转成短链接(weixin://wxpay/s/XXXXXX)，减小二维码数据量，提升扫描速度和精确度
-	 * @Author  科帮网
+	 * @Author  吴奔江
 	 * @param urlCode  void
 	 * @Date	2017年7月31日
 	 * 更新日志
-	 * 2017年7月31日  科帮网 首次创建
+	 * 2017年7月31日  吴奔江 首次创建
 	 *
 	 */
 	@SuppressWarnings("rawtypes")

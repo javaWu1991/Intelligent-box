@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cmcc.mobile.yiqi.entity.TRefund;
 import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
 import cmcc.mobile.yiqi.utils.ClientCustomSSL;
 import cmcc.mobile.yiqi.utils.CommonUtil;
@@ -23,12 +24,13 @@ import cmcc.mobile.yiqi.utils.XMLUtil;
 import cmcc.mobile.yiqi.vo.Product;
 import com.alipay.demo.trade.utils.ZxingUtils;
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
+import javassist.compiler.ast.NewExpr;
 import weixin.popular.api.SnsAPI;
 @Service
 public class WeixinPayServiceImpl implements IWeixinPayService {
 	private static final Logger logger = LoggerFactory.getLogger(WeixinPayServiceImpl.class);
 	
-	private static final String notify_url = "";
+	private static final String notify_url = "http://www.xajun.com/Intelligent-box/api/H5/notify";
 
 	private static final String server_url = "";
 	@Autowired
@@ -115,18 +117,18 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 		String  message = Constants.SUCCESS;
 		try {
 			// 账号信息
-			String mch_id = ConfigUtil.MCH_ID; // 商业号
 			String key = ConfigUtil.API_KEY; // key
 			
 			SortedMap<Object, Object> packageParams = new TreeMap<Object, Object>();
 			ConfigUtil.commonParams(packageParams);
 			packageParams.put("out_trade_no", product.getOutTradeNo());// 商户订单号
-			packageParams.put("out_refund_no", product.getOutTradeNo());//商户退款单号
+			packageParams.put("out_refund_no", RandomNumUtil.genRandomNum());//商户退款单号
 			String totalFee = product.getTotalFee();
 			totalFee =  CommonUtil.subZeroAndDot(totalFee);
 			packageParams.put("total_fee", totalFee);// 总金额
 			packageParams.put("refund_fee", totalFee);//退款金额
-			packageParams.put("op_user_id", mch_id);//操作员帐号, 默认为商户号
+			packageParams.put("mch_id", product.getMchId());//操作员帐号, 默认为商户号
+			packageParams.put("appid", product.getAppId()) ;
 			String sign = PayCommonUtil.createSign("UTF-8", packageParams, key);
 			packageParams.put("sign", sign);// 签名
 			String requestXML = PayCommonUtil.getRequestXml(packageParams);
@@ -136,6 +138,7 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 			if("SUCCESS".equals(returnCode)){
 				String resultCode = (String) map.get("result_code");
 				if("SUCCESS".equals(resultCode)){
+					intelligentBoxMapper.updateOrder(product.getOutTradeNo()) ;
 					logger.info("订单号：{}微信退款成功并删除二维码",product.getOutTradeNo());
 				}else{
 					String errCodeDes  = (String) map.get("err_code_des");
@@ -151,6 +154,12 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 			logger.error("订单号：{}微信支付失败(系统异常)",product.getOutTradeNo(), e);
 			message = Constants.FAIL;
 		}
+		TRefund tRefund = new TRefund() ;
+		tRefund.setCreateTime(System.currentTimeMillis());
+		tRefund.setOrderCode(product.getOutTradeNo());
+		tRefund.setRefundCode(product.getReturnCode());
+		tRefund.setStatus(message.equals(Constants.SUCCESS)?1:0);
+		intelligentBoxMapper.insetRefund(tRefund) ;		
 		return message;
 	}
 
@@ -268,7 +277,7 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 			//H5支付专用 
 			JSONObject value = new JSONObject();
 			value.put("type", "WAP");
-			value.put("wap_url", "https://blog.52itstyle.com");////WAP网站URL地址
+			value.put("wap_url", "http://www.xajun.com");////WAP网站URL地址
 			value.put("wap_name", "小爱君商城");//WAP 网站名
 			JSONObject scene_info = new JSONObject();
 			scene_info.put("h5_info", value);
@@ -286,11 +295,9 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 				if("SUCCESS".equals(resultCode)){
 					logger.info("订单号：{}发起H5支付成功",product.getOutTradeNo());
 					mweb_url = (String) map.get("mweb_url");
-					product.setStatus(1);
 				}else{
 					String errCodeDes = (String) map.get("err_code_des");
 					logger.info("订单号：{}发起H5支付(系统)失败:{}",product.getOutTradeNo(),errCodeDes);
-					product.setStatus(0);
 				}
 			}else{
 				String returnMsg = (String) map.get("return_msg");
@@ -299,7 +306,8 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 			product.setReturnCode(returnCode);
 		} catch (Exception e) {
 			logger.error("订单号：{}发起H5支付失败(系统异常))",product.getOutTradeNo(),e);
-		}		
+		}	
+		product.setStatus(3);
 		intelligentBoxMapper.insertOrder(product);
 		return mweb_url;
 	}

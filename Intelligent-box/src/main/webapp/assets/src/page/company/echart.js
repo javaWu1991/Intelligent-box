@@ -964,152 +964,169 @@ define(function(require, exports) {
             $('[data-toggle="tooltip"]').tooltip();
         });
         $('.primary-nav').metisMenu();
-
-        // 数据集合
-        var list = new Backbone.Collection(null, {
-            model: Company
-        });
-        _.extend(list, {
-            url: CONTEXT_PATH + '/web/company/selectCompany.do',
-            // 处理响应的数据，解析后返回
-            parse: function(resp) {
-                var parsed = _.extend({
-                    success: false,
-                    model: []
-                }, resp);
-
-                var model = parsed.model;
-
-                model = _.extend({
-                    list: []
-                }, model);
-
-                var items = _.isArray(model.list) ? model.list : [];
-                return items;
-            },
-            refresh: function() {
-                this.fetch({
-                    parse: true,
-                    reset: true
-                });
-            },
-            getSelection: function() {
-                return this.filter(function(model) {
-                    return model.$selected;
-                });
-            }
-        });
-        // 表格视图对象，监听数据集合的变化进行视图的刷新
-        var table = new DataTable({
-            el: '#sole-table',
-            collection: list
-        });
-        // 分页视图对象
-        var pager = new Pager({
-            className: 'pagination pull-right',
-            collection: list
-        });
-
-        // 搜索表单
-        var search = new SearchForm({
-            el: '#search',
-            collection: list
-        });
-        search.on('search', searchHandler);
-
-        // 监听数据集合的异步请求，根据响应的结果刷新视图
-        pager.listenTo(list, 'sync', function(collection, resp) {
-            if (collection instanceof Backbone.Collection) {
-                var pageVo = resp.model;
-                if (_.isObject(pageVo)) {
-                    var attrs = _.pick(pageVo, 'pageNum', 'pageSize', 'totalCount');
-                    attrs.totalPages = pageVo.pages;
-                    this.update(attrs);
-                } else {
-                    this.$el.empty();
+    	$.ajax({
+            type: "GET",
+            url: CONTEXT_PATH + '/web/boxWeb/orderList.do',
+            dataType: "json",
+            context: this,
+            data: {userId:2},   
+            
+            success: function(data) {
+            	//各产品销量
+            	var markup = [];
+            	var marknum = [];
+                var checknode = data.model.list;
+                for(var i = 0; i < checknode.length; i++){
+                	markup[i]=checknode[i].productName ;
+                	marknum[i] = checknode[i].productNumber;
                 }
+                // 基于准备好的dom，初始化echarts实例  
+                var myChart = echarts.init(document.getElementById('main'));  
+                // 指定图表的配置项和数据  
+                var option = {   
+                    tooltip: {},   
+                    xAxis: {  
+                        name: '产品', 
+                        data: markup,  
+                        axisLabel: {  
+                        	   interval:0,  
+                        	   rotate:40  
+                        	}  ,
+                    },  
+                    yAxis: {
+                        name: '销量（个）', 
+                    },  
+                    series: [{  
+           
+                        type: 'bar',  
+                        data: marknum,
+                        itemStyle:{
+                            normal:{        
+                            	label: {
+                                    show: true,
+                                    position: 'top',
+                            	},
+                                color:'#28004d'
+                            }
+                        },
+                  
+                    }]  
+                };   
+               
+                // 使用刚指定的配置项和数据显示图表  
+                myChart.setOption(option);  
+                
+              //各产品类目销量0.其他1.安全套2.情趣内衣3.跳蛋4.飞机杯5.精油6.湿巾7.喷剂
+                var markup = [];
+            	var marknum = [];
+                var checknode = data.model.categoryList;
+                for(var i = 0; i < checknode.length; i++){
+                	switch(checknode[i].type){
+                	case 0:
+                	markup[i] = "其他" 
+                	break ;
+                	case 1:
+                	markup[i] ="安全套"
+                	break;
+                	case 2:
+                	markup[i] = "情趣内衣"	
+                	break;
+                	case 3:
+                	markup[i] = "跳蛋"
+                	break;
+                	case 4:
+                	markup[i] = "飞机杯"
+                	break;
+                	case 5:
+                	markup[i] = "精油"
+                	break;
+                	case 6:
+                	markup[i] = "湿巾"
+                	break ;
+                	case 7:
+                	markup[i] = "喷剂"
+                	break ;
+                	default:
+                	markup[i] = "未知"
+                	}
+                	marknum[i] = checknode[i].productNumber;
+                }
+                var myChart1 = echarts.init(document.getElementById('main1'));  
+                // 指定图表的配置项和数据  
+                var option = {  
+                    tooltip: {},   
+                    xAxis: {  
+                        name: '产品', 
+                        data: markup  
+                    },  
+                    yAxis: {
+                        name: '销量（个）', 
+                    },  
+                    series: [{  
+           
+                        type: 'bar',  
+                        data: marknum,
+             
+                        itemStyle:{
+                            normal:{
+                            	label: {
+                                    show: true,
+                                    position: 'top',
+                                },
+                                color:'#28004d'
+                            }
+                        },
+                  
+                    }]  
+                };   
+               
+                // 使用刚指定的配置项和数据显示图表  
+                myChart1.setOption(option);  
+                
+            	var marknum = [];
+            	var marname = []
+                var myChart2 = echarts.init(document.getElementById('main2'));  
+                var checknode = data.model.productVos;
+                for(var i = 0; i < checknode.length; i++){
+                	marknum[i] = checknode[i].name;
+                	marname[i] = checknode[i];
+                } 
+                var option = {  
+                        legend: {  
+                            data:marknum,
+                        },  
+                        grid: {  
+                            left: '3%',  
+                            right: '4%',  
+                            bottom: '3%',  
+                            containLabel: true  
+                        },  
+                        toolbox: {  
+                            feature: {  
+                                saveAsImage: {}  
+                            }  
+                        },  
+                        xAxis: {  
+                        	name: '产品',
+                            type: 'category',  
+                            boundaryGap: false,  
+                            data: [1,3,5,7,9,11,13,15,17,19,21,23]  
+                        },  
+                        yAxis: {  
+                        	name: '销量（个）',
+                            type: 'value'  
+                        },  
+                        series: marname
+                    };  
+                myChart2.setOption(option);
             }
+            
         });
-        pager.on('page', function(pageNo) {
-            var data = search.serialize();
-            _.extend(data, {
-                pageNo: pageNo
-            });
-
-            searchHandler(data);
-        });
-
-        var bulkAction = new BulkAction({
-            className: 'bulk-action pull-left'
-        });
-
-        table.listenTo(bulkAction, 'bulk:delete', table.bulkDelete);
-        table.listenTo(bulkAction, 'bulk:enable', table.bulkEnable);
-        table.listenTo(bulkAction, 'bulk:disable', table.bulkDisable);
-
-        // 将分页视图渲染到界面上
-        $('.toolbar-bottom').append(bulkAction.render().$el, pager.render().$el);
-
-        var modal;
-        $('[data-do="create:company"]').on('click', function() {
-            modal = new CompanyCreateModal({
-                model: new Company(),
-                collection: list
-            });
-            modal.render().$el.appendTo(document.body);
-            setTimeout(function() {
-                modal.initMap();
-            }, 500);
-            modal.initForm();
-            modal.initAreaPicker();
-            modal.show();
-        });
-
-        Backbone.on('edit:company', function(model) {
-            modal = new CompanyEditModal({
-                model: model,
-                collection: list
-            });
-            modal.render().$el.appendTo(document.body);
-            setTimeout(function() {
-                modal.initMap();
-            }, 500);
-            modal.initForm();
-            modal.initAreaPicker();
-            modal.show();
-        });
-
-        Backbone.on('set:manager', function(model) {
-            modal = new SetManagerModal({
-                model: model,
-                collection: list
-            });
-            modal.render().$el.appendTo(document.body);
-            modal.initDatatable();
-            modal.show();
-        });
-
-        function searchHandler(data) {
-            var clean = data;
-            // 过滤空的搜索条件
-            if (_.isObject(data) && !_.isArray(data)) {
-                clean = {};
-                _.each(data, function(value, key) {
-                    if (_.isObject(value)) {
-                        if (!_isEmpty(value)) clean[key] = value;
-                    } else {
-                        if (value.toString() != '') clean[key] = value;
-                    }
-                });
-            }
-            list.fetch({
-                parse: true,
-                reset: true,
-                data: clean
-            });
-        }
-
-        searchHandler();
+    	
+        
+       
+        
+      
     }
 
 

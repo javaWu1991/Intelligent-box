@@ -1,17 +1,15 @@
 package cmcc.mobile.yiqi.web.service.impl;
 
+import java.awt.Image;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.alibaba.fastjson.JSONObject;
 import cmcc.mobile.yiqi.entity.BannerImg;
 import cmcc.mobile.yiqi.entity.TAppProduct;
 import cmcc.mobile.yiqi.entity.TOpenBoxLog;
@@ -19,16 +17,20 @@ import cmcc.mobile.yiqi.entity.TProductLog;
 import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
 import cmcc.mobile.yiqi.entity.dao.TAppProductMapper;
 import cmcc.mobile.yiqi.entity.dao.TOpenBoxLogMapper;
+import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.utils.ConfigUtil;
 import cmcc.mobile.yiqi.utils.FileUpload;
 import cmcc.mobile.yiqi.utils.IntelligentUtil;
 import cmcc.mobile.yiqi.utils.JsonResult;
 import cmcc.mobile.yiqi.utils.RandomNumUtil;
-import cmcc.mobile.yiqi.utils.RandomUtil;
 import cmcc.mobile.yiqi.vo.ConsumeVo;
+import cmcc.mobile.yiqi.vo.EchartsVo;
+import cmcc.mobile.yiqi.vo.PageVo;
 import cmcc.mobile.yiqi.vo.Product;
+import cmcc.mobile.yiqi.vo.ProductVo;
+import cmcc.mobile.yiqi.vo.RefundVo;
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
-import javassist.compiler.ast.NewExpr;
 
 @Service
 public class IntelligentBoxServiceImpl implements IntelligentBoxService{
@@ -46,7 +48,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		 /**
          * 查询banner图是否超过最多限制如果超过删除不上传
          */
-        if (intelligentBoxMapper.selectAll().size() < 3 && mr.getSize() > 0) {
+        if (intelligentBoxMapper.selectAll(ConfigUtil.imgUrl).size() < 3 && mr.getSize() > 0) {
             String picurl = "";
             try {
                 if (!mr.isEmpty()) {
@@ -68,7 +70,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 */
 	@Override
 	public JsonResult getImages() {
-		 List<String> list = intelligentBoxMapper.selectAll();
+		 List<String> list = intelligentBoxMapper.selectAll(ConfigUtil.imgUrl);
 		return new JsonResult(true,"获取成功",list);
 	}
 	/**
@@ -98,7 +100,10 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 */
 	@Override
 	public JsonResult getProductList(String code) {
-		List<TAppProduct> tAppProducts = tAppProductMapper.selectByMachineId(code) ;
+		Map<String, Object> map = new HashMap<>() ;
+		map.put("machineId", code) ;
+		map.put("imgUrl", ConfigUtil.imgUrl) ;
+		List<TAppProduct> tAppProducts = tAppProductMapper.selectByMachineId(map) ;
 		if(tAppProducts.size()==0||tAppProducts==null){
 			return new JsonResult(false,"该编码不存在",null) ;
 			
@@ -243,17 +248,23 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 * 管理页面获取产品
 	 */
 	@Override
-	public JsonResult getProductListByCorpId(long corpId,String productName,Integer status) {
-		TAppProduct tAppProduct = new TAppProduct() ;
-		tAppProduct.setCorpId(corpId);
-		tAppProduct.setStatus(status);
-		tAppProduct.setProductName(productName);
-		List<TAppProduct> tAppProducts = tAppProductMapper.selectByCorp(tAppProduct);
+	public JsonResult getProductListByCorpId(Long corpId,String productName,Integer status,PageVo pageVo){ 
+		Map<String, Object> map = new HashMap<>() ;
+		map.put("corpId", corpId) ;
+		map.put("status", status) ;
+		map.put("productName", productName) ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		List<TAppProduct> tAppProducts = tAppProductMapper.selectByCorp(map);
+		int count = tAppProductMapper.selectByCorpCount(map);
 		if(tAppProducts.size()==0||tAppProducts==null){
 			return new JsonResult(false,"该编码不存在",null) ;
 			
 		}
-		return new JsonResult(true,"获取成功！",tAppProducts) ;
+		pageVo.setTotalCountAndPageTotal(count);
+		JsonResult jsonResult = new JsonResult(true,"获取成功！",tAppProducts) ;
+		jsonResult.setPageVo(pageVo);
+		return jsonResult ;
 	}
 	/**
 	 * 更新产品
@@ -297,6 +308,192 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		String mweb_url = weixinPayService.weixinPayH5(product) ;
 		return mweb_url ;
 	}
-
+	/**
+	 * 订单接口
+	 */
+	@Override
+	public JsonResult getOrderList(Long userId) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("userId", userId) ;
+		//各产品销量
+		List<ProductVo> list = intelligentBoxMapper.getOrderList(map);
+		//各产品类目销量
+		map.put("category", 1) ;
+		List<ProductVo> categoryList = intelligentBoxMapper.getOrderList(map);
+		//行为时间段分析(查询出所有订单信息)
+		List<ProductVo> actionList = intelligentBoxMapper.getAllOrderList(map) ;
+		List<ProductVo> productVos = new ArrayList<>() ;
+		productVos.addAll(list) ;
+		
+		for(ProductVo productVo : productVos){		
+			int[] numberList = new int[12] ;
+			for(ProductVo productVo1 : actionList){	
+				if(productVo.getProductName().equals(productVo1.getProductName())){	
+				for(int i =0 ;i<Constants.LIST_TIME.length;i++){
+					if(Constants.LIST_TIME[i]==productVo1.getHours()||Constants.LIST_TIME[i]==(productVo1.getHours()+1)){
+						if(numberList[i]!=0){
+						numberList[i]=Integer.valueOf(productVo1.getProductNumber())+numberList[i] ;
+						}else{
+							numberList[i] = Integer.valueOf(productVo1.getProductNumber());
+						}
+					}
+				}
+					productVo.setNumberList(numberList);
+			}
+		}			
+		}
+		List<EchartsVo> echartsVos = new ArrayList<>() ;
+		JSONObject object = new JSONObject() ;
+		JSONObject obj = new JSONObject() ;
+		JSONObject json = new JSONObject() ;
+		json.put("show", true) ;
+		obj.put("label", json) ;
+		object.put("normal", obj) ;
+		for( int i = 0 ; i<list.size(); i++){
+			ProductVo productVo = list.get(i) ;
+			EchartsVo echartsVo = new EchartsVo() ;
+			echartsVo.setData(productVo.getNumberList());
+			echartsVo.setName(productVo.getProductName());
+			echartsVo.setStack("总量"+i);
+			echartsVo.setType("line");
+			echartsVo.setItemStyle(object);
+			echartsVos.add(echartsVo) ;
+			
+		}
+		map.clear();
+		map.put("list", list) ;
+		map.put("categoryList", categoryList) ;
+		map.put("productVos", echartsVos) ;
+		return new JsonResult(true,"获取成功！",map) ;
+	}
+	/**
+	 * 按时间查询
+	 */
+	@Override
+	public JsonResult orderListTime(Long userId, String type,String time) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("userId", userId) ;
+		map.put("type", type) ;
+		List<ProductVo> list = new ArrayList<ProductVo>() ;
+		map.put("time", time.equals("0")?null:time) ;
+		switch(type){
+		//各产品销量
+		case "1":
+			list = intelligentBoxMapper.getOrderList(map);
+			break ;
+			//各产品类目销量
+		case "2":
+			map.put("category", 1) ;
+			list = intelligentBoxMapper.getOrderList(map);
+			break ;
+			//行为时间段分析(查询出所有订单信息)
+		case "3":
+			 list = intelligentBoxMapper.getOrderList(map) ;
+			 List<ProductVo> productVos = intelligentBoxMapper.getAllOrderList(map) ;
+			for(ProductVo productVo : list){		
+				int[] numberList = new int[12] ;
+				for(ProductVo productVo1 : productVos){	
+					if(productVo.getProductName().equals(productVo1.getProductName())){	
+					for(int i =0 ;i<Constants.LIST_TIME.length;i++){
+						if(Constants.LIST_TIME[i]==productVo1.getHours()||Constants.LIST_TIME[i]==(productVo1.getHours()+1)){
+							if(numberList[i]!=0){
+							numberList[i]=Integer.valueOf(productVo1.getProductNumber())+numberList[i] ;
+							}else{
+								numberList[i] = Integer.valueOf(productVo1.getProductNumber());
+							}
+						}
+					}
+						productVo.setNumberList(numberList);
+				}
+			}			
+			}
+			List<EchartsVo> echartsVos = new ArrayList<>() ;
+			JSONObject object = new JSONObject() ;
+			JSONObject obj = new JSONObject() ;
+			JSONObject json = new JSONObject() ;
+			json.put("show", true) ;
+			obj.put("label", json) ;
+			object.put("normal", obj) ;
+			for( int i = 0 ; i<list.size(); i++){
+				ProductVo productVo = list.get(i) ;
+				EchartsVo echartsVo = new EchartsVo() ;
+				echartsVo.setData(productVo.getNumberList());
+				echartsVo.setName(productVo.getProductName());
+				echartsVo.setStack("总量"+i);
+				echartsVo.setType("line");
+				echartsVo.setItemStyle(object);
+				echartsVos.add(echartsVo) ;
+				
+			}
+			return new JsonResult(true,"获取成功！",echartsVos) ;
+			default:
+				break ;
+		}		
+		return new JsonResult(true,"获取成功！",list) ;
+	}
+	/**
+	 * 支付订单列表详情
+	 */
+	@Override
+	public JsonResult orderDetail(Long userId, Integer status, String productName, Long startTime, Long endTime,
+			PageVo pageVo, Long corpId) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("userId", userId) ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("startTime", startTime) ;
+		map.put("endTime", endTime) ;
+		map.put("corpId", corpId) ;
+		map.put("productName", productName) ;
+		map.put("status", status) ;
+		//各产品销量
+		List<ProductVo> list = intelligentBoxMapper.getOrderDetail(map);
+		//订单数
+		map.put("startRow", null) ;
+		map.put("endRow", null) ;
+		List<ProductVo> list1 = intelligentBoxMapper.getOrderDetail(map);
+		JsonResult result = new JsonResult(true, "获取成功", list);
+		pageVo.setTotalCountAndPageTotal(list1.size());
+		result.setPageVo(pageVo);
+		return result;
+	}
+	/**
+	 * 微信退款
+	 */
+	@Override
+	public JsonResult refundAction(Long productId,String orderCode,String money) {
+		//查询订单信息以及商户信息
+		RefundVo refundVo = intelligentBoxMapper.selectByRefund(productId) ;
+		Product product = new Product() ;
+		product.setAppId(refundVo.getAppId());
+		product.setMchId(refundVo.getMchId());
+		product.setOutTradeNo(orderCode);
+		product.setTotalFee(money);
+		String new_url = weixinPayService.weixinRefund(product) ;
+		return new JsonResult(new_url.equals("success")?true:false,new_url,null);
+	}	
+	
+	/**
+	 * 微信支付成功的回调
+	 */
+	@Override
+	public void notify(Map map) {
+		//更新订单信息预支付未支付成功
+		Product product = new Product() ;
+		product.setOutTradeNo(map.get("out_trade_no").toString());
+		product.setCreateTime(System.currentTimeMillis());
+		product.setStatus(1);
+		if(!map.get("result_code").toString().equals("SUCCESS")){
+		product.setStatus(0);
+		}
+		//根据订单号查询预下单的商品
+		TAppProduct tAppProduct = intelligentBoxMapper.selectByCode(map.get("result_code").toString()) ;
+		if(tAppProduct!=null){
+			intelligentBoxMapper.updateOrderByCode(product);
+		}
+		//并下发打开货柜门的指令
+	}
+	
+	
 	
 }

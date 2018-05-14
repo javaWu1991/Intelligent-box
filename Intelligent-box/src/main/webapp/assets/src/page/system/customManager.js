@@ -804,6 +804,7 @@ define(function(require, exports, module) {
         });
         $('.primary-nav').metisMenu();
         var query = new Backbone.Model();
+        if (CID != '') query.set('cid', CID);
         var list = new Backbone.Collection(null, {
             model: Admin
         });
@@ -879,7 +880,8 @@ define(function(require, exports, module) {
         $('.toolbar-bottom').append(pager.render().$el);
 
         function searchHandler(data) {
-            var clean = data;
+        	 var clean = query.toJSON();
+        	 _.extend(clean, data);
             // 过滤空的搜索条件
             if (_.isObject(data) && !_.isArray(data)) {
                 clean = {};
