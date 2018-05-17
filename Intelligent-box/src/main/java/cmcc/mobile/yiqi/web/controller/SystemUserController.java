@@ -188,18 +188,18 @@ public class SystemUserController extends BaseController {
 		return result;
 	}
 
-	/**
-	 * 批量导入数据
-	 * 
-	 * @param cid
-	 * @param excel
-	 * @return
-	 */
-	@RequestMapping("/importExcel")
-	@ResponseBody
-	public JsonResult importExcel(String cid, MultipartFile excel, HttpServletRequest request, HttpServletResponse response) {
-		return appUserService.importExcel(cid, excel, request, response, false, false, null);
-	}
+//	/**
+//	 * 批量导入数据
+//	 * 
+//	 * @param cid
+//	 * @param excel
+//	 * @return
+//	 */
+//	@RequestMapping("/importExcel")
+//	@ResponseBody
+//	public JsonResult importExcel(String cid, MultipartFile excel, HttpServletRequest request, HttpServletResponse response) {
+//		return appUserService.importExcel(cid, excel, request, response, false, false, null);
+//	}
 
 	/**
 	 * 导出通讯录
@@ -210,10 +210,10 @@ public class SystemUserController extends BaseController {
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping("/exportExcel")
-	public void importExcel(String cid, HttpServletRequest request, HttpServletResponse response) {
-		appUserService.export(cid, true, request, response);
-	}
+//	@RequestMapping("/exportExcel")
+//	public void importExcel(String cid, HttpServletRequest request, HttpServletResponse response) {
+//		appUserService.export(cid, true, request, response);
+//	}
 
 	/**
 	 * 新增部门信息

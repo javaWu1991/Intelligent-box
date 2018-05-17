@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import cmcc.mobile.yiqi.entity.BannerImg;
 import cmcc.mobile.yiqi.entity.TAppProduct;
+import cmcc.mobile.yiqi.entity.TOpenBoxLog;
 import cmcc.mobile.yiqi.entity.TProductLog;
 import cmcc.mobile.yiqi.entity.TRefund;
 import cmcc.mobile.yiqi.vo.ConsumeVo;
@@ -49,5 +50,11 @@ public interface IntelligentBoxMapper {
 	void updateOrderByCode(Product product);
 
 	TAppProduct selectByCode(String orderCode);
+
+	void insertMachindeRegister(String machine);
+
+	void insertMacineConfig(JSONObject jsonObject);
+
+	void insertOpenDoor(TOpenBoxLog tBoxLog);
 
 }

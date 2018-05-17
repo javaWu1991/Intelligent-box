@@ -1,7 +1,7 @@
 package cmcc.mobile.yiqi.web.service.impl;
 
-import java.awt.Image;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +23,7 @@ import cmcc.mobile.yiqi.utils.FileUpload;
 import cmcc.mobile.yiqi.utils.IntelligentUtil;
 import cmcc.mobile.yiqi.utils.JsonResult;
 import cmcc.mobile.yiqi.utils.RandomNumUtil;
+import cmcc.mobile.yiqi.utils.SocketUtil;
 import cmcc.mobile.yiqi.vo.ConsumeVo;
 import cmcc.mobile.yiqi.vo.EchartsVo;
 import cmcc.mobile.yiqi.vo.PageVo;
@@ -32,7 +33,7 @@ import cmcc.mobile.yiqi.vo.RefundVo;
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
 
-@Service
+@Service("BoxService")
 public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 
 	@Autowired
@@ -476,6 +477,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	/**
 	 * 微信支付成功的回调
 	 */
+	@SuppressWarnings("static-access")
 	@Override
 	public void notify(Map map) {
 		//更新订单信息预支付未支付成功
@@ -492,6 +494,58 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 			intelligentBoxMapper.updateOrderByCode(product);
 		}
 		//并下发打开货柜门的指令
+		JSONObject jsonObject = new JSONObject() ;
+		jsonObject.put("channel", tAppProduct.getContainerNumber());
+		jsonObject.put("devno", tAppProduct.getMachineId()) ;
+		JSONObject json = new JSONObject() ;
+		json.put("cmd", "door_open") ;
+		json.put("data", jsonObject);
+		JSONObject object = SocketUtil.getMessage(json) ;
+		//记录开门状态
+		JSONObject data = new JSONObject() ;
+		TOpenBoxLog tBoxLog = new TOpenBoxLog() ;
+		tBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
+		tBoxLog.setMachineId(tAppProduct.getMachineId());
+		tBoxLog.setCreateTime(System.currentTimeMillis());
+		tBoxLog.setProductName(tAppProduct.getProductName());
+		tBoxLog.setCorpId(tAppProduct.getCorpId());
+		tBoxLog.setType(0);
+		if(data.parseObject(object.getString("data")).getInteger("rescode")==0){
+			tBoxLog.setStatus(1);
+		}else{
+			tBoxLog.setStatus(0);
+		}
+		intelligentBoxMapper.insertOpenDoor(tBoxLog) ;
+	}
+	
+	//注册客户端信息
+	@Override
+	public void insertMachindeRegister(String devno) {
+		if(devno!=null){
+			intelligentBoxMapper.insertMachindeRegister(devno);
+		}			
+	}
+	
+	//下发设备参数
+	@SuppressWarnings("static-access")
+	@Override
+	public JsonResult configMachine(int hbtime, int led_on, int senstive,String devno) {
+		JSONObject jsonObject = new JSONObject() ;
+		jsonObject.put("hbtime", hbtime) ;
+		jsonObject.put("led_on", led_on) ;
+		jsonObject.put("senstive", senstive) ;
+		jsonObject.put("company", "AES-123") ;
+		jsonObject.put("devno", devno) ;
+		JSONObject object = new JSONObject() ;
+		object.put("cmd", "config") ;
+		object.put("data", jsonObject) ;
+		JSONObject json = SocketUtil.getMessage(object) ;
+		JSONObject data = new JSONObject() ;
+		if(data.parseObject(json.getString("data")).getInteger("rescode")==0){
+			intelligentBoxMapper.insertMacineConfig(jsonObject) ;
+			return new JsonResult(true,"设置成功",jsonObject);
+		}
+		return new JsonResult(false,"设置失败",null);
 	}
 	
 	

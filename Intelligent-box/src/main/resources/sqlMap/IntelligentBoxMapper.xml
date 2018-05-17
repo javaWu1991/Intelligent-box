@@ -405,5 +405,71 @@ create_time = #{createTime}
 where order_code = #{outTradeNo}
 </update>
 
-<insert id="insertSocket" parameterType="map"></insert>
+<insert id="insertMachindeRegister" parameterType="java.lang.String">
+    insert into t_intelligent_log (machine_id,create_time,led_status)values(#{machine},now(),1)
+</insert>
+<insert id="insertMachindeRegister" parameterType="cmcc.mobile.yiqi.entity.TOpenBoxLog">
+    insert into t_intelligent_log 
+<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+              <if test="createTime != null">
+                create_time,
+            </if>
+              <if test="machineId != null">
+                machine_id,
+            </if>
+            <if test="corpId !=null">
+            corp_id,
+            </if>
+            <if test="status !=null">
+            status,
+            </if>
+            <if test="userId !=null">
+            user_id,
+            </if>
+                <if test="containerNumber !=null">
+            container_number,
+            </if>
+                <if test="productName !=null">
+            product_name,
+            </if>
+                       <if test="type !=null">
+            type
+            </if>
+            </trim>
+             <trim prefix="values (" suffix=")" suffixOverrides=",">
+                  <if test="id != null">
+                #{id},
+            </if>
+             <if test="createTime != null">
+                #{createTime},
+            </if>
+              <if test="corpId != null">
+                #{corpId},
+            </if>
+            <if test="machineId !=null">
+            #{machineId},
+            </if>
+               <if test="corpId != null">
+                #{corpId},
+            </if>
+            <if test="status !=null">
+            #{status},
+            </if>
+            <if test="userId !=null">
+            #{userId},
+            </if>
+           <if test="containerNumber !=null">
+            #{containerNumber},
+            </if>
+           <if test="productName !=null">
+            #{productName},
+            </if>
+             <if test="type !=null">
+            #{type}
+            </if>
+             </trim>
+</insert>
 </mapper>

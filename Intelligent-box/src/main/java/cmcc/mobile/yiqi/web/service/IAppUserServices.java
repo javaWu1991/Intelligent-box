@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import cmcc.mobile.yiqi.entity.TAppCompany;
@@ -59,10 +57,10 @@ public interface IAppUserServices {
 
 	JsonResult deleteOrgUser(String orgId, String id);
 
-	JsonResult importExcel(String cid, MultipartFile excel, HttpServletRequest request, HttpServletResponse response, Boolean isExport,
-			Boolean isJunit, HSSFWorkbook workbook);
+//	JsonResult importExcel(String cid, MultipartFile excel, HttpServletRequest request, HttpServletResponse response, Boolean isExport,
+//			Boolean isJunit, HSSFWorkbook workbook);
 
-	void export(String cid, Boolean isNeedBak, HttpServletRequest request, HttpServletResponse response);
+//	void export(String cid, Boolean isNeedBak, HttpServletRequest request, HttpServletResponse response);
 
 	JsonResult toTop(String id, String orgId, Integer sort);
 

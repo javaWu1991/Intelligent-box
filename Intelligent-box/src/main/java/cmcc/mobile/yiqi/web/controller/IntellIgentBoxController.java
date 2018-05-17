@@ -152,4 +152,13 @@ public class IntellIgentBoxController extends BaseController{
 		return intelligentBoxService.refundAction(productId,orderCode,money);
 		
 	}
+	
+	/**
+	 * 设置货柜参数
+	 */
+	@RequestMapping("/configMachine")
+	@ResponseBody
+	public JsonResult configMachine(int hbtime,int led_on,int senstive,String devno){
+		return intelligentBoxService.configMachine(hbtime,led_on,senstive,devno) ;
+	}
 }

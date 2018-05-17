@@ -56,9 +56,9 @@
     <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
   </listener>
   
-  <!-- <listener> 
+  <listener> 
 　　<listener-class>cmcc.mobile.yiqi.utils.SocketServiceLoader</listener-class> 
-</listener>  --> 
+</listener>   
 
   <servlet>
     <servlet-name>SpringMVC</servlet-name>

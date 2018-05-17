@@ -30,7 +30,7 @@ public interface TAppServiceNoService {
 
 	List<TAppServiceNo> findByOriginNotice(Long record);
 
-	int save(AppServiceNoVo record,Boolean isJunit);
+	//int save(AppServiceNoVo record,Boolean isJunit);
 
 	String selectReceivers(Long id);
 

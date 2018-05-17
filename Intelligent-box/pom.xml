@@ -137,32 +137,7 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.2</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-scratchpad</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-examples</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<!-- poi -->
+
 
 		<dependency>
 			<groupId>taglibs</groupId>
@@ -377,17 +352,6 @@
             <artifactId>weixin-popular</artifactId>
             <version>2.8.16</version>
         </dependency>
-		<dependency>
-			<groupId>com.huawei</groupId>
-			<artifactId>smsproxy</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<!-- 个推 -->
-		<dependency>
-			<groupId>com.gexin.platform</groupId>
-			<artifactId>gexin-rp-sdk-http</artifactId>
-			<version>4.0.1.2</version>
-		</dependency>
 
 	</dependencies>
 	<build>

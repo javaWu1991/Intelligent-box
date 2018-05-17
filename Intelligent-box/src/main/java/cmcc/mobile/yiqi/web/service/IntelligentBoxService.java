@@ -47,4 +47,8 @@ public interface IntelligentBoxService {
 
 	void notify(Map map);
 
+	void insertMachindeRegister(String string);
+
+	JsonResult configMachine(int hbtime, int led_on, int senstive,String devno);
+
 }
