@@ -59,7 +59,7 @@ public class WeChatPayController {
     public String  h5pay(Product product,ModelMap map) {
 		logger.info("纯H5支付(不建议在APP端使用)");
 		//mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。
-		String mweb_url =  weixinPayService.weixinPayH5(product);
+		String mweb_url =  "";//weixinPayService.weixinPayH5(product);
 		if(StringUtils.isNotBlank(mweb_url)){
 			return "redirect:"+mweb_url;
 		}else{
@@ -94,7 +94,7 @@ public class WeChatPayController {
 		//获取code 这个在微信支付调用时会自动加上这个参数 无须设置
 		String code = request.getParameter("code");
 		//获取用户openID(JSAPI支付必须传openid)
-		String openId = MobileUtil.getOpenId(code);
+	//	String openId = MobileUtil.getOpenId(code);
 		String notify_url =server_url+"/weixinMobile/WXPayBack";//回调接口
 		String trade_type = "JSAPI";// 交易类型H5支付 也可以是小程序支付参数
 		SortedMap<Object, Object> packageParams = new TreeMap<Object, Object>();
@@ -105,7 +105,7 @@ public class WeChatPayController {
 		packageParams.put("spbill_create_ip", AddressUtils.getIpAddr(request));// 发起人IP地址
 		packageParams.put("notify_url", notify_url);// 回调地址
 		packageParams.put("trade_type", trade_type);// 交易类型
-		packageParams.put("openid", openId);//用户openID
+		//packageParams.put("openid", "12");//用户openID
 		String sign = PayCommonUtil.createSign("UTF-8", packageParams,ConfigUtil.API_KEY);
 		packageParams.put("sign", sign);// 签名
 		String requestXML = PayCommonUtil.getRequestXml(packageParams);

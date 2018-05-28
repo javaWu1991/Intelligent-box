@@ -10,6 +10,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import com.google.gson.Gson;
+
+import cmcc.mobile.yiqi.vo.Product;
 /**
  * 微信H5支付工具类
  * 创建者 科帮网
@@ -26,12 +28,12 @@ public class MobileUtil {
 	 * 2017年7月31日  科帮网 首次创建
 	 *
 	 */
-	public static String getOpenId(String code){
-		if (code != null) {
+	public static String getOpenId(Product product){
+		if (product != null) {
 			String url = "https://api.weixin.qq.com/sns/oauth2/access_token?"
-					+ "appid="+ ConfigUtil.APP_ID
-					+ "&secret="+ ConfigUtil.APP_SECRET + "&code="
-					+code + "&grant_type=authorization_code";
+					+ "appid="+ product.getAppId()
+					+ "&secret=5b623a5a975277059ab086a9fdd32a38" + "&code="
+					+product.getCode() + "&grant_type=authorization_code";
 			String returnData = getReturnData(url);
 			Gson gson = new Gson();
 			OpenIdClass openIdClass = gson.fromJson(returnData,

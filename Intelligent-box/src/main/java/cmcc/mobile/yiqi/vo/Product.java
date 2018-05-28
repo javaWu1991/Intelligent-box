@@ -27,6 +27,15 @@ public class Product implements Serializable {
 	private String returnCode ;//状态码
 	private Integer status ;//状态
 	private Long createTime ;//创建时间
+	private String code ;//
+	
+	
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
 	public Product() {
 		super();
 	}

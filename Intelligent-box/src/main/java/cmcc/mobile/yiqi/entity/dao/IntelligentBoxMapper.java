@@ -57,4 +57,6 @@ public interface IntelligentBoxMapper {
 
 	void insertOpenDoor(TOpenBoxLog tBoxLog);
 
+	void updateDoor(TOpenBoxLog tOpenBoxLog);
+
 }

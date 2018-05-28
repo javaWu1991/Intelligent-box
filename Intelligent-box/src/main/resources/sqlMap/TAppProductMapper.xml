@@ -241,4 +241,9 @@ original_price, favorable_price, corp_id,
     </set>
     where machine_id = #{machineId,jdbcType=VARCHAR} and status = 0 and id = #{id}
   </update>
+  
+  <select id="selectByMachineIdAndContainerNumber" parameterType="cmcc.mobile.yiqi.entity.TAppProduct" resultMap="BaseResultMap">
+  select * from t_app_product where machine_id = #{machineId} and container_number = #{containerNumber}
+  
+  </select>
 </mapper>

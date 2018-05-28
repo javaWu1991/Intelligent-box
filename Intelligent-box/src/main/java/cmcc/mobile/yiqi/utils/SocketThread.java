@@ -33,8 +33,7 @@ public class SocketThread extends Thread{
 					//处理接受的数据 
 					new SocketOperate(socket).start(); 
 				} 
-				socket.setSoTimeout(30000); 
-
+				//socket.setSoTimeout(3000); 
 			}catch (Exception e) { 
 				e.printStackTrace(); 
 			} 

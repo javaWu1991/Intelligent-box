@@ -1,27 +1,32 @@
 package cmcc.mobile.yiqi.api.controller;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
 import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.utils.MobileUtil;
 import cmcc.mobile.yiqi.utils.XMLUtil;
 import cmcc.mobile.yiqi.vo.Product;
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
+
 
 @Controller
 @RequestMapping("/H5")
@@ -29,6 +34,7 @@ public class IntelligentBoxController extends ApiController{
 
 	@Autowired
 	private IntelligentBoxService intelligentBoxService ;
+	
 	/**
 	 * 获取banner图
 	 */
@@ -123,7 +129,7 @@ public class IntelligentBoxController extends ApiController{
 	 */
 	@ResponseBody
 	@RequestMapping("/openDoor")
-	public JsonResult openDoor(String code ,String containerNumber,HttpServletRequest request){
+	public JsonResult openDoor(String code ,Integer containerNumber,HttpServletRequest request){
 		HttpSession session = request.getSession();
 		if(code==null && containerNumber==null){
 			 return new JsonResult(false,"参数缺失",null) ;
@@ -140,19 +146,9 @@ public class IntelligentBoxController extends ApiController{
 	 */
 	@ResponseBody
 	@RequestMapping("/shopping")
-	public JsonResult consume(HttpServletRequest request,double money,Long productId){
-		//mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。
-		 String ip = request.getHeader("x-forwarded-for");  
-	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
-	           ip = request.getHeader("Proxy-Client-IP");  
-	       }  
-	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
-	           ip = request.getHeader("WL-Proxy-Client-IP");  
-	       }  
-	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
-	           ip = request.getRemoteAddr();  
-	       }  
-		String mweb_url =  intelligentBoxService.weixinPayH5(money,productId,ip);
+	public JsonResult consume(HttpServletRequest request,Long productId){
+		//mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。 
+		String mweb_url =  intelligentBoxService.weixinPayMobile(productId) ;
 		if(StringUtils.isNotBlank(mweb_url)){
 			return new JsonResult(true,"预下单成功！",mweb_url) ;
 		}else{
@@ -215,5 +211,33 @@ public class IntelligentBoxController extends ApiController{
 	}
 	
 	
+	/**
+	 * 支付接口
+	 * @throws IOException 
+	 */
+	@ResponseBody
+	@RequestMapping("/getUrl")
+	public void  getUrl(HttpServletRequest request,HttpServletResponse response,Long productId) throws IOException{
+		//mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。
+		 String ip = request.getHeader("x-forwarded-for");  
+	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+	           ip = request.getHeader("Proxy-Client-IP");  
+	       }  
+	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+	           ip = request.getHeader("WL-Proxy-Client-IP");  
+	       }  
+	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+	           ip = request.getRemoteAddr();  
+	       }  
+	       String code = request.getParameter("code") ;
+		String mweb_url =  intelligentBoxService.weixinPayH5(productId,ip,code);
+		if(StringUtils.isNotBlank(mweb_url)){
+			response.sendRedirect(mweb_url) ;
+		}else{
+			//自定义错误页面
+			response.sendRedirect("www.baidu.com");
+		}
+		
+	}
 }
 

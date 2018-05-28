@@ -408,7 +408,7 @@ where order_code = #{outTradeNo}
 <insert id="insertMachindeRegister" parameterType="java.lang.String">
     insert into t_intelligent_log (machine_id,create_time,led_status)values(#{machine},now(),1)
 </insert>
-<insert id="insertMachindeRegister" parameterType="cmcc.mobile.yiqi.entity.TOpenBoxLog">
+<insert id="insertOpenDoor" parameterType="cmcc.mobile.yiqi.entity.TOpenBoxLog">
     insert into t_intelligent_log 
 <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -472,4 +472,9 @@ where order_code = #{outTradeNo}
             </if>
              </trim>
 </insert>
+
+<update id="updateDoor" parameterType="cmcc.mobile.yiqi.entity.TOpenBoxLog">
+update t_open_box_log set status = #{status}
+where container_number = #{containerNumber} and machine_id = #{machineId}
+</update>
 </mapper>

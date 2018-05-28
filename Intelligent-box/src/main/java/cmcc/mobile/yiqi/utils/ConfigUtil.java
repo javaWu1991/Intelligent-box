@@ -19,7 +19,7 @@ public class ConfigUtil {
 	public  static final String API_KEY = "xaj19910531xaj19910531xaj1991053";// API密钥
 	public  static final String APP_ID = "";
     public  static final String MCH_ID = "";
-    public  static final String APP_SECRET = "";
+    public  static final String APP_SECRET = "5b623a5a975277059ab086a9fdd32a38";
     public  static final String CERT_PATH = "" ;
 	public  static String imgUrl ;//图片域名地址
 	protected Logger LOG = Logger.getLogger(getClass());

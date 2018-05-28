@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +21,7 @@ import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
 import cmcc.mobile.yiqi.entity.dao.TAppProductMapper;
 import cmcc.mobile.yiqi.entity.dao.TOpenBoxLogMapper;
 import cmcc.mobile.yiqi.base.Constants;
+import cmcc.mobile.yiqi.utils.CommonUtil;
 import cmcc.mobile.yiqi.utils.ConfigUtil;
 import cmcc.mobile.yiqi.utils.FileUpload;
 import cmcc.mobile.yiqi.utils.IntelligentUtil;
@@ -32,10 +36,12 @@ import cmcc.mobile.yiqi.vo.ProductVo;
 import cmcc.mobile.yiqi.vo.RefundVo;
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
+import sun.util.logging.resources.logging;
+import weixin.popular.api.SnsAPI;
 
 @Service("BoxService")
 public class IntelligentBoxServiceImpl implements IntelligentBoxService{
-
+	private static final Logger logger = LoggerFactory.getLogger(WeixinPayServiceImpl.class);
 	@Autowired
 	private IntelligentBoxMapper intelligentBoxMapper ;
 	@Autowired
@@ -185,27 +191,31 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 * 下发开门指令
 	 * 并本地记录开门时间
 	 */
+	@SuppressWarnings("static-access")
 	@Override
-	public JsonResult openDoor(String code, String containerNumber,long userId) {
+	public JsonResult openDoor(String code, Integer containerNumber,long userId) {
 		//下发开门指令
-		boolean isOpen = IntelligentUtil.openDooR(code,containerNumber) ;
+		JSONObject jsonObject = new JSONObject() ;
+		jsonObject.put("channel", containerNumber);
+		jsonObject.put("devno", code) ;
+		jsonObject.put("user_data", RandomNumUtil.genRandomNum()) ;
+		JSONObject json = new JSONObject() ;
+		json.put("cmd", "open_door") ;
+		json.put("data", jsonObject);
+		
+		SocketUtil.getMessage(json) ;
 		//查询货柜产品
 		TAppProduct tAppProduct = new TAppProduct() ;
-		tAppProduct.setContainerNumber(containerNumber);
+		tAppProduct.setContainerNumber(containerNumber.toString());
 		tAppProduct.setMachineId(code);
 		tAppProduct = tAppProductMapper.selectByMachineIdAndContainerNumber(tAppProduct) ;
 		TOpenBoxLog tOpenBoxLog = new TOpenBoxLog() ;
 		tOpenBoxLog.setProductName(tAppProduct.getProductName());
 		tOpenBoxLog.setType(1);
 		tOpenBoxLog.setUserId(userId);
-		//记录开门状态
-		if(isOpen){
-			tOpenBoxLog.setStatus(1);
-		}else{
-			tOpenBoxLog.setStatus(0);
-		}
+		tOpenBoxLog.setStatus(0);
 		insertOpenDoorLog(tOpenBoxLog);
-		return new JsonResult(isOpen,isOpen?"开门成功":"开门失败机器异常",null);
+		return new JsonResult(true,"开门成功!",null);
 	}
 
 	/**
@@ -296,7 +306,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 * 支付接口
 	 */
 	@Override
-	public String weixinPayH5(double money, Long productId,String ip) {
+	public String weixinPayH5(Long productId,String ip,String code) {
 		ConsumeVo consumeVo = intelligentBoxMapper.selectByProduct(productId) ;
 		Product product = new Product() ;
 		product.setAppId(consumeVo.getAppId());
@@ -304,11 +314,13 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		product.setProductId(String.valueOf(productId));
 		product.setProductName(consumeVo.getProductName());
 		product.setOutTradeNo(RandomNumUtil.genRandomNum());
-		product.setTotalFee(String.valueOf(money));
+		product.setTotalFee(consumeVo.getFavorablePrice().toString());
 		product.setSpbillCreateIp(ip);
+		product.setCode(code);
 		String mweb_url = weixinPayService.weixinPayH5(product) ;
 		return mweb_url ;
 	}
+	
 	/**
 	 * 订单接口
 	 */
@@ -547,6 +559,29 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		}
 		return new JsonResult(false,"设置失败",null);
 	}
+	@Override
+	public String weixinPayMobile(Long productId) {
+		ConsumeVo consumeVo = intelligentBoxMapper.selectByProduct(productId) ;
+		String redirect_uri = "http://www.xajun.com/Intelligent-box/api/H5/getUrl?productId="+productId ;
+		logger.info("redirect_uri=========>"+redirect_uri);
+		System.out.println(redirect_uri);
+		//也可以通过state传递参数 redirect_uri 后面加参数未经过验证
+		return SnsAPI.connectOauth2Authorize(consumeVo.getAppId(), redirect_uri, true,null);
+	}
+	
+	/**
+	 * 将开门结果入库
+	 */
+	@Override
+	public void updateDoor(JSONObject json) {
+		TOpenBoxLog tOpenBoxLog = new TOpenBoxLog() ;
+		tOpenBoxLog.setContainerNumber(json.getInteger("channel"));
+		tOpenBoxLog.setMachineId(json.getString("devno"));
+		tOpenBoxLog.setStatus(json.getInteger("rescode")==0?1:0);
+		intelligentBoxMapper.updateDoor(tOpenBoxLog) ;
+		
+	}
+
 	
 	
 	

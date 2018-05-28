@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
+
 import cmcc.mobile.yiqi.entity.TAppProduct;
 import cmcc.mobile.yiqi.utils.JsonResult;
 import cmcc.mobile.yiqi.vo.PageVo;
@@ -26,7 +28,7 @@ public interface IntelligentBoxService {
 
 	JsonResult downShelves(Long productId, long userId, long corpId);
 
-	JsonResult openDoor(String code, String containerNumber, long userId);
+	JsonResult openDoor(String code, Integer containerNumber, long userId);
 
 	JsonResult upBox(Long productId, Integer number, long userId, long corpId);
 
@@ -34,7 +36,7 @@ public interface IntelligentBoxService {
 
 	JsonResult updateProduct(TAppProduct tAppProduct, Long userId, Long corpId);
 
-	String weixinPayH5(double money, Long productId, String ip);
+	String weixinPayH5(Long productId, String ip, String code);
 
 	JsonResult getOrderList(Long corpId);
 
@@ -50,5 +52,9 @@ public interface IntelligentBoxService {
 	void insertMachindeRegister(String string);
 
 	JsonResult configMachine(int hbtime, int led_on, int senstive,String devno);
+
+	String weixinPayMobile(Long productId);
+
+	void updateDoor(JSONObject json);
 
 }

@@ -1,34 +1,35 @@
 package cmcc.mobile.yiqi.web.service.impl;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
 import net.sf.json.JSONObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import cmcc.mobile.yiqi.entity.TRefund;
 import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
 import cmcc.mobile.yiqi.utils.ClientCustomSSL;
 import cmcc.mobile.yiqi.utils.CommonUtil;
 import cmcc.mobile.yiqi.utils.ConfigUtil;
 import cmcc.mobile.yiqi.utils.Constants;
+import cmcc.mobile.yiqi.utils.DateUtil;
 import cmcc.mobile.yiqi.utils.HttpUtil;
+import cmcc.mobile.yiqi.utils.MobileUtil;
 import cmcc.mobile.yiqi.utils.PayCommonUtil;
 import cmcc.mobile.yiqi.utils.RandomNumUtil;
 import cmcc.mobile.yiqi.utils.XMLUtil;
 import cmcc.mobile.yiqi.vo.Product;
 import com.alipay.demo.trade.utils.ZxingUtils;
+
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import javassist.compiler.ast.NewExpr;
 import weixin.popular.api.SnsAPI;
 @Service
 public class WeixinPayServiceImpl implements IWeixinPayService {
-	private static final Logger logger = LoggerFactory.getLogger(WeixinPayServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(IntelligentBoxServiceImpl.class);
 	
 	private static final String notify_url = "http://www.xajun.com/Intelligent-box/api/H5/notify";
 
@@ -246,20 +247,23 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 		String totalFee = product.getTotalFee();
 		//redirect_uri 需要在微信支付端添加认证网址
 		totalFee =  CommonUtil.subZeroAndDot(totalFee);
-		String redirect_uri = server_url+"weixinMobile/dopay?outTradeNo="+product.getOutTradeNo()+"&totalFee="+totalFee;
+		String redirect_uri = weixinPayH5(product) ;
 		//也可以通过state传递参数 redirect_uri 后面加参数未经过验证
-		return SnsAPI.connectOauth2Authorize(ConfigUtil.APP_ID, redirect_uri, true,null);
+		return SnsAPI.connectOauth2Authorize(product.getAppId(), redirect_uri, true,null);
 	}
 	@SuppressWarnings("rawtypes")
 	@Override
 	public String weixinPayH5(Product product) {
 		logger.info("订单号：{}发起H5支付",product.getOutTradeNo());
 		String  mweb_url = "";
+		StringBuffer url = new StringBuffer() ;
 		try {
 			// 账号信息
 			String key = ConfigUtil.API_KEY; // key
-			String trade_type = "MWEB";//交易类型 H5 支付 
+			String trade_type = "JSAPI";//交易类型 H5 支付 
 			SortedMap<Object, Object> packageParams = new TreeMap<Object, Object>();
+			String openId = MobileUtil.getOpenId(product);
+			packageParams.put("openid", openId) ;
 			packageParams.put("appid", product.getAppId()) ;
 			packageParams.put("device_info", "WEB") ;
 			packageParams.put("mch_id", product.getMchId()) ;
@@ -288,13 +292,33 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 
 			String requestXML = PayCommonUtil.getRequestXml(packageParams);
 			String resXml = HttpUtil.postData(ConfigUtil.UNIFIED_ORDER_URL, requestXML);
+			System.out.println("rizhizhizizziizi----?>"+requestXML);
+			System.out.println("logger----->"+resXml);
 			Map map = XMLUtil.doXMLParse(resXml);
+			System.out.println("map--------->>>"+map);
 			String returnCode = (String) map.get("return_code");
+			
 			if("SUCCESS".equals(returnCode)){
 				String resultCode = (String) map.get("result_code");
 				if("SUCCESS".equals(resultCode)){
-					logger.info("订单号：{}发起H5支付成功",product.getOutTradeNo());
-					mweb_url = (String) map.get("mweb_url");
+					String prepay_id = (String) map.get("prepay_id");
+					String prepay_id2 = "prepay_id=" + prepay_id;
+					String packages = prepay_id2;
+					SortedMap<Object, Object> finalpackage = new TreeMap<Object, Object>();
+					String timestamp = DateUtil.getTimestamp();
+					String nonceStr = packageParams.get("nonce_str").toString();
+					finalpackage.put("appId",  ConfigUtil.APP_ID);
+					finalpackage.put("timeStamp", timestamp);
+					finalpackage.put("nonceStr", nonceStr);
+					finalpackage.put("package", packages);  
+					finalpackage.put("signType", "MD5");
+					//这里很重要  参数一定要正确 狗日的腾讯 参数到这里就成大写了
+					//可能报错信息(支付验证签名失败 get_brand_wcpay_request:fail)
+					sign = PayCommonUtil.createSign("UTF-8", finalpackage,ConfigUtil.API_KEY);
+					url.append("http://www.xajun.com/xiaoai/payPage.html?");
+					url.append("timeStamp="+timestamp+"&nonceStr=" + nonceStr + "&package=" + packages);
+					url.append("&signType=MD5" + "&paySign=" + sign+"&appid="+ product.getAppId());
+					url.append("&orderNo="+product.getOutTradeNo()+"&totalFee="+totalFee);
 				}else{
 					String errCodeDes = (String) map.get("err_code_des");
 					logger.info("订单号：{}发起H5支付(系统)失败:{}",product.getOutTradeNo(),errCodeDes);
@@ -309,6 +333,6 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 		}	
 		product.setStatus(3);
 		intelligentBoxMapper.insertOrder(product);
-		return mweb_url;
+		return url.toString();
 	}
 }
