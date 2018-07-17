@@ -46,12 +46,157 @@
         <result column="mch_id" property="mchId" jdbcType="VARCHAR"/>
         <result column="refundMoney" property="refundMoney" jdbcType="INTEGER"/>
     </resultMap>
+    
+        <resultMap id="ResultMap" type="cmcc.mobile.yiqi.entity.TRegister">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="machine_id" property="machineId" jdbcType="VARCHAR"/>
+        <result column="register_time" property="registerTime" jdbcType="BIGINT"/>
+        <result column="update_time" property="updateTime" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="buind" property="buind" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+            <resultMap id="ResultObject" type="cmcc.mobile.yiqi.entity.THeartbeat">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="machine_id" property="machineId" jdbcType="VARCHAR"/>
+        <result column="sim_rssi" property="simRssi" jdbcType="INTEGER"/>
+          <result column="motor_state" property="motorState" jdbcType="INTEGER"/>
+            <result column="light" property="light" jdbcType="INTEGER"/>
+              <result column="led_state" property="ledState" jdbcType="INTEGER"/>
+                 <result column="version" property="version" jdbcType="VARCHAR"/>
+         <result column="json" property="json" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+        <result column="update_time" property="updateTime" jdbcType="BIGINT"/>
+    </resultMap>
+    
+                <resultMap id="ResultOpenDoor" type="cmcc.mobile.yiqi.entity.TOpenBoxLog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="machine_id" property="machineId" jdbcType="VARCHAR"/>
+         <result column="corp_id" property="corpId" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+        <result column="container_number" property="containerNumber" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+    </resultMap>
+    
+                <resultMap id="ResultMachine" type="cmcc.mobile.yiqi.entity.TMachine">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="machine_id" property="machineId" jdbcType="VARCHAR"/>
+        <result column="corp_id" property="corpId" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="buind" property="buind" jdbcType="VARCHAR"/>
+        <result column="companyName" property="companyName" jdbcType="VARCHAR"/>
+        <result column="room_code" property="roomCode" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+                    <resultMap id="buindObject" type="cmcc.mobile.yiqi.entity.TIntelligentBuind">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="buind" property="buind" jdbcType="VARCHAR"/>
+        <result column="corp_id" property="corpId" jdbcType="BIGINT"/>
+        <result column="buind_url" property="buindUrl" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+         <result column="new_buind" property="newBuind" jdbcType="VARCHAR"/>
+          <result column="checks" property="check" jdbcType="INTEGER"/>
+    </resultMap>
     <sql id="Base_Column_List">
         id, create_time, img_url, type, text
     </sql>
         <sql id="Base_List">
         id, create_time, type
     </sql>
+    
+    <!-- 注册sql -->
+    <select id="selectRegister" resultMap="ResultMap" parameterType="java.lang.String">
+    select * from t_register where machine_id = #{machineId};
+    </select>
+    <insert id="insertMachindeRegister" parameterType="cmcc.mobile.yiqi.entity.TRegister">
+    insert into t_register(machine_id,register_time,update_time)values(#{machineId},#{registerTime},#{updateTime});
+</insert>
+    <update id="updateRegister" parameterType="cmcc.mobile.yiqi.entity.TRegister">
+        update t_register 
+        set update_time = #{updateTime} 
+        where machine_id = #{machineId} ;
+    </update>
+        <select id="getMachineRegister" resultMap="ResultMap" parameterType="map">
+    select * from t_register 
+     <if test="startRow != null and endRow != null">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+        </if>;
+    </select>
+    <!-- 心跳sql -->
+       <select id="selectHeartbeat" resultMap="ResultObject" parameterType="java.lang.String">
+    select * from t_heartbeat where machine_id = #{machineId};
+    </select>
+    <insert id="insertHeartbeat" parameterType="cmcc.mobile.yiqi.entity.THeartbeat">
+    insert into t_heartbeat(machine_id,version,sim_rssi,motor_state,light,led_state,json,create_time,update_time)values(#{machineId},#{version},#{simRssi},#{motorState},#{light},#{ledState},#{json},#{createTime},#{updateTime});
+</insert>
+    <update id="updateHeartbeat" parameterType="cmcc.mobile.yiqi.entity.THeartbeat">
+        update t_heartbeat      <set>
+            <if test="simRssi != null">
+                sim_rssi =#{simRssi},
+            </if>
+            <if test="motorState != null">
+                motor_state = #{motorState},
+            </if>
+            <if test="light != null">
+                light = #{light},
+            </if>
+            <if test="ledState != null">
+                led_state = #{ledState},
+            </if>
+               <if test="json != null">
+                json = #{json},
+            </if>
+             <if test="version != null">
+                version = #{version},
+            </if>
+             <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set> 
+         where machine_id = #{machineId} ;
+    </update>
+    
+           <select id="selectHeartbeatByProductId" resultMap="ResultObject" parameterType="java.lang.Long">
+    select t.* from t_heartbeat t left join t_app_product p on t.machine_id=p.machine_id where p.id = #{productId};
+    </select>
+    
+            <select id="getMachineHeartbeat" resultMap="ResultObject" parameterType="map">
+    select * from t_heartbeat 
+     <if test="startRow != null and endRow != null">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+        </if>;
+    </select>
+    
+        
+            <select id="getMachineOpenDoor" resultMap="ResultOpenDoor" parameterType="map">
+    select * from t_open_box_log 
+     <if test="startRow != null and endRow != null">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+        </if>;
+    </select>
+    <!-- 操作设备SQL -->
+        <insert id="insertMachine" parameterType="cmcc.mobile.yiqi.entity.TMachine">
+    insert into t_machine(machine_id,corp_id,status,buind,create_time)values(#{machineId},#{corpId},#{status},#{buind},#{createTime});
+</insert>
+
+            <select id="getMachineList" resultMap="ResultMachine" parameterType="map">
+    select t.*,c.name as companyName from t_machine t left join t_app_company c on t.corp_id = c.id  where t.status !=0 
+    <if test="corpId!=null">
+    and t.corp_id = #{corpId}
+    </if>
+     <if test="startRow != null and endRow != null">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+        </if>;
+    </select>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
         select
         <include refid="Base_Column_List"/>
@@ -135,7 +280,7 @@
     <select id="selectAll" resultMap="BaseResultMap" parameterType="java.lang.String">
         select
         <include refid="Base_List"/>,CONCAT(#{imgUrl},img_url) as img_url
-        from banner_img
+        from banner_img where type =1
     </select>
     
      <insert id="addReplenishment" parameterType="cmcc.mobile.yiqi.entity.TProductLog">
@@ -262,7 +407,7 @@
     </insert>
     <select id="selectByProduct" resultMap="BaseMap" parameterType="java.lang.Long">
     select t.*,c.app_id as appId,c.mch_id as mchId from t_app_product t left join 
-    t_app_company c on t.corp_id = c.id where t.id = #{productId}
+    t_app_company c on t.corp_id = c.id where t.id = #{productId} and t.status !=0
     </select>
     
     <select id="getOrderList" resultMap="BaseObject" parameterType="map">
@@ -345,7 +490,7 @@
 </select>
 
 <select id="selectByRefund" resultMap="object" parameterType="java.lang.Long">
-select c.* from t_app_product t left join t_app_company c on t.corpId = c.id where t.id = #{productId} 
+select c.mch_id,c.app_id from t_app_product t left join t_app_company c on t.corp_id = c.id where t.id = #{productId} 
 </select>
 
 <insert id="insetRefund" parameterType="cmcc.mobile.yiqi.entity.TRefund">
@@ -361,10 +506,10 @@ select c.* from t_app_product t left join t_app_company c on t.corpId = c.id whe
                 refund_code,
             </if>
             <if test="createTime !=null">
-            create_time
+            create_time,
             </if>
             <if test="status !=null">
-            status
+            status,
             </if>
             <if test="userId !=null">
             user_id
@@ -405,9 +550,6 @@ create_time = #{createTime}
 where order_code = #{outTradeNo}
 </update>
 
-<insert id="insertMachindeRegister" parameterType="java.lang.String">
-    insert into t_intelligent_log (machine_id,create_time,led_status)values(#{machine},now(),1)
-</insert>
 <insert id="insertOpenDoor" parameterType="cmcc.mobile.yiqi.entity.TOpenBoxLog">
     insert into t_intelligent_log 
 <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -477,4 +619,61 @@ where order_code = #{outTradeNo}
 update t_open_box_log set status = #{status}
 where container_number = #{containerNumber} and machine_id = #{machineId}
 </update>
+
+<!-- 设备批量绑定 企业sql-->
+<insert id="insetButh" parameterType="map">
+insert into t_machine (machine_id,corp_id,create_time,status,room_code)values    
+<foreach collection="machineId" index="index" item="item" separator=",">
+        (#{item},#{corpId},#{createTime},1,#{roomCode})
+    </foreach>
+</insert>
+
+    <insert id="insertTIntelligent" parameterType="cmcc.mobile.yiqi.entity.TIntelligentBuind">
+    insert into t_intelligent_buind(buind,buind_url,new_buind,status,create_time,checks)values(#{buind},#{buindUrl},#{newBuind},#{status},#{createTime},#{check});
+</insert>
+<select id="selectBuind" parameterType="java.lang.String" resultMap="buindObject">
+select * from t_intelligent_buind  where buind = #{buind}
+</select>
+
+<select id="getBuindList" parameterType="map" resultMap="buindObject">
+select * from t_intelligent_buind  
+<if test="buind!=null and buind!=''">
+where buind like CONCAT('%',#{buind,jdbcType=VARCHAR},'%')
+</if>
+        <if test="startRow != null and endRow != null">
+            limit
+            #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
+        </if>
+</select>
+<select id="selectByBuind"  resultMap="buindObject">
+select* from t_intelligent_buind  
+where id= (select max(id) from t_intelligent_buind)
+
+
+</select>
+<update id="updateRegisterButh"  parameterType="map">
+update  t_register set status = 1 where machine_id in 
+     <foreach collection="machineId" index="index" item="item" 
+        separator="," open="(" close=")">
+        #{item}
+    </foreach>
+</update>
+
+<update id="updateMachine"  parameterType="java.lang.String">
+update  t_machine set status = 0 where machine_id = #{machineId}
+</update>
+
+    <update id="updateRegisterByMachineId" parameterType="java.lang.String">
+        update t_register 
+        set status = 0 
+        where machine_id = #{machineId} ;
+    </update>
+    
+    
+  <select id="selectCorpId"  resultType="java.lang.Long" parameterType="java.lang.String">
+select corp_id as corpId from t_machine  
+where machine_id= #{parameter}
+
+
+</select>
 </mapper>

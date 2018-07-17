@@ -28,4 +28,24 @@ public interface TAppProductMapper {
 
 	int selectByCorpCount(Map<String, Object> map);
 
+	TAppProduct selectByCode(String orderCode);
+
+	void updateByPrimaryKey(TAppProduct tAppProduct);
+
+	int selectByProductStatus(String machineId);
+
+	int selectByDefaultProduct();
+
+	int selectByDefaultProductAndContainerNumber(String containerNumber);
+
+	int insertDefaultProduct(TAppProduct tAppProduct);
+
+	List<TAppProduct> selectDefaultProduct();
+
+	int updateDefaultProduct(TAppProduct tAppProduct);
+
+	void insertButhProduct(List<TAppProduct> tAppProducts);
+
+	void updateByMachine(TAppProduct tAppProduct);
+
 }

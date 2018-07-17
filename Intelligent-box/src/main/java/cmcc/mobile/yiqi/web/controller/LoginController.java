@@ -39,6 +39,7 @@ import cmcc.mobile.yiqi.utils.JsonResult;
 import cmcc.mobile.yiqi.vo.AppUserVo;
 import cmcc.mobile.yiqi.web.service.IAppUserServices;
 import cmcc.mobile.yiqi.web.service.ICompanyService;
+import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
 
 @Controller
 @RequestMapping("/web")
@@ -49,6 +50,8 @@ public class LoginController extends BaseController {
 
 	@Autowired
 	private ICompanyService companyService;
+	@Autowired
+	private IntelligentBoxService boxService;
 
 	@Autowired
 	private TAppUserCompanyMapper userCompanyMapper;
@@ -154,6 +157,28 @@ public class LoginController extends BaseController {
 					else if (sysRole.getRole().equalsIgnoreCase(Constants.COMPANY_MANAGER)) {
 						List<TAppCompany> list = appUserService.findCompanyByUser(user.getId(), user.getAccount(), false);
 						if (CollectionUtils.isNotEmpty(list)) {
+							//H5登录通过设备编码查询企业信息判断登录用户是否是当前企业管理人员
+							if(request.getParameter("code")!=null){
+								Long corpId = boxService.selectCorpId(request.getParameter("code")) ;
+								int type = 0 ;
+								for(int i=0;i<list.size();i++){
+									TAppCompany tAppCompany = list.get(i);
+									if(corpId.equals(tAppCompany.getId())){
+										type =1 ;
+										company = list.get(0);
+										company.setRoleId(sysRole.getId());
+										//将登陆信息保存到session										
+										session.setAttribute("companyId", list.get(0).getId());
+										session.setAttribute("companyName", list.get(0).getName());
+										session.setAttribute("isSuper", "0".equalsIgnoreCase(list.get(0).getId().toString()));
+										break ;
+									}
+								}
+								if(type==0){
+									return new JsonResult(false, "该用户不是该酒店管理人员不可登录！", null);
+								}
+							}else{
+							
 							company = list.get(0);
 							company.setRoleId(sysRole.getId());
 							//将登陆信息保存到session
@@ -161,6 +186,7 @@ public class LoginController extends BaseController {
 							session.setAttribute("companyId", list.get(0).getId());
 							session.setAttribute("companyName", list.get(0).getName());
 							session.setAttribute("isSuper", "0".equalsIgnoreCase(list.get(0).getId().toString()));
+							}
 						}
 					}
 					if (company.getId() != null) {

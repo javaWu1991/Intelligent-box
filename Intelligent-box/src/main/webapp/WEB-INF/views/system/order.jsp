@@ -67,7 +67,9 @@
                             <td width="80">{{model.createTimeText}}</td>                                   
                             <td class="col-actions" width="60">
                             <# if(model.status == 0)#>
+<shiro:hasPermission name="admin"> 
                              <a href="javascript:void(0);" data-do="delete">退款</a>
+  </shiro:hasPermission> 
                              </#>
                             </td>
                             </script>

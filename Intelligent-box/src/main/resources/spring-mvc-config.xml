@@ -75,7 +75,7 @@
 			<mvc:exclude-mapping path="/web/register.htm" />
 			<mvc:exclude-mapping path="/web/forgot.htm" />
 			<mvc:exclude-mapping path="/web/forgot.do" />
-			<mvc:exclude-mapping path="/web/boxWeb/*.do" />
+			<!--  <mvc:exclude-mapping path="/web/boxWeb/*.do" />-->
 			<!-- 定义在mvc:interceptor下面的表示是对特定的请求才进行拦截的 -->
 			<bean class="cmcc.mobile.yiqi.base.intercept.CheckLoginIntercept" />
 		</mvc:interceptor>

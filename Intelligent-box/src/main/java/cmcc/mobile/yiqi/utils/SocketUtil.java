@@ -18,14 +18,11 @@ public class SocketUtil {
 
 	    
 	    //向客户端发送消息
-	    @SuppressWarnings("static-access")
-		public static JSONObject getMessage(JSONObject object){
+		public static void getMessage(JSONObject object){
 	    	Socket socket;
-   		 	JSONObject obj = new JSONObject() ;
 			try {
-				socket = new Socket("127.0.0.1", 888);
-				 OutputStream os = socket.getOutputStream();//字节输出流
-		    	  //PrintWriter pw =new PrintWriter(os);//将输出流包装成打印流
+				socket = new Socket("127.0.0.1", PORT);
+				OutputStream os = socket.getOutputStream();//字节输出流
 		  		byte[] byte1 = new byte[5];
 				byte1[0] = (byte) 0xA5 ; 
 				byte1[1] = 'S' ;
@@ -58,9 +55,9 @@ public class SocketUtil {
 				System.arraycopy(byte9, 0, byte4, byte1.length + byte3.length, byte9.length);
 				os.write(byte4);
 				os.flush();
-		    	 socket.shutdownOutput();
-		    	 os.close();
-		    	 socket.close();
+		    	socket.shutdownOutput();
+		    	os.close();
+		    	socket.close();
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -68,48 +65,47 @@ public class SocketUtil {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}   	
-	    	 return obj ;
 	    }
 	    
-	    public static void main(String[] args) {
-	    	  Socket socket;
-			try {
-				socket = new Socket("127.0.0.1",PORT);
-				  //2、获取输出流，向服务器端发送信息
-		    	  OutputStream os = socket.getOutputStream();//字节输出流
-		    	  PrintWriter pw =new PrintWriter(os);//将输出流包装成打印流
-		    	  JSONObject object = new JSONObject() ;
-		    	  object.put("cmd", "register") ;
-		    	  JSONObject jsonObject = new JSONObject() ;
-		    	  jsonObject.put("devno", "12312") ;
-		    	  object.put("data",jsonObject);
-		    	  
-		    	  pw.write(object.toJSONString()+'\n');
-		    	  pw.flush();
-		    	 socket.shutdownOutput();
-		    	 //3、获取输入流，并读取服务器端的响应信息
-		    	 InputStream is = socket.getInputStream();
-		    	 BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		    	 String info = null;
-		    	 info=br.readLine();
-		    	 if(info!=null){
-		    	  System.out.println("我是客户端，服务器说："+info);
-		    	 }
-		    	 //4、关闭资源
-		    	 br.close();
-		    	 is.close();
-		    	 pw.close();
-		    	 os.close();
-		    	 socket.close();
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    	
-	    }
+//	    public static void main(String[] args) {
+//	    	  Socket socket;
+//			try {
+//				socket = new Socket("127.0.0.1",PORT);
+//				  //2、获取输出流，向服务器端发送信息
+//		    	  OutputStream os = socket.getOutputStream();//字节输出流
+//		    	  PrintWriter pw =new PrintWriter(os);//将输出流包装成打印流
+//		    	  JSONObject object = new JSONObject() ;
+//		    	  object.put("cmd", "register") ;
+//		    	  JSONObject jsonObject = new JSONObject() ;
+//		    	  jsonObject.put("devno", "12312") ;
+//		    	  object.put("data",jsonObject);
+//		    	  
+//		    	  pw.write(object.toJSONString()+'\n');
+//		    	  pw.flush();
+//		    	 socket.shutdownOutput();
+//		    	 //3、获取输入流，并读取服务器端的响应信息
+//		    	 InputStream is = socket.getInputStream();
+//		    	 BufferedReader br = new BufferedReader(new InputStreamReader(is));
+//		    	 String info = null;
+//		    	 info=br.readLine();
+//		    	 if(info!=null){
+//		    	  System.out.println("我是客户端，服务器说："+info);
+//		    	 }
+//		    	 //4、关闭资源
+//		    	 br.close();
+//		    	 is.close();
+//		    	 pw.close();
+//		    	 os.close();
+//		    	 socket.close();
+//			} catch (UnknownHostException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//	    	
+//	    }
 	    
 	    public static byte[] shortToByteArray(short s) {
 			   byte[] shortBuf = new byte[2];

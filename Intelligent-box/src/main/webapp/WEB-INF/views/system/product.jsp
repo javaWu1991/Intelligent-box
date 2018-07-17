@@ -43,7 +43,9 @@
                     </form>
                     <hr />
                     <div class="btn-group" role="group">
+                     <shiro:hasPermission name="admin">
                         <a href="javascript:void(0);" class="btn btn-default" data-do="create:notice"><span class="fa fa-plus" aria-hidden="true"></span> 添加产品</a>
+                     </shiro:hasPermission>  
                     </div>
                     <br>
                     <br>
@@ -59,7 +61,8 @@
                                 <th>优惠后价格</th>
                                 <th>产品数量</th>
                                 <th>货柜编码</th>
-                                <th>机器编码</th>          
+                                <th>设备编码</th>   
+                                <th>房间号</th>       
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -75,9 +78,11 @@
                             <td width="60">{{model.productNumber}}</td>
                             <td width="60">{{model.containerNumber}}</td>
                             <td width="60">{{model.machineId}}</td>
+                            <td width="60">{{model.roomCode}}</td>
                             <td class="col-actions" width="210">
+                                <shiro:hasPermission name="admin">
                                 <a href="javascript:void(0);" data-do="edit">编辑</a>
-                              
+                               </shiro:hasPermission>  
                                 <# if(model.status == 3) { #>
                                 <a href="javascript:void(0);" data-do="stick">上架</a>
                                 <# } else { #>
@@ -88,7 +93,9 @@
                                 <# } else { #>
                                 <a href="javascript:void(0);" data-do="ishot">热销</a>
                                 <# } #>
+                                <shiro:hasPermission name="admin">
                                 <a href="javascript:void(0);" data-do="delete">删除</a>
+                                </shiro:hasPermission>  
                             </td>
                             </script>
                         </tbody>
@@ -100,6 +107,15 @@
     </div><!-- end page content -->
 </div>
 <script>seajs.use('page/system/product', function(page){ page.run(); });
+	
+	//获取url中的参数
+function getUrlParam(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+	var r = window.location.search.substr(1).match(reg); //匹配目标参数
+	if(r != null) return unescape(r[2]);
+	return null; //返回参数值
+}
+var machineId = getUrlParam("machineId");
 function sum(){
 	
 	 var a = $('#inputOriginalPrice').val(); 
@@ -184,17 +200,31 @@ else
                             <label for="inputAccount">产品数量</label>
                             <input type="number" class="form-control" id="inputProductNumber" name="productNumber" placeholder="产品数量">
                         </div>
+                                           <div class="form-group">
+                            <label for="inputAppId">产品类别</label>
+                            <select id="type" name="type" class="form-control" style="background-color:transparent;border:0;">
+                               <option value="1">安全套</option>
+                               <option value="2">情趣内衣</option>
+                               <option value="3">跳蛋</option>
+                               <option value="4">飞机杯</option>
+                               <option value="5">精油</option>
+                               <option value="6">湿巾</option>
+                               <option value="7">喷剂</option>
+                               <option value="0">其他</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-md-7 col-sm-6">
+                         <div id="machine" class="form-group">
+                         <label for="inputbuind">选择货柜序列号</label><br/>
+                            <select id="machineId" name="machineId" style="background-color:transparent;border:0;"></select>  
+                        </div>
                         <div class="form-group">
                             <label for="inputAppId">货柜编号</label>
                             <input type="text" class="form-control" id="inputContainerNumber" name="containerNumber" placeholder="货柜编号">
                         </div>
-                        <div class="form-group">
-                            <label for="inputMchId">设备号</label>
-                            <input type="text" class="form-control" id="inputMachineId" name="machineId" placeholder="设备号">
-                        </div>
-  <div class="form-group">
+    
+                         <div class="form-group">
                             <label for="inputMchId">产品说明</label>
                             <input type="text" class="form-control" id="inputRemark" name="remark" placeholder="产品说明">
                         </div>
@@ -273,6 +303,20 @@ else
                             <label for="inputAccount">产品数量</label>
                             <input type="number" class="form-control" id="inputProductNumber"  value="{{model.productNumber}}" name="productNumber" placeholder="产品数量">
                         </div>
+                   <div class="form-group">
+                            <label for="inputAppId">产品类别</label>
+                            <select id="type" name="type" class="form-control" style="background-color:transparent;border:0;">
+                            <option value="{{model.type}}">{{model.typeText}}</option>
+                               <option value="1">安全套</option>
+                               <option value="2">情趣内衣</option>
+                               <option value="3">跳蛋</option>
+                               <option value="4">飞机杯</option>
+                               <option value="5">精油</option>
+                               <option value="6">湿巾</option>
+                               <option value="7">喷剂</option>
+                               <option value="0">其他</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-md-7 col-sm-6">
                         <div class="form-group">
@@ -281,7 +325,7 @@ else
                         </div>
                         <div class="form-group">
                             <label for="inputMchId">设备号</label>
-                            <input type="text" class="form-control" id="inputMachineId" name="machineId" value="{{model.machineId}}" placeholder="设备号">
+                            <input type="text" class="form-control" readonly="readonly" id="inputMachineId" name="machineId" value="{{model.machineId}}" placeholder="设备号">
                         </div>
   <div class="form-group">
                             <label for="inputMchId">产品说明</label>

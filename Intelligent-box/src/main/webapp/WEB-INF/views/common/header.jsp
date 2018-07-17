@@ -36,7 +36,7 @@ function change(){
                 name:text
             },
             success: function(data) {   
-            	alert("切换成功！");
+            	window.location.reload() ;
             }
         });
 }

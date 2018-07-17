@@ -17,6 +17,7 @@
     <result column="machine_id" jdbcType="VARCHAR" property="machineId" />
      <result column="product_detail" jdbcType="VARCHAR" property="productDetail" />
       <result column="remark" jdbcType="VARCHAR" property="remark" />
+       <result column="type" jdbcType="INTEGER" property="type" />
   </resultMap>
   <sql id="Base_Column_List">
     id, product_name, product_img, status, create_time, 
@@ -26,13 +27,13 @@ original_price, favorable_price, corp_id,
     <sql id="Base_List">
     id, product_name, status, create_time, 
 original_price, favorable_price, corp_id,
-    update_time, discount, product_number,container_number,machine_id,product_detail,remark
+    update_time, discount, product_number,container_number,machine_id,product_detail,remark,type
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from t_app_product
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT};
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_app_product
@@ -135,6 +136,19 @@ original_price, favorable_price, corp_id,
       </if>
     </trim>
   </insert>
+  
+   <update id="updateByPrimaryKey" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
+    update t_app_product
+    <set>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>  
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT} and container_number !=1;
+  </update>
   <update id="updateByPrimaryKeySelective" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
     update t_app_product
     <set>
@@ -175,10 +189,10 @@ original_price, favorable_price, corp_id,
         machine_id = #{machineId,jdbcType=BIGINT},
       </if>
                 <if test="productDetail != null">
-        product_detail = #{productDetail,jdbcType=BIGINT},
+        product_detail = #{productDetail,jdbcType=VARCHAR},
       </if>
                   <if test="remark != null">
-        remark = #{remark,jdbcType=BIGINT},
+        remark = #{remark,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
@@ -186,15 +200,27 @@ original_price, favorable_price, corp_id,
   
   <select id="selectByMachineId" parameterType="map" resultMap="BaseResultMap">
   select <include refid="Base_List"/>,CONCAT(#{imgUrl},product_img)as product_img from t_app_product where machine_id = #{machineId} and status !=4
+  <if test="type !=null">
+  and type = 0 ;
+  </if>
+    <if test="type ==null">
+  and type != 0 ;
+  </if>
   </select>
   
     <select id="selectByCorp" parameterType="map" resultMap="BaseResultMap">
-  select * from t_app_product where corp_id = #{corpId} and status !=4
+  select * from t_app_product where status !=4
+    <if test="corpId !=null">
+  and corp_id = #{corpId}
+  </if>
   <if test="productName !=null">
    and product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
   </if>
   <if test="status !=null">
    and status = #{status} 
+  </if>
+    <if test="machineId !=null">
+   and machine_id = #{machineId} 
   </if>
    order by create_time desc
   <if test="startRow !=null and endRow !=null ">
@@ -205,7 +231,10 @@ original_price, favorable_price, corp_id,
   </select>
   
   <select id="selectByCorpCount" parameterType="map" resultType="int">
-  select count(*) from t_app_product where corp_id = #{corpId} and status !=4
+  select count(*) from t_app_product where status !=4
+  <if test="corpId !=null">
+  and corp_id = #{corpId}
+  </if>
   <if test="productName !=null">
    and product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
   </if>
@@ -215,7 +244,7 @@ original_price, favorable_price, corp_id,
  
   </select>
     <select id="selectByMachine" parameterType="java.lang.String" resultMap="BaseResultMap">
-  select * from t_app_product where machine_id = #{machineId} and status =3 
+  select * from t_app_product where machine_id = #{machineId} and status =3 and container_number !=1
   </select>
   <!-- 更改下架的产品为有货 -->
   <update id="updateByCode" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
@@ -243,7 +272,184 @@ original_price, favorable_price, corp_id,
   </update>
   
   <select id="selectByMachineIdAndContainerNumber" parameterType="cmcc.mobile.yiqi.entity.TAppProduct" resultMap="BaseResultMap">
-  select * from t_app_product where machine_id = #{machineId} and container_number = #{containerNumber}
+  select * from t_app_product where machine_id = #{machineId} and container_number = #{containerNumber} and status !=4
   
   </select>
+  
+  <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+select t.* from t_app_product t left join t_order o on t.id=o.product_id where o.order_code = #{orderCode}
+</select>
+
+  <select id="selectByProductStatus" parameterType="java.lang.String" resultType="java.lang.Integer">
+select count(1) from t_app_product where product_number = 0 ;
+</select>
+
+<insert id="insertDefaultProduct" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
+    insert into t_default_product
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="productName != null">
+        product_name,
+      </if>
+      <if test="productImg != null">
+        product_img,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="originalPrice != null">        
+        original_price,
+      </if>
+      <if test="favorablePrice != null">
+        favorable_price,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="discount != null">
+        discount,
+      </if>
+      <if test="productNumber != null">
+        product_number,
+      </if>
+       <if test="containerNumber != null">
+        container_number,
+      </if>
+         <if test="productDetail != null">
+        product_detail,
+      </if>
+            <if test="remark != null">
+        remark,
+      </if>
+              <if test="type != null">
+        type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="productName != null">
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productImg != null">
+        #{productImg,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="originalPrice != null">
+        #{originalPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="favorablePrice != null">
+        #{favorablePrice,jdbcType=DOUBLE},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="discount != null">
+        #{discount,jdbcType=DOUBLE},
+      </if>
+      <if test="productNumber != null">
+        #{productNumber,jdbcType=INTEGER},
+      </if>
+            <if test="containerNumber != null">
+        #{containerNumber,jdbcType=VARCHAR},
+      </if>
+               <if test="productDetail != null">
+        #{productDetail,jdbcType=VARCHAR},
+      </if>
+                <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+                   <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+    <select id="selectByDefaultProduct" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(1)
+    from t_default_product
+  </select>
+  
+    <select id="selectByDefaultProductAndContainerNumber" parameterType="cmcc.mobile.yiqi.entity.TAppProduct" resultType="java.lang.Integer">
+  select count(1) from t_default_product where container_number = #{containerNumber} 
+  </select>
+  
+      <select id="selectDefaultProduct" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select *
+    from t_default_product
+  </select>
+  
+  <update id="updateDefaultProduct" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
+    update t_default_product
+    <set>
+      <if test="productName != null">
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productImg != null">
+        product_img = #{productImg,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="originalPrice != null">
+        original_price = #{originalPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="favorablePrice != null">
+        favorable_price = #{favorablePrice,jdbcType=DOUBLE},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="discount != null">
+        discount = #{discount,jdbcType=DOUBLE},
+      </if>
+      <if test="productNumber != null">
+        product_number = #{productNumber,jdbcType=INTEGER},
+      </if>
+            <if test="containerNumber != null">
+        container_number = #{containerNumber,jdbcType=VARCHAR},
+      </if>
+                <if test="productDetail != null">
+        product_detail = #{productDetail,jdbcType=VARCHAR},
+      </if>
+                  <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+                        <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 批量插入 -->
+     <insert id="insertButhProduct" parameterType="java.util.List" >
+    insert into t_app_product (product_name, product_img, status, create_time,original_price, favorable_price, corp_id,
+    update_time, discount, product_number,container_number,machine_id,product_detail,remark,type)
+    values <foreach collection ="list" item="product" index= "index" separator =",">
+                 (
+                #{product.productName},#{product.productImg}, #{product.status}, #{product.createTime},
+                 #{product.originalPrice}, #{product.favorablePrice},#{product.corpId},#{product.updateTime},#{product.discount},
+                 #{product.productNumber},#{product.containerNumber},#{product.machineId},#{product.productDetail},#{product.remark},#{product.type}
+                 )
+             </foreach >
+  </insert>
+  
+  <update id="updateByMachine" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
+    update t_app_product
+    <set>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>  
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where machine_id = #{machineId}
+  </update>
 </mapper>

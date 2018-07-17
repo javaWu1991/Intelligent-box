@@ -40,9 +40,10 @@ define(function(require, exports, module) {
             var state = this.get('status');
             var createTime = this.get('createTime');
             var statusMap = {
-                0: '成功',
-                1: '失败',
-                2: '退款'
+                0: '支付成功',
+                1: '支付失败',
+                2: '已退款',
+                3: '预下单'
             };
             createTime = moment(parseInt(createTime, 10));
             var createTimeText = createTime.isValid() ? createTime.format('YYYY-MM-DD HH:mm:ss') : '';
@@ -56,10 +57,11 @@ define(function(require, exports, module) {
             processData: true
         },
         destroy: function(options) {
-            var data = this.pick('productId');
-            data.rid = 2;
+            var data = this.pick('productId','price','orderCode');
+            var money = this.pick('price');
+            var orderCode = this.pick('orderCode') ;
             $.ajax({
-                url: CONTEXT_PATH + '/web/system/delete.do',
+                url: CONTEXT_PATH + '/web/boxWeb/refundAction.do',
                 type: 'post',
                 dataType: 'json',
                 context: this,
@@ -72,7 +74,7 @@ define(function(require, exports, module) {
 
                     if (resp.success) {
                         alert('退款成功').delay(1);
-                        this.trigger('destroy', this, this.collection);
+                        location.reload();
                     } else {
                         alert(resp.message);
                     }

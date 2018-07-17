@@ -45,5 +45,7 @@ int setCustomerManager(@Param("cid")Long cid, @Param("account")Long account);
 int deleteCustomerManager(@Param("cid")Long cid);
 @Select("select * from t_app_company where managerId = #{account}")
 TAppCompany byAccount(@Param("account")String account);
+@Select("select * from t_app_company")
+List<TAppCompany> selectCompanyAll();
 
 }

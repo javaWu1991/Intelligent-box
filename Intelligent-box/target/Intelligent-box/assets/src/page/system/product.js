@@ -58,12 +58,30 @@ define(function(require, exports, module) {
 				statusText = '热销';
 			if (status == 3)
 				statusText = '下架';
-
+			var type = this.get('type');
+			var typeText = '未知';
+			if(type==0)
+			typeText = '其他';
+			if(type==1)
+				typeText = '安全套';
+			if(type==2)
+				typeText = '情趣内衣';
+			if(type==3)
+				typeText = '跳蛋';
+			if(type==4)
+				typeText = '飞机杯';
+			if(type==5)
+				typeText = '精油';
+			if(type==6)
+				typeText = '湿巾';
+			if(type==7)
+				typeText = '喷剂';
 			var cname = this.get('cname');
 			var dname = this.get('dname');
 			var sender = dname != '' ? dname : cname;
 			data.createTimeText = createTimeText;
 			data.statusText = statusText;
+			data.typeText = typeText;
 			data.sender = sender;
 			return data;
 		},
@@ -165,7 +183,7 @@ define(function(require, exports, module) {
 										autoHeightEnabled : false,
 										imagePath : CONTEXT_PATH,
 										imageUrl : CONTEXT_PATH
-												+ '/web/edit/upload.do',
+												+ '/web/boxWeb/upload.do',
 										imageFieldName : 'file',
 										// imageUrlPrefix : SourceUrl,
 										toolbar : [
@@ -176,6 +194,10 @@ define(function(require, exports, module) {
 				submit : function(event) {
 					var $target = $(event.target);
 					var data = this.$form.serializeObject();
+					if(data.machineId==""||data.machineId==undefined){
+						alert("没有绑定的设备");
+						return false ;
+					}
 					if (this.$form.valid()) {
 						this.$form.ajaxSubmit({
 							url : CONTEXT_PATH + '/web/boxWeb/addProduct.do',
@@ -268,7 +290,7 @@ define(function(require, exports, module) {
 										autoHeightEnabled : false,
 										imagePath : CONTEXT_PATH,
 										imageUrl : CONTEXT_PATH
-												+ '/web/edit/upload.do',
+												+ '/web/boxWeb/upload.do',
 										imageFieldName : 'file',
 										toolbar : [
 												'undo redo | bold italic underline strikethrough fontfamily fontsize forecolor backcolor | superscript subscript',
@@ -539,6 +561,8 @@ define(function(require, exports, module) {
 		$('.primary-nav').metisMenu();
 		var query = new Backbone.Model({
 			cid : COMPANY_ID,
+			pageNo:1,
+			pageSize:20
 		});
 		_.extend(query, {
 			autoParam : function() {
@@ -554,8 +578,12 @@ define(function(require, exports, module) {
 		var list = new Backbone.Collection(null, {
 			model : Notice
 		});
+		var url = CONTEXT_PATH + '/web/boxWeb/getProductList.do?machineId='+machineId;
+		if(machineId==null){
+			url = CONTEXT_PATH + '/web/boxWeb/getProductList.do';
+		}
 		_.extend(list, {
-			url : CONTEXT_PATH + '/web/boxWeb/getProductList.do',
+			url :  url,
 			parse : function(resp) {
 				var parsed = _.extend({
 					success : false,
@@ -611,10 +639,15 @@ define(function(require, exports, module) {
 			}
 		});
 
-		pager.on('page', function(pageNo) {
-			query.set('pageNo', pageNo);
-			searchHandler(query.getData());
-		});
+	     pager.on('page', function(pageNo) {
+            var data = search.serialize();
+            _.extend(data, {
+                pageNo: pageNo,
+                cid:COMPANY_ID
+            });
+
+            searchHandler(data);
+        });
 
 		table.$el.after(pager.render().$el);
 
@@ -656,6 +689,18 @@ define(function(require, exports, module) {
 			modal.initEditor();
 			modal.initForm();
 			modal.show();
+			$.ajax({
+	            url: CONTEXT_PATH + '/web/boxWeb/getMachineList.do?corpId='+COMPANY_ID+'&type=1',
+	            type: 'get',
+	            success: function(resp) {
+	            	var arr = resp.model;
+	            	var markup =[];
+	            	for(var i = 0; i < arr.length; i++){
+	                	markup.push('<option value="' + arr[i].machineId + '">' + arr[i].machineId + '</option>');
+	            	}
+	            	$('#machineId').html(markup.join(''));
+	            }
+	            });
 		});
 
 		Backbone.on('edit:notice', function(model) {

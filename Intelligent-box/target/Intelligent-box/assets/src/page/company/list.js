@@ -6,6 +6,7 @@ define(function(require, exports) {
     require('jquery-form');
     require('metisMenu');
     require('bootstrap');
+    require('dep/echarts/echarts');
     var _ = require('underscore');
     var Backbone = require('backbone');
     var confirm = require('component/Confirm');
@@ -959,7 +960,7 @@ define(function(require, exports) {
     });
 
     function run() {
-        $('.table-bordered > tbody').on('mouseover',function(){
+    	$('.table-bordered > tbody').on('mouseover',function(){
             $('[data-toggle="tooltip"]').tooltip();
         });
         $('.primary-nav').metisMenu();
@@ -1110,6 +1111,7 @@ define(function(require, exports) {
 
         searchHandler();
     }
+
 
     exports.run = run;
 });

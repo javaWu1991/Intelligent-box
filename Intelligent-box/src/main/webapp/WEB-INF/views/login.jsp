@@ -2,6 +2,7 @@
 <%@ include file="./common/head-public.jsp"%>
 <%@ include file="./common/ie.jsp"%>
 <link rel="stylesheet" href="${contextPath}/assets/src/css/login.css" />
+<link rel="stylesheet" href="${contextPath}/assets/dep/jquery/1.11.2/jquery.js" />
 <style>
 form .form-group label.error {
   position: absolute;

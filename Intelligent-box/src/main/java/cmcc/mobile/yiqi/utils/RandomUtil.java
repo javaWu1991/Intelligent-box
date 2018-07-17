@@ -5,7 +5,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class RandomUtil {
-
+    private static byte[] lock = new byte[0];  
+	  
+    // 位数，默认是8位  
+    private final static long w = 1000;  
 	// 可以将字符转换赋值给int类型，查看其ASCII码
 	public static void main(String[] args) {
 
@@ -78,4 +81,14 @@ public class RandomUtil {
 		}
 		return result;
 	}
+	
+	  
+	    public static String createID() {  
+	        long r = 0;  
+	        synchronized (lock) {  
+	            r = (long) ((Math.random() + 1) * w);  
+	        }  
+	  
+	        return System.currentTimeMillis() + String.valueOf(r).substring(1);  
+	    }  
 }

@@ -742,11 +742,6 @@ public class SystemUserController extends BaseController {
 		ModelAndView view = new ModelAndView("system/dubanManagement");
 		return view;
 	}
-	@RequestMapping("/dubanExport")
-	public ModelAndView dubanExport() {
-		ModelAndView view = new ModelAndView("system/dubanExport");
-		return view;
-	}
 	
 	@RequestMapping("/update")
 	public ModelAndView update() {

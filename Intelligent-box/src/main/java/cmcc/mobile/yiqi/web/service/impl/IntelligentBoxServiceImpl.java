@@ -1,12 +1,10 @@
 package cmcc.mobile.yiqi.web.service.impl;
-
 import java.io.IOException;
-import java.net.Socket;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +12,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
 import cmcc.mobile.yiqi.entity.BannerImg;
+import cmcc.mobile.yiqi.entity.TAppCompany;
 import cmcc.mobile.yiqi.entity.TAppProduct;
+import cmcc.mobile.yiqi.entity.THeartbeat;
+import cmcc.mobile.yiqi.entity.TIntelligentBuind;
+import cmcc.mobile.yiqi.entity.TMachine;
 import cmcc.mobile.yiqi.entity.TOpenBoxLog;
 import cmcc.mobile.yiqi.entity.TProductLog;
+import cmcc.mobile.yiqi.entity.TRegister;
 import cmcc.mobile.yiqi.entity.dao.IntelligentBoxMapper;
+import cmcc.mobile.yiqi.entity.dao.TAppCompanyMapper;
 import cmcc.mobile.yiqi.entity.dao.TAppProductMapper;
 import cmcc.mobile.yiqi.entity.dao.TOpenBoxLogMapper;
 import cmcc.mobile.yiqi.base.Constants;
-import cmcc.mobile.yiqi.utils.CommonUtil;
+import cmcc.mobile.yiqi.utils.CRC16Util;
+import cmcc.mobile.yiqi.utils.CheckResult;
 import cmcc.mobile.yiqi.utils.ConfigUtil;
 import cmcc.mobile.yiqi.utils.FileUpload;
-import cmcc.mobile.yiqi.utils.IntelligentUtil;
 import cmcc.mobile.yiqi.utils.JsonResult;
 import cmcc.mobile.yiqi.utils.RandomNumUtil;
+import cmcc.mobile.yiqi.utils.RandomUtil;
 import cmcc.mobile.yiqi.utils.SocketUtil;
 import cmcc.mobile.yiqi.vo.ConsumeVo;
 import cmcc.mobile.yiqi.vo.EchartsVo;
@@ -36,12 +41,11 @@ import cmcc.mobile.yiqi.vo.ProductVo;
 import cmcc.mobile.yiqi.vo.RefundVo;
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
-import sun.util.logging.resources.logging;
 import weixin.popular.api.SnsAPI;
 
-@Service("BoxService")
+@Service("BoxService") 
 public class IntelligentBoxServiceImpl implements IntelligentBoxService{
-	private static final Logger logger = LoggerFactory.getLogger(WeixinPayServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(IntelligentBoxServiceImpl.class);
 	@Autowired
 	private IntelligentBoxMapper intelligentBoxMapper ;
 	@Autowired
@@ -49,9 +53,11 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	@Autowired
 	private TOpenBoxLogMapper tOpenBoxLogMapper ;
 	@Autowired
-	private IWeixinPayService weixinPayService;
+	private TAppCompanyMapper tAppCompanyMapper ;
+	@Autowired
+	private IWeixinPayService weixinPayService; 
 	@Override
-	public JsonResult uploadImages(MultipartFile mr) {
+	public JsonResult uploadImages(MultipartFile mr,String path) {
 		 /**
          * 查询banner图是否超过最多限制如果超过删除不上传
          */
@@ -59,7 +65,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
             String picurl = "";
             try {
                 if (!mr.isEmpty()) {
-                    picurl = FileUpload.uploadFile(mr, "banner");
+                    picurl = FileUpload.uploadFile(mr, path);
                 }
             } catch (IOException e) {
                 return new JsonResult(false, "文件上传失败！", null);
@@ -67,6 +73,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
             BannerImg bannerImg = new BannerImg();
             bannerImg.setCreateTime(System.currentTimeMillis());
             bannerImg.setImgUrl(picurl);
+            bannerImg.setType("1");
             intelligentBoxMapper.insertSelective(bannerImg);
             return new JsonResult(true, "图片上传成功", bannerImg);
         }
@@ -85,6 +92,11 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 */
 	@Override
 	public JsonResult addProduct(TAppProduct tAppProduct, MultipartFile mr) {
+		//先去查询该货柜是否已经有产品有产品则不允许添加
+		TAppProduct tProduct = tAppProductMapper.selectByMachineIdAndContainerNumber(tAppProduct) ;
+		if(tProduct!=null){
+			return new JsonResult(false,"该设备的货柜已经有商品",null) ;
+		}
 		 String picurl = "";
          try {
              if (!mr.isEmpty()) {
@@ -106,10 +118,11 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 * 获取产品列表
 	 */
 	@Override
-	public JsonResult getProductList(String code) {
+	public JsonResult getProductList(String code,String type) {
 		Map<String, Object> map = new HashMap<>() ;
 		map.put("machineId", code) ;
 		map.put("imgUrl", ConfigUtil.imgUrl) ;
+		map.put("type", type) ;
 		List<TAppProduct> tAppProducts = tAppProductMapper.selectByMachineId(map) ;
 		if(tAppProducts.size()==0||tAppProducts==null){
 			return new JsonResult(false,"该编码不存在",null) ;
@@ -153,7 +166,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 */
 	@Override
 	public JsonResult upShelves(String code,Integer number,Long productId,long userId,long corpId) {
-		//数量如果是0则只是更改下架的产品状态否则则更改下架的产品的同事也要更改缺货的产品数量
+		//数量如果是0则只是更改下架的产品状态否则则更改下架的产品的同时也要更改缺货的产品数量
 		TAppProduct tAppProduct = new TAppProduct() ;
 		tAppProduct.setMachineId(code) ;
 		tAppProduct.setStatus(1);
@@ -166,10 +179,12 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 			//查询需要补货的产品
 			List<TAppProduct> tAppProducts = new ArrayList<>() ;
 			tAppProducts.add(tAppProductMapper.selectByPrimaryKey(productId)) ;
-			insertReplenishment(taAppProducts, userId, corpId, number, 1);
+			if(tAppProducts.size()!=0){
+			insertReplenishment(taAppProducts, userId, tAppProducts.get(0).getCorpId(), number, 1);
 			tAppProduct.setProductNumber(number);
 			tAppProduct.setId(productId);
 			tAppProductMapper.updateByNumber(tAppProduct) ;
+			}
 		}
 		return new JsonResult(true,"上架成功！",null);
 	}
@@ -183,20 +198,21 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		tAppProduct.setStatus(0);
 		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;
 		List<TAppProduct> tAppProducts = new ArrayList<>() ;
-		tAppProducts.add(tAppProductMapper.selectByPrimaryKey(productId)) ;
-		insertReplenishment(tAppProducts, userId, corpId, 0,0);
+		tAppProduct = tAppProductMapper.selectByPrimaryKey(productId) ;
+		tAppProducts.add(tAppProduct) ;
+		insertReplenishment(tAppProducts, userId, tAppProduct.getCorpId(), 0,0);
 		return new JsonResult(true,"下架成功",null);
 	}
 	/**
 	 * 下发开门指令
 	 * 并本地记录开门时间
 	 */
-	@SuppressWarnings("static-access")
 	@Override
-	public JsonResult openDoor(String code, Integer containerNumber,long userId) {
+	public JsonResult openDoor(String code, Long productId,Long userId) {
+		TAppProduct tAppProduct = tAppProductMapper.selectByPrimaryKey(productId) ;
 		//下发开门指令
 		JSONObject jsonObject = new JSONObject() ;
-		jsonObject.put("channel", containerNumber);
+		jsonObject.put("channel", Integer.valueOf(tAppProduct.getContainerNumber()));
 		jsonObject.put("devno", code) ;
 		jsonObject.put("user_data", RandomNumUtil.genRandomNum()) ;
 		JSONObject json = new JSONObject() ;
@@ -205,15 +221,15 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		
 		SocketUtil.getMessage(json) ;
 		//查询货柜产品
-		TAppProduct tAppProduct = new TAppProduct() ;
-		tAppProduct.setContainerNumber(containerNumber.toString());
-		tAppProduct.setMachineId(code);
-		tAppProduct = tAppProductMapper.selectByMachineIdAndContainerNumber(tAppProduct) ;
 		TOpenBoxLog tOpenBoxLog = new TOpenBoxLog() ;
 		tOpenBoxLog.setProductName(tAppProduct.getProductName());
 		tOpenBoxLog.setType(1);
 		tOpenBoxLog.setUserId(userId);
 		tOpenBoxLog.setStatus(0);
+		tOpenBoxLog.setCreateTime(System.currentTimeMillis());
+		tOpenBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
+		tOpenBoxLog.setMachineId(tAppProduct.getMachineId());	
+		tOpenBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
 		insertOpenDoorLog(tOpenBoxLog);
 		return new JsonResult(true,"开门成功!",null);
 	}
@@ -235,8 +251,9 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		tAppProduct.setProductNumber(number);
 		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;
 		List<TAppProduct> tAppProducts = new ArrayList<>() ;
-		tAppProducts.add(tAppProductMapper.selectByPrimaryKey(productId)) ;
-		insertReplenishment(tAppProducts, userId, corpId, number,number==0?0:2);
+		tAppProduct = tAppProductMapper.selectByPrimaryKey(productId) ;
+		tAppProducts.add(tAppProduct) ;
+		insertReplenishment(tAppProducts, userId, tAppProduct.getCorpId(), number==null?0:number,number==null?0:2);
 		return new JsonResult(true,"上架成功",null) ;
 	}
 	/**
@@ -259,13 +276,14 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	 * 管理页面获取产品
 	 */
 	@Override
-	public JsonResult getProductListByCorpId(Long corpId,String productName,Integer status,PageVo pageVo){ 
+	public JsonResult getProductListByCorpId(Long corpId,String productName, Long machineId,Integer status,PageVo pageVo){ 
 		Map<String, Object> map = new HashMap<>() ;
 		map.put("corpId", corpId) ;
 		map.put("status", status) ;
 		map.put("productName", productName) ;
 		map.put("startRow", pageVo.getStartRow()) ;
 		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("machineId", machineId) ;
 		List<TAppProduct> tAppProducts = tAppProductMapper.selectByCorp(map);
 		int count = tAppProductMapper.selectByCorpCount(map);
 		if(tAppProducts.size()==0||tAppProducts==null){
@@ -314,11 +332,14 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		product.setProductId(String.valueOf(productId));
 		product.setProductName(consumeVo.getProductName());
 		product.setOutTradeNo(RandomNumUtil.genRandomNum());
-		product.setTotalFee(consumeVo.getFavorablePrice().toString());
+		BigDecimal a1 = new BigDecimal(Double.toString(consumeVo.getFavorablePrice()));  
+		BigDecimal b1 = new BigDecimal(Double.toString(100));   
+		BigDecimal result = a1.multiply(b1);// 相乘结果
+		product.setTotalFee(result.toString());
 		product.setSpbillCreateIp(ip);
 		product.setCode(code);
-		String mweb_url = weixinPayService.weixinPayH5(product) ;
-		return mweb_url ;
+		String url = weixinPayService.weixinPayH5(product) ;
+		return url ;
 	}
 	
 	/**
@@ -481,7 +502,11 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		product.setAppId(refundVo.getAppId());
 		product.setMchId(refundVo.getMchId());
 		product.setOutTradeNo(orderCode);
-		product.setTotalFee(money);
+		BigDecimal a1 = new BigDecimal(money);  
+		BigDecimal b1 = new BigDecimal(Double.toString(100));   
+		BigDecimal result = a1.multiply(b1);// 相乘结果
+		product.setTotalFee(result.toString());
+		product.setReturnCode(RandomNumUtil.genRandomNum());
 		String new_url = weixinPayService.weixinRefund(product) ;
 		return new JsonResult(new_url.equals("success")?true:false,new_url,null);
 	}	
@@ -489,52 +514,71 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 	/**
 	 * 微信支付成功的回调
 	 */
-	@SuppressWarnings("static-access")
 	@Override
 	public void notify(Map map) {
 		//更新订单信息预支付未支付成功
 		Product product = new Product() ;
 		product.setOutTradeNo(map.get("out_trade_no").toString());
 		product.setCreateTime(System.currentTimeMillis());
-		product.setStatus(1);
-		if(!map.get("result_code").toString().equals("SUCCESS")){
 		product.setStatus(0);
-		}
 		//根据订单号查询预下单的商品
-		TAppProduct tAppProduct = intelligentBoxMapper.selectByCode(map.get("result_code").toString()) ;
+		TAppProduct tAppProduct = tAppProductMapper.selectByCode(map.get("out_trade_no").toString()) ;
+		//如果是锁扣打开的柜门更改产品状态为缺货
+		if(!tAppProduct.getContainerNumber().equals("1")){
+		tAppProduct.setStatus(0);
+		tAppProduct.setProductNumber(0);
+		tAppProduct.setUpdateTime(System.currentTimeMillis());
+		}else{
+			tAppProduct.setProductNumber(tAppProduct.getProductNumber()-1);
+			if(tAppProduct.getProductNumber()==0){
+				tAppProduct.setStatus(0);
+			}
+		}
+		tAppProduct.setUpdateTime(System.currentTimeMillis());
+		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;
+		if(tAppProduct.getType()!=0){
+		JSONObject jsonObject = new JSONObject() ;
+		jsonObject.put("channel", Integer.valueOf(tAppProduct.getContainerNumber()));
+		jsonObject.put("devno", tAppProduct.getMachineId()) ;
+		jsonObject.put("user_data", RandomNumUtil.genRandomNum()) ;
+		JSONObject json = new JSONObject() ;
+		json.put("cmd", "open_door") ;
+		json.put("data", jsonObject);		
+		SocketUtil.getMessage(json) ;
+		TOpenBoxLog tOpenBoxLog = new TOpenBoxLog() ;
+		tOpenBoxLog.setProductName(tAppProduct.getProductName());
+		tOpenBoxLog.setType(0);
+		tOpenBoxLog.setUserId(null);
+		tOpenBoxLog.setStatus(0);
+		tOpenBoxLog.setCreateTime(System.currentTimeMillis());
+		tOpenBoxLog.setMachineId(tAppProduct.getMachineId());
+		insertOpenDoorLog(tOpenBoxLog);
 		if(tAppProduct!=null){
 			intelligentBoxMapper.updateOrderByCode(product);
 		}
-		//并下发打开货柜门的指令
-		JSONObject jsonObject = new JSONObject() ;
-		jsonObject.put("channel", tAppProduct.getContainerNumber());
-		jsonObject.put("devno", tAppProduct.getMachineId()) ;
-		JSONObject json = new JSONObject() ;
-		json.put("cmd", "door_open") ;
-		json.put("data", jsonObject);
-		JSONObject object = SocketUtil.getMessage(json) ;
-		//记录开门状态
-		JSONObject data = new JSONObject() ;
-		TOpenBoxLog tBoxLog = new TOpenBoxLog() ;
-		tBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
-		tBoxLog.setMachineId(tAppProduct.getMachineId());
-		tBoxLog.setCreateTime(System.currentTimeMillis());
-		tBoxLog.setProductName(tAppProduct.getProductName());
-		tBoxLog.setCorpId(tAppProduct.getCorpId());
-		tBoxLog.setType(0);
-		if(data.parseObject(object.getString("data")).getInteger("rescode")==0){
-			tBoxLog.setStatus(1);
-		}else{
-			tBoxLog.setStatus(0);
 		}
-		intelligentBoxMapper.insertOpenDoor(tBoxLog) ;
 	}
 	
 	//注册客户端信息
 	@Override
-	public void insertMachindeRegister(String devno) {
-		if(devno!=null){
-			intelligentBoxMapper.insertMachindeRegister(devno);
+	public void insertMachindeRegister(JSONObject json) {
+		
+		if(json!=null){
+			String devno = json.getString("devno") ;
+			TRegister tRegister = intelligentBoxMapper.selectRegister(devno) ;
+			if(tRegister==null){
+				String buind = json.getString("buind") ;
+				TRegister register = new TRegister() ;
+				register.setMachineId(devno);
+				register.setBuind(buind);
+				register.setStatus(0);
+				register.setRegisterTime(System.currentTimeMillis());
+				register.setUpdateTime(System.currentTimeMillis());
+				intelligentBoxMapper.insertMachindeRegister(register);
+			}else{
+			tRegister.setUpdateTime(System.currentTimeMillis());
+			intelligentBoxMapper.updateRegister(tRegister) ;	
+			}
 		}			
 	}
 	
@@ -551,17 +595,20 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		JSONObject object = new JSONObject() ;
 		object.put("cmd", "config") ;
 		object.put("data", jsonObject) ;
-		JSONObject json = SocketUtil.getMessage(object) ;
-		JSONObject data = new JSONObject() ;
-		if(data.parseObject(json.getString("data")).getInteger("rescode")==0){
-			intelligentBoxMapper.insertMacineConfig(jsonObject) ;
-			return new JsonResult(true,"设置成功",jsonObject);
-		}
+//		JSONObject json = SocketUtil.getMessage(object) ;
+//		JSONObject data = new JSONObject() ;
+//		if(data.parseObject(json.getString("data")).getInteger("rescode")==0){
+//			intelligentBoxMapper.insertMacineConfig(jsonObject) ;
+//			return new JsonResult(true,"设置成功",jsonObject);
+//		}
 		return new JsonResult(false,"设置失败",null);
 	}
 	@Override
 	public String weixinPayMobile(Long productId) {
 		ConsumeVo consumeVo = intelligentBoxMapper.selectByProduct(productId) ;
+		if(consumeVo==null){
+			return "缺货" ;
+		}
 		String redirect_uri = "http://www.xajun.com/Intelligent-box/api/H5/getUrl?productId="+productId ;
 		logger.info("redirect_uri=========>"+redirect_uri);
 		System.out.println(redirect_uri);
@@ -580,6 +627,341 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		tOpenBoxLog.setStatus(json.getInteger("rescode")==0?1:0);
 		intelligentBoxMapper.updateDoor(tOpenBoxLog) ;
 		
+	}
+	/**
+	 * 心跳入库唯一序列号只有一条记录
+	 * 更新和插入想结合
+	 */
+	@Override
+	public void insertHeartbeat(JSONObject json) {
+		logger.info("心跳参数："+json.toJSONString());
+		/**
+		 * 先去查询是否有心跳记录
+		 */
+		String machineId = json.getString("devno") ;
+		String version = json.getString("version") ;
+		int ledState = json.getIntValue("led_state") ;
+		int light = json.getIntValue("light") ;
+		int motorState = json.getIntValue("motor_state") ;
+		int simRssi = json.getIntValue("sim_rssi") ;
+		THeartbeat tHeartbeat = intelligentBoxMapper.selectHeartbeat(machineId) ;
+		THeartbeat heartbeat = new THeartbeat() ;
+		//没有记录怎插入,有就更新
+		if(tHeartbeat==null){
+			heartbeat.setCreateTime(System.currentTimeMillis());
+			heartbeat.setJson(json.toJSONString());
+			heartbeat.setMachineId(machineId);
+			heartbeat.setUpdateTime(System.currentTimeMillis());
+			heartbeat.setVersion(version);
+			heartbeat.setLedState(ledState);
+			heartbeat.setLight(light);
+			heartbeat.setMotorState(motorState);
+			heartbeat.setSimRssi(simRssi);
+			intelligentBoxMapper.insertHeartbeat(heartbeat) ;
+		}else{
+			heartbeat.setJson(json.toJSONString());
+			heartbeat.setMachineId(machineId);
+			heartbeat.setUpdateTime(System.currentTimeMillis());
+			heartbeat.setVersion(version);
+			heartbeat.setLedState(ledState);
+			heartbeat.setLight(light);
+			heartbeat.setMotorState(motorState);
+			heartbeat.setSimRssi(simRssi);
+			intelligentBoxMapper.updateHeartbeat(heartbeat) ;
+			logger.info("接收到的参数："+heartbeat);
+		}
+		//查询是否需要升级
+		TIntelligentBuind tIntelligentBuind = intelligentBoxMapper.selectBuind(version) ;
+		if(tIntelligentBuind!=null){
+			JSONObject jsonObject = new JSONObject() ;
+			JSONObject object = new JSONObject() ;
+			object.put("rescode", 0) ;
+			object.put("resmsg", "ok");
+			object.put("devno", machineId) ;
+			jsonObject.put("cmd", "upgrade") ;
+			jsonObject.put("data", object);		
+			SocketUtil.getMessage(object) ;
+		}
+	}
+	/**
+	 * 查询心跳
+	 */
+	@Override
+	public THeartbeat selectTHeartbeat(Long productId) {
+		
+		return intelligentBoxMapper.selectHeartbeatByProductId(productId);
+	}
+	/**
+	 * 新建设备
+	 */
+	@Override
+	public JsonResult addMachine(Long corpId,String buind) {
+		TMachine tMachine = new TMachine() ;
+		tMachine.setCorpId(corpId);
+		tMachine.setMachineId(RandomUtil.createID());
+		tMachine.setStatus(0);
+		tMachine.setBuind(buind);
+		tMachine.setCreateTime(System.currentTimeMillis());
+		intelligentBoxMapper.insertMachine(tMachine);
+		return new JsonResult(true,"添加成功！",null);
+	}
+	@Override
+	public JsonResult getMachineRegister(Integer status, Long startTime, Long endTime,PageVo pageVo, Long corpId) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("startTime", startTime) ;
+		map.put("endTime", endTime) ;
+		map.put("corpId", corpId) ;
+		map.put("status", status) ;
+		//分页
+		List<TRegister> list = intelligentBoxMapper.getMachineRegister(map);
+		//全部
+		map.put("startRow", null) ;
+		map.put("endRow", null) ;
+		List<TRegister> list1 = intelligentBoxMapper.getMachineRegister(map);
+		JsonResult result = new JsonResult(true, "获取成功", list);
+		pageVo.setTotalCountAndPageTotal(list1.size());
+		result.setPageVo(pageVo);
+		return result;
+	}
+	@Override
+	public JsonResult getMachineHeartbeat(Integer status, Long startTime, Long endTime, PageVo pageVo, Long corpId) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("startTime", startTime) ;
+		map.put("endTime", endTime) ;
+		map.put("corpId", corpId) ;
+		map.put("status", status) ;
+		//分页
+		List<THeartbeat> list = intelligentBoxMapper.getMachineHeartbeat(map);
+		//全部
+		map.put("startRow", null) ;
+		map.put("endRow", null) ;
+		List<THeartbeat> list1 = intelligentBoxMapper.getMachineHeartbeat(map);
+		JsonResult result = new JsonResult(true, "获取成功", list);
+		pageVo.setTotalCountAndPageTotal(list1.size());
+		result.setPageVo(pageVo);
+		return result;
+	}
+	@Override
+	public JsonResult getMachineOpenDoor(Integer status, Long startTime, Long endTime, PageVo pageVo, Long corpId) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("startTime", startTime) ;
+		map.put("endTime", endTime) ;
+		map.put("corpId", corpId) ;
+		map.put("status", status) ;
+		//分页
+		List<TOpenBoxLog> list = intelligentBoxMapper.getMachineOpenDoor(map);
+		//全部
+		map.put("startRow", null) ;
+		map.put("endRow", null) ;
+		List<TOpenBoxLog> list1 = intelligentBoxMapper.getMachineOpenDoor(map);
+		JsonResult result = new JsonResult(true, "获取成功", list);
+		pageVo.setTotalCountAndPageTotal(list1.size());
+		result.setPageVo(pageVo);
+		return result;
+	}
+	/**
+	 * 获取设备
+	 */
+	@Override
+	public JsonResult getMachineList(Integer status, Long startTime, Long endTime, PageVo pageVo, Long corpId,String type) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("startTime", startTime) ;
+		map.put("endTime", endTime) ;
+		map.put("corpId", corpId) ;
+		map.put("status", status) ;
+		//分页
+		List<TMachine> list = intelligentBoxMapper.getMachineList(map);
+		//查询设备货物状态
+		for(TMachine tMachine :list){
+			int count = tAppProductMapper.selectByProductStatus(tMachine.getMachineId()) ;
+			if(count>0){
+				tMachine.setProductState("有货");
+			}else{
+				tMachine.setProductState("缺货");
+			}
+		}
+		//全部
+		map.put("startRow", null) ;
+		map.put("endRow", null) ;
+		List<TMachine> list1 = intelligentBoxMapper.getMachineList(map);
+		JsonResult result = new JsonResult(true, "获取成功", type==null?list:list1);
+		pageVo.setTotalCountAndPageTotal(list1.size());
+		result.setPageVo(pageVo);
+		return result;
+	}
+	@Override
+	public JsonResult getCompanyList() {
+		List<TAppCompany> tAppCompany = new ArrayList<>() ;
+		tAppCompany = tAppCompanyMapper.selectCompanyAll() ;
+		return new JsonResult(true,"获取成功！",tAppCompany);
+	}
+	/**
+	 * 设备批量绑定企业
+	 */
+	@Override
+	public JsonResult bindingCompany(String[] machineId,String[] buind, Long corpId,String roomCode) {
+		Map<String, Object> map = new HashMap<>() ;
+		map.put("machineId", machineId) ;
+		map.put("corpId", corpId) ;
+		map.put("createTime", System.currentTimeMillis()) ;
+		map.put("roomCode", roomCode) ;
+		intelligentBoxMapper.insetButh(map) ;
+		//并更新绑定状态
+		intelligentBoxMapper.updateRegisterButh(map) ;
+		//查询默认产品生成产品表
+		List<TAppProduct> list = tAppProductMapper.selectDefaultProduct() ;
+		List<TAppProduct> tAppProducts = new ArrayList<TAppProduct>() ;
+		for(TAppProduct tAppProduct:list){
+			for(int i=0;i<machineId.length;i++){
+				tAppProduct.setMachineId(machineId[i]);
+				tAppProduct.setStatus(1);
+				tAppProduct.setCorpId(corpId);
+				tAppProduct.setCreateTime(System.currentTimeMillis());
+				tAppProduct.setUpdateTime(System.currentTimeMillis());
+				tAppProducts.add(tAppProduct) ;
+			}
+		}
+		//批量插入默认生成的产品
+		tAppProductMapper.insertButhProduct(tAppProducts) ;
+		return new JsonResult(true,"绑定成功！",null);
+	}
+	@Override
+	public JsonResult uploadBuind(MultipartFile mr,String buind,String desc) {
+        String buindUrl = "";
+        int check =0 ;
+        try {
+			check = CRC16Util.crc16(mr.getBytes());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        try {
+            if (!mr.isEmpty()) {
+            	buindUrl = FileUpload.uploadFile(mr, "buind");
+            }
+        } catch (IOException e) {
+            return new JsonResult(false, "文件上传失败！", null);
+        }
+        TIntelligentBuind tIntelligentBuind = new TIntelligentBuind() ;
+        //查询上一个版本号
+        TIntelligentBuind tBuind = intelligentBoxMapper.selectByBuind();
+        tIntelligentBuind.setBuind(tBuind.getNewBuind());
+        tIntelligentBuind.setBuindUrl(ConfigUtil.imgUrl+buindUrl);
+        tIntelligentBuind.setNewBuind(buind);
+        tIntelligentBuind.setStatus(0);
+        tIntelligentBuind.setCheck(check);
+        tIntelligentBuind.setDesc(desc);
+        tIntelligentBuind.setCreateTime(System.currentTimeMillis());
+        intelligentBoxMapper.insertTIntelligent(tIntelligentBuind) ;
+        return new JsonResult(true, "上传成功", tIntelligentBuind);
+	}
+	@Override
+	public CheckResult getBuind(String buind,String devno) {
+		TIntelligentBuind tIntelligentBuind = intelligentBoxMapper.selectBuind(buind) ;
+		if(tIntelligentBuind==null){
+			return new CheckResult(2,"无需升级",null,null,0) ;
+		}
+		return new CheckResult(0,"ok",tIntelligentBuind.getBuindUrl(),tIntelligentBuind.getNewBuind(),tIntelligentBuind.getCheck()) ;
+	}
+	@Override
+	public JsonResult getBuindList(String buind, PageVo pageVo) {
+		Map<String, Object> map = new HashMap<String,Object>() ;
+		map.put("startRow", pageVo.getStartRow()) ;
+		map.put("endRow", pageVo.getEndRow()) ;
+		map.put("buind", buind) ;
+		//分页
+		List<TIntelligentBuind> list = intelligentBoxMapper.getBuindList(map);
+		//全部
+		map.put("startRow", null) ;
+		map.put("endRow", null) ;
+		List<TIntelligentBuind> list1 = intelligentBoxMapper.getBuindList(map);
+		JsonResult result = new JsonResult(true, "获取成功", list);
+		pageVo.setTotalCountAndPageTotal(list1.size());
+		result.setPageVo(pageVo);
+		return result;
+	}
+	@Override
+	public JsonResult deleteBinding(String machineId) {
+		//更新设备状态为删除
+		intelligentBoxMapper.updateMachine(machineId) ;
+		//更新注册状态未未绑定
+		intelligentBoxMapper.updateRegisterByMachineId(machineId);
+		//更新产品状态未删除
+		TAppProduct tAppProduct = new TAppProduct();
+		tAppProduct.setMachineId(machineId);
+		tAppProduct.setStatus(4);
+		tAppProduct.setUpdateTime(System.currentTimeMillis());
+		tAppProductMapper.updateByMachine(tAppProduct);
+		return new JsonResult(true,"解绑成功",null);
+	}
+	//通过设备编码查询企业id
+	@Override
+	public Long selectCorpId(String parameter) {
+		Long corpId = intelligentBoxMapper.selectCorpId(parameter) ;
+		return corpId ;
+	}
+	//添加默认产品
+	@Override
+	public JsonResult addDefaultProduct(TAppProduct tAppProduct, MultipartFile mr) {
+		//先去查询默认产品是否有5种，少于5种允许添加大于五种不允许添加
+				int count = tAppProductMapper.selectByDefaultProduct();
+				if(count>=5){
+					return new JsonResult(false,"添加默认产品已达上限不允许添加",null) ;
+				}
+				//查询添加的货柜是否已有产品有则不允许添加
+				int result = tAppProductMapper.selectByDefaultProductAndContainerNumber(tAppProduct.getContainerNumber()) ;
+				if(result>=1){
+					return new JsonResult(false,"添加的货柜产品已有产品请勿重复添加",null) ;
+				}
+				 String picurl = "";
+		         try {
+		             if (!mr.isEmpty()) {
+		                 picurl = FileUpload.uploadFile(mr, "product");
+		             }
+		         } catch (IOException e) {
+		             return new JsonResult(false, "文件上传失败！", null);
+		         }
+		         tAppProduct.setProductImg(picurl);
+		         tAppProduct.setStatus(1);
+		         tAppProduct.setCreateTime(System.currentTimeMillis());
+		         if(tAppProductMapper.insertDefaultProduct(tAppProduct)==1){
+		        	 return new JsonResult(true,"添加成功",null) ;
+		         }
+		         
+				return new JsonResult(false,"添加失败",null) ;
+	}
+	
+	//获取默认产品
+	@Override
+	public JsonResult getDefaultProductList() {
+		List<TAppProduct> list = tAppProductMapper.selectDefaultProduct() ;
+		return new JsonResult(true,"获取成功",list);
+	}
+	//编辑默认产品
+	@Override
+	public JsonResult updateDefaultProduct(TAppProduct tAppProduct,MultipartFile mr) {
+		 String picurl = "";
+         try {
+             if (null !=mr) {
+                 picurl = FileUpload.uploadFile(mr, "product");
+                 tAppProduct.setProductImg(picurl);
+             }
+         } catch (IOException e) {
+             return new JsonResult(false, "文件上传失败！", null);
+         }
+         tAppProduct.setUpdateTime(System.currentTimeMillis());
+         if(tAppProductMapper.updateDefaultProduct(tAppProduct)==1){
+        	 return new JsonResult(true,"更新成功",null) ;
+         }
+		return new JsonResult(false,"更新失败",null) ;
 	}
 
 	

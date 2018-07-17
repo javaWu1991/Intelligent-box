@@ -33,7 +33,17 @@ public class TAppProduct extends PageVo{
     
     private String remark ;
     
+    private int type ;
     
+
+    
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
 
 	public String getRemark() {
 		return remark;

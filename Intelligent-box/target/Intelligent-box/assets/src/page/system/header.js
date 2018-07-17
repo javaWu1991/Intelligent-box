@@ -30,7 +30,7 @@ define(function(require, exports) {
                 _.each(checknode, function(item) {
                 	var arr = checknode.list ;
                 	var markup = [];
-                	markup.push('<option value="'+CID+'">'+COMPANY_NAME+'</option>');
+                	markup.push('<option value="'+CID+'">'+COMPANY_NAME+'</option>');          
                 	for(var i = 0; i < arr.length; i++){
                     if(arr[i].id!=CID){
                 	markup.push('<option value="' + arr[i].id + '">' + arr[i].name + '</option>');

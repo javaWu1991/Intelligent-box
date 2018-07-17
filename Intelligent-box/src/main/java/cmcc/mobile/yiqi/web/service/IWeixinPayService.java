@@ -1,5 +1,6 @@
 package cmcc.mobile.yiqi.web.service;
 
+import cmcc.mobile.yiqi.vo.PayVo;
 import cmcc.mobile.yiqi.vo.Product;
 
 public interface IWeixinPayService {

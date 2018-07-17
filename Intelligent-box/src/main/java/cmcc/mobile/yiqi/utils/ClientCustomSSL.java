@@ -22,20 +22,20 @@ import org.springframework.util.ResourceUtils;
  *
  */
 public class ClientCustomSSL {
-	 public static String doRefund(String url,String data) throws Exception {  
+	 public static String doRefund(String url,String mchId,String data) throws Exception {  
         /** 
          * 注意PKCS12证书 是从微信商户平台-》账户设置-》 API安全 中下载的 
          */  
         KeyStore keyStore  = KeyStore.getInstance("PKCS12");  
-        File certfile = ResourceUtils.getFile("classpath:cert"+ Constants.SF_FILE_SEPARATOR + ConfigUtil.CERT_PATH);
+        File certfile = ResourceUtils.getFile(ConfigUtil.CERT_PATH);
         FileInputStream instream = new FileInputStream(certfile);
         try {  
-            keyStore.load(instream, ConfigUtil.MCH_ID.toCharArray());
+            keyStore.load(instream, mchId.toCharArray());
         } finally {  
             instream.close();  
         }  
         SSLContext sslcontext = SSLContexts.custom()  
-                .loadKeyMaterial(keyStore, ConfigUtil.MCH_ID.toCharArray())
+                .loadKeyMaterial(keyStore, mchId.toCharArray())
                 .build();  
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(  
                 sslcontext,  
