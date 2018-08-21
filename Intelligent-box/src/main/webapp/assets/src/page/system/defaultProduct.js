@@ -85,22 +85,7 @@ define(function(require, exports, module) {
 			.extend({
 				template : noticeCreateModalRender,
 				events: {
-					'click [data-do="preview"]' : 'doPreview',
-					'click [data-do="closePreview"]' : 'closePreview',
 					'click [data-do="submit"]': 'submit'
-				},
-				doPreview: function() {
-					$('#iphone-screen').html(
-						'<b>公告标题：</b>' + $('#inputTitle').val() + 
-						'<br><b>摘要：</b>' + $('[name="detail"]').val() + 
-						'<br><b>创建时间</b>' + $('[data-ui="datatimerange"]').val() + 
-						'<br><b>正文：</b>' + $('#editor').val() + 
-						'<br><b>图片地址：</b>' + $('#inputPicfile').val()
-					);
-					$('.iphone').show();
-				},
-				closePreview: function(){
-					$('.iphone').hide()
 				},
 				initForm : function() {
 					this.$form.validate({
@@ -142,13 +127,7 @@ define(function(require, exports, module) {
 		            var endDate = picker.endDate;
 		            this.model.set('createTime', startDate.format('x'));
 		            this.model.set('modifyTime', endDate.format('x'));
-		        },
-	
-
-					
-				
-
-		           
+		       },        
 				initEditor : function() {
 					this.editor = UM
 							.getEditor(
@@ -268,31 +247,6 @@ define(function(require, exports, module) {
 												'undo redo | bold italic underline strikethrough fontfamily fontsize forecolor backcolor | superscript subscript',
 												'paragraph justifyleft justifycenter justifyright justifyjustify | insertorderedlist insertunorderedlist | removeformat | selectall cleardoc | image | link unlink | horizontal source' ]
 									});
-				},
-				checkTree : function() {
-					var id = this.model.get('id');
-					var that = this;
-					$.ajax({
-						type : "GET",
-						url : CONTEXT_PATH + '/web/getMessage.do',
-						dataType : "json",
-						data : "id=" + id,
-						success : function(data) {
-							var checknode = JSON.parse(data.model.receiver);
-							_.each(checknode, function(item) {
-								var orgs = that.editOrgTree.tree
-										.getNodeByParam("orgId", item.org_id,
-												null);
-								if (orgs) {
-									that.editOrgTree.tree.checkNode(
-											that.editOrgTree.tree
-													.getNodeByParam("orgId",
-															item.org_id, null),
-											true, true);
-								}
-							});
-						}
-					});
 				},
 				submit : function(event) {
 					var $target = $(event.target);

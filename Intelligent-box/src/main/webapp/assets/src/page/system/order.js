@@ -197,7 +197,7 @@ define(function(require, exports, module) {
         $('.primary-nav').metisMenu();
 
         var query = new Backbone.Model();
-        if (CID != '') query.set('cid', CID);
+        if (CID != '') query.set('corpId', CID);
         query.set('pageNo',1);
         query.set('pageSize',20)
         var list = new Backbone.Collection(null, {
@@ -265,6 +265,18 @@ define(function(require, exports, module) {
 
         function searchHandler(data) {
             var clean = query.toJSON();
+            if(data != undefined){
+            var startTime = data.startTime ;
+            var endTime = data.endTime ;
+            if(startTime!=""){
+            startTime =  (new Date(startTime.replace(/-/g,'/'))).getTime(); 
+            data.startTime = startTime;
+            }
+            if(endTime!=""){
+                endTime =  (new Date(endTime.replace(/-/g,'/'))).valueOf(); 
+                data.endTime = endTime;
+            }
+            }
             _.extend(clean, data);
             // 过滤空的搜索条件
             if (_.isObject(data) && !_.isArray(data)) {
@@ -287,13 +299,62 @@ define(function(require, exports, module) {
 
         // 将分页视图渲染到界面上
         $('.toolbar-bottom').append(pager.render().$el);
+        $('[data-do="export:order"]').on('click', function() {
+      	 var startTime = $('#startTime').val();
+      	 var  endTime = $('#endTime').val();
+      	 var  status = $('#status').val();
+      	 var  productName = $('#productName').val();
+      	 if(productName==""){
+      		 productName = null ;
+      	 }
+      	 if(startTime!=""){
+      		startTime = Date.parse(startTime) ;
+      	 }else{
+      		startTime = null ;
+      	 }   	 
+      	 if(endTime!=""){
+      		endTime =  Date.parse(endTime) ;
+      	 }else{
+      		 endTime = null ;
+      	 }
+		var form=$("<form id='excel'>");//定义一个form表单
+		form.attr("style","display:none");
+		form.attr("target","");
+		form.attr("method","post");  //请求类型
+		var input1 = $('<input>');
+	    input1.attr('type', 'hidden');
+	    input1.attr('name', 'productName');
+	    input1.attr('value', productName);
+	    form.append(input1);
+		var input2 = $('<input>');
+	    input2.attr('type', 'hidden');
+	    input2.attr('name', 'status');
+	    input2.attr('value', status);
+	    form.append(input2);
+		var input3 = $('<input>');
+	    input3.attr('type', 'hidden');
+	    input3.attr('name', 'startTime');
+	    input3.attr('value', startTime);
+	    form.append(input3);
+		var input4 = $('<input>');
+	    input4.attr('type', 'hidden');
+	    input4.attr('name', 'endTime');
+	    input4.attr('value', endTime);
+	    form.append(input4);
+		form.attr("action",CONTEXT_PATH + '/web/boxWeb/excleOrder.do?');   //请求地址
+		$("body").append(form);//将表单放置在web中	
+		form.submit(); 
+		$("#target").load(function(){
+			alert($(this).result_status);
+		})
+        });
 
         var modal;
         $('[data-do="create:companyAdmin"]').on('click', function() {
             modal instanceof FormModal && modal.remove();
 
             var attrs = {
-                cid: CID,
+                corpId: CID,
                 companyName: COMPANY_NAME,
                 companyNo: COMPANY_CODE
             }

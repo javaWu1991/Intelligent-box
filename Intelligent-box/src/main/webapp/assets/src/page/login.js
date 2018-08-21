@@ -2,6 +2,7 @@ define(function(require, exports, module) {
 	var $ = require('jquery');
 	var Backbone = require('backbone');
 	var template = require('template');
+	var alert = require('component/Alert');
 	require('jquery-validate');
 	var BaseForm = Backbone.View.extend({
 		events: {
@@ -40,6 +41,7 @@ define(function(require, exports, module) {
 		},
 		onSubmit: function() {
 			if (this.timer) {
+				alert("请刷新页面重新输入密码");
 				this.hideAlert();
 				clearTimeout(this.timer);
 			}
@@ -116,6 +118,7 @@ define(function(require, exports, module) {
 		},
 		onSubmit: function() {
 			if (this.timer) {
+				alert("请刷新页面重新输入密码");
 				this.hideAlert();
 				clearTimeout(this.timer);
 			}

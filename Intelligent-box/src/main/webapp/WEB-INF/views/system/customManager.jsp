@@ -99,12 +99,6 @@ var COMPANY_NAME = '${company.name}';
                     <label for="inputMobile" class="control-label">账号<i class="required">*</i></label>
                     <input type="text" class="form-control" id="inputMobile" name="mobile" placeholder="请输入手机号码">
                 </div>
-              	<!--
-				<div class="form-group">
-                    <label for="inputPassword" class="control-label">密码<i class="required">*</i></label>
-                    <input type="password" class="form-control" id="inputPassword" name="password" placeholder="6-16个字符，英文、数字、特殊字符">
-                </div>
-				-->
                 <div class="form-group">
                     <label for="inputName" class="control-label">姓名<i class="required">*</i></label>
                     <input type="text" class="form-control" id="inputName" name="name" placeholder="不超过10个字符">

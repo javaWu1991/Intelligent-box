@@ -56,8 +56,6 @@ define(function(require, exports, module) {
 				statusText = '有货';
 			if (status == 2)
 				statusText = '热销';
-			if (status == 3)
-				statusText = '下架';
 			var type = this.get('type');
 			var typeText = '未知';
 			if(type==0)
@@ -109,22 +107,7 @@ define(function(require, exports, module) {
 			.extend({
 				template : noticeCreateModalRender,
 				events: {
-					'click [data-do="preview"]' : 'doPreview',
-					'click [data-do="closePreview"]' : 'closePreview',
 					'click [data-do="submit"]': 'submit'
-				},
-				doPreview: function() {
-					$('#iphone-screen').html(
-						'<b>公告标题：</b>' + $('#inputTitle').val() + 
-						'<br><b>摘要：</b>' + $('[name="detail"]').val() + 
-						'<br><b>创建时间</b>' + $('[data-ui="datatimerange"]').val() + 
-						'<br><b>正文：</b>' + $('#editor').val() + 
-						'<br><b>图片地址：</b>' + $('#inputPicfile').val()
-					);
-					$('.iphone').show();
-				},
-				closePreview: function(){
-					$('.iphone').hide()
 				},
 				initForm : function() {
 					this.$form.validate({
@@ -183,7 +166,7 @@ define(function(require, exports, module) {
 										autoHeightEnabled : false,
 										imagePath : CONTEXT_PATH,
 										imageUrl : CONTEXT_PATH
-												+ '/web/boxWeb/upload.do',
+												+ '/web/edit/upload.do',
 										imageFieldName : 'file',
 										// imageUrlPrefix : SourceUrl,
 										toolbar : [
@@ -290,37 +273,12 @@ define(function(require, exports, module) {
 										autoHeightEnabled : false,
 										imagePath : CONTEXT_PATH,
 										imageUrl : CONTEXT_PATH
-												+ '/web/boxWeb/upload.do',
+												+ '/web/edit/upload.do',
 										imageFieldName : 'file',
 										toolbar : [
 												'undo redo | bold italic underline strikethrough fontfamily fontsize forecolor backcolor | superscript subscript',
 												'paragraph justifyleft justifycenter justifyright justifyjustify | insertorderedlist insertunorderedlist | removeformat | selectall cleardoc | image | link unlink | horizontal source' ]
 									});
-				},
-				checkTree : function() {
-					var id = this.model.get('id');
-					var that = this;
-					$.ajax({
-						type : "GET",
-						url : CONTEXT_PATH + '/web/getMessage.do',
-						dataType : "json",
-						data : "id=" + id,
-						success : function(data) {
-							var checknode = JSON.parse(data.model.receiver);
-							_.each(checknode, function(item) {
-								var orgs = that.editOrgTree.tree
-										.getNodeByParam("orgId", item.org_id,
-												null);
-								if (orgs) {
-									that.editOrgTree.tree.checkNode(
-											that.editOrgTree.tree
-													.getNodeByParam("orgId",
-															item.org_id, null),
-											true, true);
-								}
-							});
-						}
-					});
 				},
 				submit : function(event) {
 					var $target = $(event.target);
@@ -400,11 +358,10 @@ define(function(require, exports, module) {
 		doStick : function() {
 			var id = this.model.get('id');
 			var status = this.model.get('status');
-
-			if (status == 3) {
+			if (status == 0) {
 				status = 1;
 			} else {
-				status = 3;
+				status = 0;
 			}
 
 			this.model.save(null, {
@@ -439,7 +396,6 @@ define(function(require, exports, module) {
 		doIsHot : function() {
 			var id = this.model.get('id');
 			var status = this.model.get('status');
-
 			if (status == 2) {
 				status = 1;
 			} else {
@@ -494,80 +450,80 @@ define(function(require, exports, module) {
 	 * 监听集合的 reset 事件更新视图
 	 */
 	var DataTable = Backbone.View
-			.extend({
-				noDataRender : template('<tr><td colspan="{{count}}">暂无数据</td></tr>'),
-				loadingRender : template('<tr><td colspan="{{count}}">数据加载中...</td></tr>'),
-				initialize : function() {
-					this.cacheEls();
+	.extend({
+		noDataRender : template('<tr><td colspan="{{count}}">暂无数据</td></tr>'),
+		loadingRender : template('<tr><td colspan="{{count}}">数据加载中...</td></tr>'),
+		initialize : function() {
+			this.cacheEls();
 
-					this.listenTo(this.collection, 'reset', this.reset);
-					this.listenTo(this.collection, 'request', this.request);
-					this.listenTo(this.collection, 'sync', this.sync);
-					this.listenTo(this.collection, 'error', this.error);
-					this.listenTo(this.collection, 'destroy', this.refresh);
+			this.listenTo(this.collection, 'reset', this.reset);
+			this.listenTo(this.collection, 'request', this.request);
+			this.listenTo(this.collection, 'sync', this.sync);
+			this.listenTo(this.collection, 'error', this.error);
+			this.listenTo(this.collection, 'destroy', this.refresh);
 
-					this.listenTo(this.collection, 'change:sort', this.refresh);
-				},
-				addOne : function(model, collection, options) {
-					model.set('cid', COMPANY_ID);
-					var itemView = new ItemView({
-						model : model
-					});
-					this.$items.append(itemView.render().el);
-				},
-				reset : function(collection, options) {
-					var previousModels = options.previousModels;
-					_.each(previousModels, function(model) {
-						model.trigger('remove');
-					});
-
-					this.$items.empty();
-
-					if (collection.length == 0) {
-						this.$items.html(this.noDataRender({
-							count : this.colHeadersCount
-						}));
-					} else {
-						collection.each(function(model, index) {
-							model.set({
-								index : index + 1,
-								$index : index
-							});
-							this.addOne(model, collection);
-						}, this);
-					}
-				},
-				cacheEls : function() {
-					this.$headers = this.$('[role="col-headers"]');
-					this.$items = this.$('[role="items"]');
-					this.colHeadersCount = this.$headers.find('th').size();
-				},
-				request : function(collection) {
-					if (collection instanceof Backbone.Collection) {
-						var markup = this.loadingRender({
-							count : this.colHeadersCount
-						});
-
-						this.$items.empty().html(markup);
-					}
-				},
-				refresh : function() {
-					var data = this.model.getData();
-					this.collection.refresh({});
-				}
+			this.listenTo(this.collection, 'change:sort', this.refresh);
+		},
+		addOne : function(model, collection, options) {
+			model.set('cid', COMPANY_ID);
+			var itemView = new ItemView({
+				model : model
 			});
+			this.$items.append(itemView.render().el);
+		},
+		reset : function(collection, options) {
+			var previousModels = options.previousModels;
+			_.each(previousModels, function(model) {
+				model.trigger('remove');
+			});
+
+			this.$items.empty();
+
+			if (collection.length == 0) {
+				this.$items.html(this.noDataRender({
+					count : this.colHeadersCount
+				}));
+			} else {
+				collection.each(function(model, index) {
+					model.set({
+						index : index + 1,
+						$index : index
+					});
+					this.addOne(model, collection);
+				}, this);
+			}
+		},
+		cacheEls : function() {
+			this.$headers = this.$('[role="col-headers"]');
+			this.$items = this.$('[role="items"]');
+			this.colHeadersCount = this.$headers.find('th').size();
+		},
+		request : function(collection) {
+			if (collection instanceof Backbone.Collection) {
+				var markup = this.loadingRender({
+					count : this.colHeadersCount
+				});
+
+				this.$items.empty().html(markup);
+			}
+		},
+		refresh : function() {
+			var data = this.model.getData();
+			this.collection.refresh({});
+		}
+	});
 
 	function run() {
 		$('.primary-nav').metisMenu();
 		var query = new Backbone.Model({
-			cid : COMPANY_ID,
+			corpId : COMPANY_ID,
 			pageNo:1,
 			pageSize:20
 		});
 		_.extend(query, {
 			autoParam : function() {
 				return {
-					cid : COMPANY_ID
+					corpId : COMPANY_ID
 				}
 			},
 			getData : function() {
@@ -581,6 +537,9 @@ define(function(require, exports, module) {
 		var url = CONTEXT_PATH + '/web/boxWeb/getProductList.do?machineId='+machineId;
 		if(machineId==null){
 			url = CONTEXT_PATH + '/web/boxWeb/getProductList.do';
+		}
+		if(status==0){
+			url = CONTEXT_PATH + '/web/boxWeb/getProductList.do?status=0'
 		}
 		_.extend(list, {
 			url :  url,
@@ -675,7 +634,6 @@ define(function(require, exports, module) {
 		}
 
 		searchHandler(query.getData());
-
 		var modal;
 		$('[data-do="create:notice"]').on('click', function() {
 			var attrs = {

@@ -1,15 +1,19 @@
 package cmcc.mobile.yiqi.web.service;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 
 import cmcc.mobile.yiqi.entity.TAppProduct;
 import cmcc.mobile.yiqi.entity.THeartbeat;
+import cmcc.mobile.yiqi.entity.TMachine;
 import cmcc.mobile.yiqi.utils.CheckResult;
 import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.vo.ExcleVo;
 import cmcc.mobile.yiqi.vo.PageVo;
 import cmcc.mobile.yiqi.vo.PayVo;
 
@@ -95,5 +99,13 @@ public interface IntelligentBoxService {
 	JsonResult getDefaultProductList();
 
 	JsonResult updateDefaultProduct(TAppProduct tAppProduct, MultipartFile mr);
+
+	JsonResult updateMachine(TMachine tMachine);
+
+	JsonResult getProductStatus(Long corpId);
+
+	List<ExcleVo> excleOrder(Long userId, Integer status, String productName, Long startTime, Long endTime, Long corpId);
+
+	Workbook exportExcle(List<ExcleVo> excleVos);
 
 }

@@ -18,7 +18,7 @@
             <div class="row m-t">
                 <div class="col-sm-6">
                     <form id="form-password" method="post" class="form-horizontal" enctype="multipart/form-data">
-                         <input type="hidden" name="id" value="${currentUser.id}">
+                         <input type="hidden" name="id" value="${userId}">
                         <div class="form-group">
                             <label for="inputOldPassword" class="col-sm-4 control-label">原密码</label>
                             <div class="col-sm-8">

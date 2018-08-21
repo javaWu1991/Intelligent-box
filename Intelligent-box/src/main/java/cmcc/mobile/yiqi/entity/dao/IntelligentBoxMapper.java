@@ -17,6 +17,7 @@ import cmcc.mobile.yiqi.entity.TProductLog;
 import cmcc.mobile.yiqi.entity.TRefund;
 import cmcc.mobile.yiqi.entity.TRegister;
 import cmcc.mobile.yiqi.vo.ConsumeVo;
+import cmcc.mobile.yiqi.vo.ExcleVo;
 import cmcc.mobile.yiqi.vo.Product;
 import cmcc.mobile.yiqi.vo.ProductVo;
 import cmcc.mobile.yiqi.vo.RefundVo;
@@ -104,5 +105,9 @@ public interface IntelligentBoxMapper {
 	void updateRegisterByMachineId(String machineId);
 
 	Long selectCorpId(String parameter);
+
+	void updateMachineId(TMachine tMachine);
+
+	List<ExcleVo> getExcleVo(Map<String, Object> map);
 
 }

@@ -1,6 +1,13 @@
 package cmcc.mobile.yiqi.base;
 
 public class Constants {
+	public static final short detail_size = 12;
+	public static final short title_height = 655;
+	public static final short row_height = 655;
+	public static final short row_height0 = 555;
+	public static final short title_size = 22;
+	public static final short no_size = 18;
+	public static final short fit_row_height = 285;
 	public static final String PARAMETERS_NOT_FORMAT = "请求参数格式不合法。";
 	public static final String PARAMETERS_DATE_WRONG = "时间类型不合法。";
 	public static final String PARAMETERS_LACKING = "请求参数不完整。";

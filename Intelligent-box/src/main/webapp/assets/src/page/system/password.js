@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 	        submit: function() {
 	            var params = this.$form.serializeObject();
 	            this.$form.ajaxSubmit({
-	                url: CONTEXT_PATH + '/web/system/resetPassword.do',
+	                url: CONTEXT_PATH + '/web/system/updatePassword.do',
 	                context: this,
 	                success: function(resp) {
 	                    resp = _.extend({

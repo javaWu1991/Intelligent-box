@@ -13,10 +13,17 @@ public class ProductVo {
 	private String machineId ;
 	private String orderCode ;
 	private Long productId ;
-
+	private String roomCode ; 
 	
 	
 
+	
+	public String getRoomCode() {
+		return roomCode;
+	}
+	public void setRoomCode(String roomCode) {
+		this.roomCode = roomCode;
+	}
 	public Long getProductId() {
 		return productId;
 	}

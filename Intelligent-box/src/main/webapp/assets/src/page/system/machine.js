@@ -55,7 +55,7 @@ define(function(require, exports, module) {
 			if (status == 1)
 				statusText = '正常';
 			if (status == 2)
-				statusText = '异常';
+				statusText = '未上电';
 			data.createTimeText = createTimeText;
 			data.statusText = statusText;
 			return data;
@@ -131,7 +131,53 @@ define(function(require, exports, module) {
 			});
 
 	
-	
+	var copyCreateModalRender = template($('#tmpl-machineEditModal').html());
+	var MachineEditModal = FormModal
+			.extend({
+				template : copyCreateModalRender,
+				events: {
+					'click [data-do="submit"]': 'submit',
+				},
+				submit : function(event) {
+					var $target = $(event.target);
+					var params = this.$form.serializeObject();
+					if (this.$form.valid()) {
+						this.$form.ajaxSubmit({
+							url : CONTEXT_PATH + '/web/boxWeb/updateMachine.do',
+							context : this,
+							beforeSend : function() {
+								$target.prop('disabled', true);
+							},
+							success : function(resp) {
+								resp = _.extend({
+									success : false,
+									message : '操作失败'
+								}, resp);
+
+								if (resp.success) {
+									location.reload();
+									alert('操作成功').delay(1);
+									this.hide();
+								} else {
+									alert(resp.message);
+								}
+							},
+							error : function() {
+								alert('操作失败');
+							},
+							complete : function() {
+								$target.prop('disabled', false);
+							}
+						});
+					}
+				},
+				remove : function() {
+					if (this.editor)
+						this.editor.destroy();
+					NoticeCreateModal.__super__.remove.call(this);
+				}
+			});
+
 		
 
 	/*
@@ -146,6 +192,7 @@ define(function(require, exports, module) {
 		events : {
 			'click [data-do="detail"]' : 'doDetail',
 			'click [data-do="delete"]' : 'doDelete',
+			'click [data-do="edit"]' : 'doEdit',
 		},
 		initialize : function() {
 			this.listenTo(this.model, 'remove', this.remove);
@@ -161,6 +208,10 @@ define(function(require, exports, module) {
 			confirm('确认删除？', function() {
 				model.destroy();
 			});
+		},
+		doEdit : function() {
+			Backbone.trigger('edit:machine', this.model, this);
+
 		},
 		render : function() {
 			var markup = this.template({
@@ -354,33 +405,39 @@ define(function(require, exports, module) {
 
 		searchHandler(query.getData());
 
-		var modal;
-		$('[data-do="create:notice"]').on('click', function() {
-			var attrs = {
-				cid : COMPANY_ID
-			}
-			modal = new NoticeCreateModal({
-				model : new Notice(attrs),
-				collection : list
+//	var modal;
+//		$('[data-do="create:notice"]').on('click', function() {
+//			var attrs = {
+//				cid : COMPANY_ID
+//			}
+//			modal = new NoticeCreateModal({
+//				model : new Notice(attrs),
+//				collection : list
+//			});
+//			modal.render().$el.appendTo(document.body);
+//			//modal.initForm();
+//			modal.show();
+//			$.ajax({
+//	            url: CONTEXT_PATH + '/web/boxWeb/getCompanyList.do',
+//	            type: 'get',
+//	            success: function(resp) {
+//	            	var arr = resp.model;
+//	            	var markup =[];
+//	            	for(var i = 0; i < arr.length; i++){
+//	                	markup.push('<option value="' + arr[i].id + '">' + arr[i].name + '</option>');
+//	            	}
+//	            	$('#companySelect').html(markup.join(''));
+//	            }
+//	            });
+//		});
+		
+		Backbone.on('edit:machine', function(model) {
+			modal = new MachineEditModal({
+				model : model
 			});
 			modal.render().$el.appendTo(document.body);
-			//modal.initForm();
 			modal.show();
-			$.ajax({
-	            url: CONTEXT_PATH + '/web/boxWeb/getCompanyList.do',
-	            type: 'get',
-	            success: function(resp) {
-	            	var arr = resp.model;
-	            	var markup =[];
-	            	for(var i = 0; i < arr.length; i++){
-	                	markup.push('<option value="' + arr[i].id + '">' + arr[i].name + '</option>');
-	            	}
-	            	$('#companySelect').html(markup.join(''));
-	            }
-	            });
 		});
-		
-
 
 	}
 

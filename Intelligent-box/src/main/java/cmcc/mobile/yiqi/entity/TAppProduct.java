@@ -1,8 +1,7 @@
 package cmcc.mobile.yiqi.entity;
 
-import cmcc.mobile.yiqi.vo.PageVo;
 
-public class TAppProduct extends PageVo{
+public class TAppProduct{
     private Long id;
 
     private String productName;
@@ -35,8 +34,19 @@ public class TAppProduct extends PageVo{
     
     private int type ;
     
+    private String roomCode ; 
+    
+    
 
     
+	public String getRoomCode() {
+		return roomCode;
+	}
+
+	public void setRoomCode(String roomCode) {
+		this.roomCode = roomCode;
+	}
+
 	public int getType() {
 		return type;
 	}

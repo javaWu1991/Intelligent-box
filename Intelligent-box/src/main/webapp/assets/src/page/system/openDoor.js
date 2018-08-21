@@ -41,8 +41,8 @@ define(function(require, exports, module) {
             var createTime = this.get('createTime');
             var type = this.get('type');
             var statusMap = {
-                0: '成功',
-                1: '失败',
+                0: '失败',
+                1: '成功',
             };
             var typeMap = {
                     0: '付款开门',
@@ -52,7 +52,7 @@ define(function(require, exports, module) {
             var createTimeText = createTime.isValid() ? createTime.format('YYYY-MM-DD HH:mm:ss') : '';
             data._isNew = this.isNew();
             data.statusText = statusMap[state] || '未知状态';
-            data.typeText = statusMap[type] || '未知状态';
+            data.typeText = typeMap[type] || '未知状态';
             data.createTimeText = createTimeText;
             return data;
         },

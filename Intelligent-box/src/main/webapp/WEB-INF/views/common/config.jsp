@@ -33,7 +33,6 @@
 			'bootstrap-daterangepicker' : 'dep/bootstrap-daterangepicker/2.1.14/daterangepicker',
 			'bootstrap-moment' : 'dep/bootstrap-daterangepicker/2.1.14/moment',
 			'moment' : 'dep/moment/2.13.0/moment',
-
 			'video' : 'dep/video/5.8.0/video.min',
 			'unslider' : 'dep/unslider/2.0/dist/js/unslider-min',
 			'underscore' : 'dep/underscore/1.8.3/underscore',

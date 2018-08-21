@@ -5,6 +5,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +46,7 @@ import cmcc.mobile.yiqi.utils.RandomUtil;
 import cmcc.mobile.yiqi.utils.SocketUtil;
 import cmcc.mobile.yiqi.vo.ConsumeVo;
 import cmcc.mobile.yiqi.vo.EchartsVo;
+import cmcc.mobile.yiqi.vo.ExcleVo;
 import cmcc.mobile.yiqi.vo.PageVo;
 import cmcc.mobile.yiqi.vo.Product;
 import cmcc.mobile.yiqi.vo.ProductVo;
@@ -173,6 +185,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		//查询下架的产品
 		List<TAppProduct> taAppProducts = tAppProductMapper.selectByMachine(code) ;
 		if(taAppProducts.size()!=0){
+			tAppProduct.setProductNumber(1);
 			tAppProductMapper.updateByCode(tAppProduct) ;
 			insertReplenishment(taAppProducts, userId, corpId, 0, 2);
 		}else if(number!=null && productId!=null){
@@ -196,6 +209,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		TAppProduct tAppProduct = new TAppProduct() ;
 		tAppProduct.setId(productId);
 		tAppProduct.setStatus(0);
+		tAppProduct.setProductNumber(0);
 		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;
 		List<TAppProduct> tAppProducts = new ArrayList<>() ;
 		tAppProduct = tAppProductMapper.selectByPrimaryKey(productId) ;
@@ -229,7 +243,6 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		tOpenBoxLog.setCreateTime(System.currentTimeMillis());
 		tOpenBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
 		tOpenBoxLog.setMachineId(tAppProduct.getMachineId());	
-		tOpenBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
 		insertOpenDoorLog(tOpenBoxLog);
 		return new JsonResult(true,"开门成功!",null);
 	}
@@ -248,7 +261,11 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		TAppProduct tAppProduct = new TAppProduct() ;
 		tAppProduct.setId(productId); ;
 		tAppProduct.setStatus(1);
+		if(number==null){
+			tAppProduct.setProductNumber(1);
+		}else{
 		tAppProduct.setProductNumber(number);
+		}
 		tAppProductMapper.updateByPrimaryKeySelective(tAppProduct) ;
 		List<TAppProduct> tAppProducts = new ArrayList<>() ;
 		tAppProduct = tAppProductMapper.selectByPrimaryKey(productId) ;
@@ -285,12 +302,12 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		map.put("endRow", pageVo.getEndRow()) ;
 		map.put("machineId", machineId) ;
 		List<TAppProduct> tAppProducts = tAppProductMapper.selectByCorp(map);
-		int count = tAppProductMapper.selectByCorpCount(map);
+		List<TAppProduct> tList = tAppProductMapper.selectByCorpCount(map);
 		if(tAppProducts.size()==0||tAppProducts==null){
 			return new JsonResult(false,"该编码不存在",null) ;
 			
 		}
-		pageVo.setTotalCountAndPageTotal(count);
+		pageVo.setTotalCountAndPageTotal(tList.size());
 		JsonResult jsonResult = new JsonResult(true,"获取成功！",tAppProducts) ;
 		jsonResult.setPageVo(pageVo);
 		return jsonResult ;
@@ -552,6 +569,7 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		tOpenBoxLog.setStatus(0);
 		tOpenBoxLog.setCreateTime(System.currentTimeMillis());
 		tOpenBoxLog.setMachineId(tAppProduct.getMachineId());
+		tOpenBoxLog.setContainerNumber(Integer.valueOf(tAppProduct.getContainerNumber()));
 		insertOpenDoorLog(tOpenBoxLog);
 		if(tAppProduct!=null){
 			intelligentBoxMapper.updateOrderByCode(product);
@@ -782,10 +800,15 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
 		//查询设备货物状态
 		for(TMachine tMachine :list){
 			int count = tAppProductMapper.selectByProductStatus(tMachine.getMachineId()) ;
+			//查询设备上电状态
+			THeartbeat tHeartbeat = intelligentBoxMapper.selectHeartbeat(tMachine.getMachineId()) ;
+			if(System.currentTimeMillis()-tHeartbeat.getUpdateTime()>40000){
+				tMachine.setStatus(2);
+			}
 			if(count>0){
-				tMachine.setProductState("有货");
-			}else{
 				tMachine.setProductState("缺货");
+			}else{
+				tMachine.setProductState("有货");
 			}
 		}
 		//全部
@@ -962,6 +985,145 @@ public class IntelligentBoxServiceImpl implements IntelligentBoxService{
         	 return new JsonResult(true,"更新成功",null) ;
          }
 		return new JsonResult(false,"更新失败",null) ;
+	}
+	
+	/**
+	 * 修改房间号
+	 */
+	@Override
+	public JsonResult updateMachine(TMachine tMachine) {
+		intelligentBoxMapper.updateMachineId(tMachine);
+		return new JsonResult(true,"修改成功",null);
+	}
+	/**
+	 * 查询缺货情况
+	 * 只能查询最近的3个
+	 */
+	@Override
+	public JsonResult getProductStatus(Long corpId) {
+		List<TAppProduct> tAppProduct = tAppProductMapper.selectProductStatus(corpId) ;
+		return new JsonResult(true,"获取成功！",tAppProduct);
+	}
+	/**
+	 * 导出订单数据
+	 */
+	@Override
+	public  List<ExcleVo>  excleOrder(Long userId, Integer status, String productName, Long startTime, Long endTime, Long corpId) {
+		Map<String, Object> map = new HashMap<String, Object>() ;
+		map.put("userId", userId) ;
+		map.put("status", status) ;
+		map.put("productName", productName);
+		map.put("startTime", startTime) ;
+		map.put("endTime", endTime) ;
+		map.put("corpId", corpId) ;
+		List<ExcleVo> excleVos = intelligentBoxMapper.getExcleVo(map);
+		return excleVos ;
+		
+	}
+	@Override
+	public Workbook exportExcle(List<ExcleVo> excleVos) {
+		 // 创建xls文件
+        Workbook workBook = new SXSSFWorkbook();
+        // 创建工作簿
+        Sheet sheet = workBook.createSheet("订单数据");
+        //设置格式
+        CellStyle styleleft = workBook.createCellStyle();styleleft.setWrapText(true);
+		styleleft.setAlignment(HSSFCellStyle.ALIGN_LEFT); // 创建一个居左格式
+		
+		CellStyle style = workBook.createCellStyle();
+		style.setWrapText(true);
+		style.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
+		style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);//上下居中
+		Font dfont = workBook.createFont();
+		dfont.setFontHeightInPoints((short) 12);//设置字体大小
+		
+		style.setFont(dfont);
+		
+		CellStyle etitle = workBook.createCellStyle();etitle.setWrapText(true);
+		etitle.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个标题格式
+		Font font = workBook.createFont();
+		font.setFontHeightInPoints(Constants.detail_size);//设置字体大小
+		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);;//粗体显示
+		etitle.setFont(font);
+
+		CellStyle ptt = workBook.createCellStyle();ptt.setWrapText(true);
+		ptt.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个标题格式
+		Font pfont = workBook.createFont();
+		pfont.setFontHeightInPoints(Constants.detail_size);//设置字体大小
+		pfont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//粗体显示
+		ptt.setFont(pfont);
+        // 设置列宽
+        sheet.setColumnWidth(0, 50 * 100);
+        sheet.setColumnWidth(1, 50 * 100);
+        sheet.setColumnWidth(2, 50 * 100);
+        sheet.setColumnWidth(3, 50 * 100);
+        sheet.setColumnWidth(4, 50 * 100);
+      //总表
+      		int l=-1;
+      		int i=-1;
+      		Row row = sheet.createRow(++l);
+      		row.setHeight(Constants.title_height);
+      		Cell cell = row.createCell(++i);
+      		cell.setCellValue("订单数据统计");
+      		cell.setCellStyle(etitle);
+      		sheet.addMergedRegion(new CellRangeAddress(0,0,0,4));
+      		i=-1;
+      			row = sheet.createRow(++l);
+      			cell = row.createCell(++i);
+      			cell.setCellValue("序号");
+      			cell.setCellStyle(style);
+      			
+      			cell = row.createCell(++i);	
+      			cell.setCellValue("酒店名称");
+      			cell.setCellStyle(style);
+      			
+      			cell = row.createCell(++i);	
+      			cell.setCellValue("数量");
+      			cell.setCellStyle(style);
+      			
+      			cell = row.createCell(++i);		
+      			cell.setCellValue("金额");
+      			cell.setCellStyle(style);
+      			
+      			cell = row.createCell(++i);		
+      			cell.setCellValue("类型");
+      			cell.setCellStyle(style);
+      			cell.setCellStyle(style);
+      			for (int z = 0 ; z<excleVos.size();z++) {
+      				i=-1;
+      				ExcleVo excleVo = excleVos.get(z) ;
+      					row = sheet.createRow(++l);
+      					cell = row.createCell(++i);
+      					cell.setCellValue(z+1);
+      					cell.setCellStyle(style);
+      		       		
+      					cell = row.createCell(++i);
+      					cell.setCellValue(excleVo.getCompanyName());
+      					cell.setCellStyle(style);
+      		       		
+      					cell = row.createCell(++i);
+      					cell.setCellValue(excleVo.getNumber());
+      					cell.setCellStyle(style);
+      					
+      					cell = row.createCell(++i);
+      					cell.setCellValue(excleVo.getSalePrice());
+      					cell.setCellStyle(style);
+      		       		
+      					cell = row.createCell(++i);
+      					cell.setCellValue(excleVo.getStatus()==0?"销售额(付款-退款)":"退款");
+      					cell.setCellStyle(style);      					
+      		       			    		
+      			}
+      			//列数
+      			i=-1;
+      			row = sheet.createRow(++l);
+      		    sheet.setColumnWidth(++i, 3500);
+      		    sheet.setColumnWidth(++i, 3500);
+      		    sheet.setColumnWidth(++i, 3500);
+      		    sheet.setColumnWidth(++i, 3500);
+      		    sheet.setColumnWidth(++i, 3500);     		
+      		 return workBook ;
+
 	}
 
 	

@@ -73,6 +73,7 @@
 <shiro:hasPermission name="admin">                                  
                                 <a href="javascript:void(0);" data-do="delete">解绑</a>
   </shiro:hasPermission>   
+                                  <a href="javascript:void(0);" data-do="edit">编辑</a>
                                 <a href="javascript:void(0);" data-do="detail">查看产品详情</a>
                             </td>
                             </script>
@@ -86,24 +87,25 @@
 </div>
 <script>seajs.use('page/system/machine', function(page){ page.run(); });
 </script>
-<script type="text/template" id="tmpl-noticeCreateModal">
+<script type="text/template" id="tmpl-machineEditModal">
 <div class="modal-dialog" style="min-width:400px;width:50%">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">添加设备</h4>
+            <h4 class="modal-title">修改房间号</h4>
         </div>
            <div class="modal-body">
             <form method="post" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-md-5 col-sm-6">
                         <div class="form-group">
-                        <label for="inputbuind">公司名称</label><br/>
-                            <select id="companySelect" name="corpId" style="background-color:transparent;border:0;"></select>
+                        <label for="inputMachineId">设备号</label><br/>
+                             <input type="hidden" readonly="readonly" class="form-control" id="inputId" name="id" value="{{model.id}}" placeholder="房间号">
+                            <input type="text" readonly="readonly" class="form-control" id="inputMachineId" name="machineId" value="{{model.machineId}}" placeholder="房间号">
                         </div>
                         <div class="form-group">
-                            <label for="inputbuind">系统版本号</label>
-                            <input type="text" class="form-control" id="inputbuind" name="buind" placeholder="系统版本号">
+                            <label for="inputRoomCode">房间号</label>
+                            <input type="text" class="form-control" id="inputRoomCode" name="roomCode" value="{{model.roomCode}}" placeholder="房间号">
                         </div>
             </form>
         </div>

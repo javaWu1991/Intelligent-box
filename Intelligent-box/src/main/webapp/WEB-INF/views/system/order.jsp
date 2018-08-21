@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="${contextPath}/assets/src/css/phoneSimulate.css">
 <link href="${contextPath}/assets/dep/umeditor/themes/default/css/umeditor.min.css" type="text/css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" media="all" href="${contextPath}/assets/dep/bootstrap-daterangepicker/2.1.14/daterangepicker.css"/>
+<script type="text/javascript" src="${contextPath}/assets/dep/laydate/laydate.js"></script>
 <style>.org{border:1px solid #cccccc;}.dept-tree{overflow:auto;height:300px;} .form-control:focus{box-shadow: none;}</style>
 </head>
 <body>
@@ -27,7 +28,7 @@
                 <div class="panel-body">
                     <form id="search" class="form-filter form-inline">
                         <div class="form-group">
-                            订单状态：<select class="form-control" name="status">
+                            订单状态：<select class="form-control" id ="status" name="status">
                                 <option value="">全部</option>
                                 <option value="0">支付成功</option>
                                 <option value="1">支付失败</option>
@@ -35,11 +36,18 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <input type="text" class="form-control" name="productName" placeholder="产品名称">
+                            <input type="text" class="form-control" id="productName" name="productName" placeholder="产品名称">
+                        </div>
+                          <div class="form-group">
+                            <input type="text" class="form-control" name="startTime" id="startTime" placeholder="开始时间">
+                                                                                                                    至
+                            <input type="text" class="form-control" name="endTime" id="endTime" placeholder="结束时间">
                         </div>
                         <button type="submit" class="btn btn-default">搜索</button>
                         <button type="reset" class="btn btn-default" data-do="reset">重置搜索条件</button>
+                         <button type="button" class="btn btn-default" data-do="export:order">导出</button>
                     </form>
+
                     <hr />
                     <table id="sole-table" class="datatable table table-bordered table-hover">
                         <thead>
@@ -51,6 +59,7 @@
                                  <th>订单号</th>
                                 <th>设备编号</th>  
                                 <th>货柜编号</th>  
+                                <th>房间号</th> 
                                 <th>支付时间</th>                                                                   
                                 <th>操作</th>
                             </tr>
@@ -64,6 +73,7 @@
                             <td width="100">{{model.orderCode}}</td>
                             <td width="60">{{model.machineId}}</td>
                             <td width="60">{{model.containerNumber}}</td>
+                            <td width="60">{{model.roomCode}}</td>
                             <td width="80">{{model.createTimeText}}</td>                                   
                             <td class="col-actions" width="60">
                             <# if(model.status == 0)#>
@@ -82,5 +92,20 @@
     </div><!-- end page content -->
 </div>
 <script>seajs.use('page/system/order', function(page){ page.run(); });</script>
+<script type="text/javascript">
+lay('#version').html('-v'+ laydate.v);
+//自定义颜色
+laydate.render({
+  elem: '#startTime'
+  ,theme: '#393D49'
+});
+//自定义颜色
+laydate.render({
+  elem: '#endTime'
+  ,theme: '#393D49'
+});
+
+
+</script>
 </body>
 </html>

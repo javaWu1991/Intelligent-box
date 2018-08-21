@@ -32,7 +32,6 @@
                                 <option value="0">缺货</option>
                                 <option value="1">有货</option>
                                 <option value="2">热销</option>
-                                 <option value="3">下架</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -83,7 +82,7 @@
                                 <shiro:hasPermission name="admin">
                                 <a href="javascript:void(0);" data-do="edit">编辑</a>
                                </shiro:hasPermission>  
-                                <# if(model.status == 3) { #>
+                                <# if(model.status == 0) { #>
                                 <a href="javascript:void(0);" data-do="stick">上架</a>
                                 <# } else { #>
                                 <a href="javascript:void(0);" data-do="stick">下架</a>
@@ -116,6 +115,7 @@ function getUrlParam(name) {
 	return null; //返回参数值
 }
 var machineId = getUrlParam("machineId");
+var status = getUrlParam("status");
 function sum(){
 	
 	 var a = $('#inputOriginalPrice').val(); 

@@ -1,7 +1,15 @@
 package cmcc.mobile.yiqi.web.controller;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import cmcc.mobile.yiqi.base.BaseController;
 import cmcc.mobile.yiqi.entity.TAppProduct;
+import cmcc.mobile.yiqi.entity.TMachine;
 import cmcc.mobile.yiqi.utils.JsonResult;
+import cmcc.mobile.yiqi.vo.ExcleVo;
 import cmcc.mobile.yiqi.vo.PageVo;
 import cmcc.mobile.yiqi.web.service.IntelligentBoxService;
 
@@ -89,8 +99,14 @@ public class IntellIgentBoxController extends BaseController{
 	@RequestMapping("/updateProduct")
 	public JsonResult updateProduct(TAppProduct tAppProduct,HttpServletRequest request){
 		HttpSession session = request.getSession() ;
-		Long userId = Long.valueOf(session.getAttribute("userId").toString() );
-		Long corpId = Long.valueOf(session.getAttribute("companyId").toString() );
+		Long userId = 1l ;
+		if(session.getAttribute("userId")!=null){
+		userId = Long.valueOf(session.getAttribute("userId").toString() );
+		}
+		Long corpId =0l ;
+		if(session.getAttribute("companyId")!=null){
+			corpId = Long.valueOf(session.getAttribute("companyId").toString() );
+		}		
 		return intelligentBoxService.updateProduct(tAppProduct,userId,corpId) ;
 	}
 	/**
@@ -289,6 +305,19 @@ public class IntellIgentBoxController extends BaseController{
 	public JsonResult deleteBinding(String machineId,HttpServletRequest request){
 		return intelligentBoxService.deleteBinding(machineId) ;
 	}
+	
+	/**
+	 * 获取该公司下所有的缺货情况
+	 */
+	@RequestMapping("/getProductStatus")
+	@ResponseBody
+	public JsonResult getProductStatus(HttpServletRequest request){
+		Long corpId = null ;
+		if(request.getParameter("companyId")!=null){
+			corpId = Long.valueOf(request.getParameter("companyId")) ;
+		}
+		return intelligentBoxService.getProductStatus(corpId) ;
+	}
 	/**
 	 * 升级包路由
 	 */
@@ -343,6 +372,62 @@ public class IntellIgentBoxController extends BaseController{
 	@RequestMapping("/upload")
 	public JsonResult upload(MultipartFile file){
 		return intelligentBoxService.uploadImages(file,"image") ;
+	}
+	
+	/**
+	 * 更改设备房间号
+	 */
+	@ResponseBody
+	@RequestMapping("/updateMachine")
+	public JsonResult updateMachine(TMachine tMachine){
+		return intelligentBoxService.updateMachine(tMachine) ;
+	}
+	
+	/**
+	 * 订单统计导出
+	 */
+	@ResponseBody
+	@RequestMapping("/excleOrder")
+	public JsonResult excleOrder(HttpServletRequest request,Integer status,String productName,Long startTime,Long endTime,Long corpId,HttpServletResponse response){
+		HttpSession session = request.getSession() ;
+		Workbook workBook = new SXSSFWorkbook();
+		 List<ExcleVo> excleVos = new ArrayList<ExcleVo>() ;
+		if(session.getAttribute("userId")!=null){
+			Long userId = Long.valueOf(session.getAttribute("userId").toString()) ;
+			excleVos = intelligentBoxService.excleOrder(userId,status,productName,startTime,endTime,corpId);
+		}
+		workBook = intelligentBoxService.exportExcle(excleVos);
+		//根据活动查询活动名称
+	    String corpFilename ="小爱君订单统计"+System.currentTimeMillis()+".xls";
+	    try{
+	    	 response.setContentType("application/vnd.ms-excel");
+	         response.setCharacterEncoding("UTF-8");
+	         String agent = request.getHeader("User-Agent");
+	         if (null != agent) {
+	             agent = agent.toLowerCase();
+	             if (agent.indexOf("firefox") != -1) {
+	                 response.setHeader("content-disposition",
+	                     String.format("attachment;filename*=utf-8'zh_cn'%s", URLEncoder.encode(corpFilename, "utf-8")));
+	             } else if (agent.indexOf("msie") != -1) {
+	                 response.setHeader("content-disposition",
+	                     "attachment;filename=" + URLEncoder.encode(corpFilename, "utf-8"));
+	             } else if (agent.indexOf("macintosh") != -1) {
+	                 response.setHeader("content-disposition",
+	                     "attachment;filename*=utf-8''" + URLEncoder.encode(corpFilename, "utf-8"));
+	             } else {
+	                 response.setHeader("content-disposition",
+	                     "attachment;filename=" + URLEncoder.encode(corpFilename, "utf-8"));
+	             } 
+	         }
+	        OutputStream ouputStream = response.getOutputStream();     
+	        workBook.write(ouputStream);     
+	        ouputStream.flush();     
+	        ouputStream.close();   
+	        response.flushBuffer();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return new JsonResult(true,"导出成功！",null);
 	}
 	
 }
