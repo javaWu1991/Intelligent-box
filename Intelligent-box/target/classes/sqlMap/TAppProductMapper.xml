@@ -18,6 +18,7 @@
      <result column="product_detail" jdbcType="VARCHAR" property="productDetail" />
       <result column="remark" jdbcType="VARCHAR" property="remark" />
        <result column="type" jdbcType="INTEGER" property="type" />
+       <result column="roomCode" jdbcType="VARCHAR" property="roomCode" />
   </resultMap>
   <sql id="Base_Column_List">
     id, product_name, product_img, status, create_time, 
@@ -209,20 +210,21 @@ original_price, favorable_price, corp_id,
   </select>
   
     <select id="selectByCorp" parameterType="map" resultMap="BaseResultMap">
-  select * from t_app_product where status !=4
+  select t.*,m.room_code as roomCode from t_app_product t left join t_machine m on t.machine_id = m.machine_id where t.status !=4
     <if test="corpId !=null">
-  and corp_id = #{corpId}
+  and t.corp_id = #{corpId}
   </if>
   <if test="productName !=null">
-   and product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+   and t.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
   </if>
   <if test="status !=null">
-   and status = #{status} 
+   and t.status = #{status} 
   </if>
     <if test="machineId !=null">
-   and machine_id = #{machineId} 
+   and t.machine_id = #{machineId} 
   </if>
-   order by create_time desc
+  group by t.id
+   order by t.create_time desc
   <if test="startRow !=null and endRow !=null ">
             limit
             #{startRow,jdbcType=INTEGER},#{endRow,jdbcType=INTEGER}
@@ -230,21 +232,24 @@ original_price, favorable_price, corp_id,
  
   </select>
   
-  <select id="selectByCorpCount" parameterType="map" resultType="int">
-  select count(*) from t_app_product where status !=4
-  <if test="corpId !=null">
-  and corp_id = #{corpId}
+  <select id="selectByCorpCount" parameterType="map" resultMap="BaseResultMap">
+select t.*,m.room_code as roomCode from t_app_product t left join t_machine m on t.machine_id = m.machine_id where t.status !=4
+    <if test="corpId !=null">
+  and t.corp_id = #{corpId}
   </if>
   <if test="productName !=null">
-   and product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+   and t.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
   </if>
   <if test="status !=null">
-   and status = #{status} 
+   and t.status = #{status} 
   </if>
- 
+    <if test="machineId !=null">
+   and t.machine_id = #{machineId} 
+  </if>
+  group by t.id
   </select>
     <select id="selectByMachine" parameterType="java.lang.String" resultMap="BaseResultMap">
-  select * from t_app_product where machine_id = #{machineId} and status =3 and container_number !=1
+  select * from t_app_product where machine_id = #{machineId} and status =0 and container_number !=1
   </select>
   <!-- 更改下架的产品为有货 -->
   <update id="updateByCode" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
@@ -253,8 +258,11 @@ original_price, favorable_price, corp_id,
       <if test="status != null">
         status = #{status,jdbcType=INTEGER},
       </if>
+          <if test="productNumber != null">
+        product_number = #{productNumber,jdbcType=INTEGER},
+      </if>
     </set>
-    where machine_id = #{machineId,jdbcType=VARCHAR} and status = 3
+    where machine_id = #{machineId,jdbcType=VARCHAR} and status = 0
   </update>
   
   <!-- 根据数量上架产品 -->
@@ -281,7 +289,7 @@ select t.* from t_app_product t left join t_order o on t.id=o.product_id where o
 </select>
 
   <select id="selectByProductStatus" parameterType="java.lang.String" resultType="java.lang.Integer">
-select count(1) from t_app_product where product_number = 0 ;
+select count(1) from t_app_product where product_number = 0 and machine_id=#{machineId} and status = 0;
 </select>
 
 <insert id="insertDefaultProduct" parameterType="cmcc.mobile.yiqi.entity.TAppProduct">
@@ -452,4 +460,16 @@ select count(1) from t_app_product where product_number = 0 ;
     </set>
     where machine_id = #{machineId}
   </update>
+  
+    <select id="selectProductStatus" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select t.*,m.room_code as roomCode
+    from t_app_product t left join t_machine m on t.machine_id = m.machine_id 
+    where  t.status = 0 
+    <if test="corpId !=null">
+       and t.corp_id = #{corpId,jdbcType=BIGINT};
+    </if>
+    group by t.id
+    order by t.update_time desc
+     limit 0,3
+  </select>
 </mapper>

@@ -27,7 +27,6 @@ import cmcc.mobile.yiqi.utils.RandomNumUtil;
 import cmcc.mobile.yiqi.utils.XMLUtil;
 import cmcc.mobile.yiqi.vo.PayVo;
 import cmcc.mobile.yiqi.vo.Product;
-import com.alipay.demo.trade.utils.ZxingUtils;
 
 import cmcc.mobile.yiqi.web.service.IWeixinPayService;
 import javassist.compiler.ast.NewExpr;
@@ -77,7 +76,7 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
 					logger.info("订单号：{}生成微信支付码成功",product.getOutTradeNo());
 					String urlCode = (String) map.get("code_url");
 					ConfigUtil.shorturl(urlCode);//转换为短链接
-					ZxingUtils.getQRCodeImge(urlCode, 256, imgPath);// 生成二维码
+					//ZxingUtils.getQRCodeImge(urlCode, 256, imgPath);// 生成二维码
 				}else{
 					String errCodeDes = (String) map.get("err_code_des");
 					logger.info("订单号：{}生成微信支付码(系统)失败:{}",product.getOutTradeNo(),errCodeDes);
@@ -116,7 +115,7 @@ public class WeixinPayServiceImpl implements IWeixinPayService {
     	qrCode.append("&sign="+sign);
     	String imgPath= Constants.QRCODE_PATH+Constants.SF_FILE_SEPARATOR+product.getProductId()+".png";
     	//生成二维码
-        ZxingUtils.getQRCodeImge(qrCode.toString(), 256, imgPath);
+        //ZxingUtils.getQRCodeImge(qrCode.toString(), 256, imgPath);
 	}
 	@SuppressWarnings("rawtypes")
 	@Override
